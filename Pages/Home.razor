@@ -1,0 +1,105 @@
+﻿@using System.Numerics
+@using Ab4d.SharpEngine
+@using Ab4d.SharpEngine.Cameras
+@using Ab4d.SharpEngine.Common
+@using Ab4d.SharpEngine.Materials
+@using Ab4d.SharpEngine.SceneNodes
+@using Ab4d.SharpEngine.Utilities
+@using Ab4d.SharpEngine.WebGL
+@inject IJSRuntime JS  
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.<br/>
+
+
+<canvas id="webGLCanvas" style="width: 70%; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        //Console.WriteLine($"Hello from dotnet!");
+
+        Log.LogLevel = LogLevels.All;
+        Log.WriteSimplifiedLogMessage = true;
+        Log.IsLoggingToConsole = true; // This will write to Browser's Console
+
+
+        // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
+        await CanvasInterop.InitializeInterop();
+
+        if (!CanvasInterop.IsInteropInitialized)
+            return; // Cannot load sharp-engine.js or initialize the interop (see Browser's Console for more info)
+
+
+        // After global browser interop was initialized, 
+        // create the CanvasInterop that will connect Blazor app with the canvas in the browser's DOM
+        // canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
+        var canvasInterop = new CanvasInterop(canvasId: "webGLCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
+
+        // Try to connect to the canvas and get the WebGL context.
+        // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
+        // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
+        canvasInterop.InitWebGL();
+
+        if (!canvasInterop.IsWebGLInitialized)
+            return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
+
+
+        var gpuDevice = WebGLDevice.Create(canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
+
+        if (!gpuDevice.IsInitialized)
+            return; // Blazor cannot use the WebGL context
+
+        var scene = new Scene(gpuDevice, "MainScene"); // Create Scene object and also initialize it with the gpuDevice.
+        var sceneView = new SceneView(scene, "MainSceneView"); // SceneView will be automatically initialized and its initial size will be set.
+
+
+        // You can also create the Scene and SceneView objects (and also add SceneNodes to the RootNode)
+        // before initializing the WebGL device:
+        //
+        // var scene = new Scene("MainScene");
+        // var sceneView = new SceneView(scene, "MainSceneView");
+
+        // Later (even after adding some SceneNodes to the Scene), you can initialize the Scene and SceneView,
+        // by one of the following options:
+
+        // 1:
+        //sceneView.Initialize(canvasInterop); // This will also call WebGLDevice.Create and will also initialize the Scene
+
+        // 2:
+        // var gpuDevice = WebGLDevice.Create(canvasInterop);
+        // scene.Initialize(gpuDevice); // This will also initialize the SceneView and set its initial size
+
+        // 3:
+        // var gpuDevice = WebGLDevice.Create(canvasInterop);
+        // sceneView.Initialize(gpuDevice); // This will also initialize the Scene
+
+
+        sceneView.BackgroundColor = Colors.SkyBlue;
+
+        sceneView.Camera = new TargetPositionCamera()
+            {
+                Heading = 30,
+                Attitude= -20,
+                Distance = 300
+            };
+
+        var boxNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
+        scene.RootNode.Add(boxNode);
+        
+        var pointerCameraController = new PointerCameraController(sceneView)
+        {
+            RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
+            MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
+            ZoomMode = CameraZoomMode.PointerPosition,
+            RotateAroundPointerPosition = true,
+            IsPinchZoomEnabled = true, // zoom with touch pinch gesture
+            IsPinchMoveEnabled = true  // move camera with two fingers
+        };
+    }
+}
