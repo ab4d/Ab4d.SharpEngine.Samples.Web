@@ -59,11 +59,11 @@ To use the Ab4d.SharpEngine.Samples.Web library **in your own project**, follow 
       ```
     - Define the canvas element in your razor file. For example, add the following to Home.razor:
       `<canvas id="webGLCanvas" style="width: 70%; height: 500px"></canvas>`
-      > [!NOTE]
-      > The id of the canvas will be used in the code to connect to the canvas element.
+> [!NOTE]
+> The id of the canvas will be used in the code to connect to the canvas element.
     
-      > [!NOTE]
-      > Set size of the canvas by setting width and height in the style and not by setting width and height properties. Setting width and height properties would set the size of the back-buffers and is not recommended for web.
+> [!NOTE]
+> Set the size of the canvas by setting width and height in the style and not by setting width and height properties. Setting width and height properties would set the size of the back-buffers and is not recommended for web.
     - Override the OnInitializedAsync method and in the method's body call the static `CanvasInterop.InitializeInterop` method. 
     - If the `CanvasInterop.IsInteropInitialized` value is true, then you can create an instance of CanvasInterop (pass the canvas id to the constructor) and then create the WebGLDevice, Scene and SceneView objects. For example:
       ```
