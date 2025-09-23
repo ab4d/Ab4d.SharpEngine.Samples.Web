@@ -46,36 +46,17 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         dotnet.Module["canvas"] = canvas; // This is requried to be able to create WebGL context (call EGL.CreateContext)
 
         var dpi = window.devicePixelRatio || 1.0;
-        var displayWidth, displayHeight;
 
-        // When user did not manually set the size of the WebGL back buffers (by setting width and height properties of canvas),
-        // then we need to set the size of the back buffers to match the displayed size of the canvas. This is done by ResizeObserver.
-        // NOTE that the default width and height of canvas is 300 x 150 pixels.
-        if (canvas.width == 300 && canvas.height == 150)
-        {
-            var rect = canvas.getBoundingClientRect(); // This will get the size in float values without rounding (as with clientWidth/clientHeight)
-            displayWidth  = Math.round(rect.width * dpi);
-            displayHeight = Math.round(rect.height * dpi);
+        var rect = canvas.getBoundingClientRect(); // This will get the size in float values without rounding (as with clientWidth/clientHeight)
+        var displayWidth  = Math.round(rect.width * dpi);
+        var displayHeight = Math.round(rect.height * dpi);
 
-            // Set initial size of the back buffers by setting the width and height properties of canvas
-            canvas.width  = displayWidth;
-            canvas.height = displayHeight;
+        // Start observing the canvas size changes
+        // ResizeObserver is more accurate than other methods - see https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+        if (!resizeObserver)
+            resizeObserver = new ResizeObserver(onResize);
 
-            // Start observing the canvas size changes
-            // ResizeObserver is more accurate than other methods - see https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
-            if (!resizeObserver)
-                resizeObserver = new ResizeObserver(onResize);
-
-            resizeObserver.observe(canvas); // use default: { box: 'content-box' });
-        }
-        else
-        {
-            // If we subscribe to ResizeObserver when user has set the size of the back buffers,
-            // then this will recursively call resizeCanvasToDisplaySize increasing the size each time until max size is reached and the browser throws an error.
-            displayWidth  = canvas.width;
-            displayHeight = canvas.height;
-            dpi = 1; // When back buffer size is manually set, we must not apply any dpi scale (this would break hit-testing)
-        }
+        resizeObserver.observe(canvas); // use default: { box: 'content-box' });
 
         // We use a Map to store the current display size of the canvas.
         if (!canvasToDisplaySizeMap)
