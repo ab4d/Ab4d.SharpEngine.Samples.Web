@@ -105,14 +105,14 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
 // But if SetWebGLCanvas is async then it returns no result to .Net and we get an error that "resut is not a string".
 // Therefore we require two methods: SetWebGLCanvas and SubscribeBrowserEvents
 export function subscribeBrowserEvents(canvasId, subscribeMouseEvents, subscribeRequestAnimationFrame) {
-    log("js: subscribeBrowserEvents canvasId:", canvasId);
+    log("js: subscribeBrowserEvents canvasId:" + canvasId);
 
     let canvas = getCanvas(canvasId);
     subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame);
 }
 
 export function unsubscribeBrowserEvents(canvasId, unsubscribeMouseEvents, unsubscribeRequestAnimationFrame) {
-    log("js: unsubscribeBrowserEvents canvasId:", canvasId);
+    log("js: unsubscribeBrowserEvents canvasId:" + canvasId);
 
     if (!interop)
         return;
@@ -200,21 +200,22 @@ export function releasePointerCapture(canvasId, pointerId) {
 export function disconnectWebGLCanvas(canvasId) {
     log("js: disconnectWebGLCanvas canvasId:" + canvasId);
 
-    if (!resizeObserver) {
-        resizeObserver.observe(canvas);
-        resizeObserver = null;
-    }
-
     unsubscribeBrowserEvents(canvasId, true, true);
 
     const canvas = getCanvas(canvasId);
 
     if (canvas) {
+        if (initialCanvas === canvas)
+            initialCanvas = null;
+
+        if (!resizeObserver)
+            resizeObserver.unobserve(canvas);
+
+        canvasToDisplaySizeMap.delete(canvas)
+
         const dotnet = globalThis.getDotnetRuntime(0);
         if (dotnet && dotnet.Module["canvas"] === canvas)
             dotnet.Module["canvas"] = null;
-
-        canvasToDisplaySizeMap.delete(canvas)
     }
 }
 
@@ -232,6 +233,10 @@ function onFrameUpdate()
 // From https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
 function onResize(entries) {
     for (const entry of entries) {
+        const canvas = entry.target;
+        if (!canvasToDisplaySizeMap.has(canvas)) // if canvas is not in the canvasToDisplaySizeMap, then it may be already diconnected
+            continue;
+
         let width;
         let height;
         let dpr = window.devicePixelRatio;
@@ -257,11 +262,11 @@ function onResize(entries) {
             height = entry.contentRect.height;
         }
 
-        const canvas = entry.target;
+        
         const displayWidth = Math.round(width * dpr);
         const displayHeight = Math.round(height * dpr);
 
-        const [oldWidth, oldHeight] = canvasToDisplaySizeMap.get(canvas) || [0, 0];
+        const [oldWidth, oldHeight] = canvasToDisplaySizeMap.get(canvas);
 
         if (displayWidth !== oldWidth || displayHeight !== oldHeight) {
             canvasToDisplaySizeMap.set(canvas, [displayWidth, displayHeight]);

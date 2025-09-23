@@ -7,6 +7,7 @@
 @using Ab4d.SharpEngine.Utilities
 @using Ab4d.SharpEngine.WebGL
 @inject IJSRuntime JS  
+@implements IDisposable
 @page "/"
 
 <PageTitle>Home</PageTitle>
@@ -20,43 +21,43 @@ Welcome to your new app.<br/>
 
 @code
 {
+    private CanvasInterop? _canvasInterop;
+
     protected override async Task OnInitializedAsync()
     {
-        //Console.WriteLine($"Hello from dotnet!");
-
-        Log.LogLevel = LogLevels.All;
-        Log.WriteSimplifiedLogMessage = true;
-        Log.IsLoggingToConsole = true; // This will write to Browser's Console
-
-
         // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
+        // Because Blazor uses Single Page Applications style, this needs to be executed only once
         await CanvasInterop.InitializeInterop();
+    }
 
+    /// <inheritdoc />
+    protected override void OnAfterRender(bool firstRender)
+    {
         if (!CanvasInterop.IsInteropInitialized)
-            return; // Cannot load sharp-engine.js or initialize the interop (see Browser's Console for more info)
+            return;
 
 
-        // After global browser interop was initialized, 
-        // create the CanvasInterop that will connect Blazor app with the canvas in the browser's DOM
-        // canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
-        var canvasInterop = new CanvasInterop(canvasId: "webGLCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
+        // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
+        // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
+        // NOTE: canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
+        _canvasInterop = new CanvasInterop(canvasId: "webGLCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
 
         // Try to connect to the canvas and get the WebGL context.
         // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
         // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        canvasInterop.InitWebGL();
+        _canvasInterop.InitWebGL();
 
-        if (!canvasInterop.IsWebGLInitialized)
+        if (!_canvasInterop.IsWebGLInitialized)
             return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
 
 
-        var gpuDevice = WebGLDevice.Create(canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
+        var gpuDevice = WebGLDevice.Create(_canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
 
         if (!gpuDevice.IsInitialized)
             return; // Blazor cannot use the WebGL context
 
-        var scene = new Scene(gpuDevice, "MainScene"); // Create Scene object and also initialize it with the gpuDevice.
-        var sceneView = new SceneView(scene, "MainSceneView"); // SceneView will be automatically initialized and its initial size will be set.
+        var scene = new Scene(gpuDevice, "MainScene");         // Create Scene object and also initialize it with the gpuDevice.
+        var sceneView = new SceneView(scene, "MainSceneView");
 
 
         // You can also create the Scene and SceneView objects (and also add SceneNodes to the RootNode)
@@ -80,18 +81,23 @@ Welcome to your new app.<br/>
         // sceneView.Initialize(gpuDevice); // This will also initialize the Scene
 
 
-        sceneView.BackgroundColor = Colors.SkyBlue;
-
-        sceneView.Camera = new TargetPositionCamera()
-            {
-                Heading = 30,
-                Attitude= -20,
-                Distance = 300
-            };
+        //
+        // Now we can create our 3D scene
+        //
 
         var boxNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
         scene.RootNode.Add(boxNode);
-        
+
+
+        sceneView.BackgroundColor = Colors.SkyBlue;
+
+        sceneView.Camera = new TargetPositionCamera()
+        {
+            Heading = 30,
+            Attitude = -20,
+            Distance = 300
+        };
+
         var pointerCameraController = new PointerCameraController(sceneView)
         {
             RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
@@ -101,5 +107,17 @@ Welcome to your new app.<br/>
             IsPinchZoomEnabled = true, // zoom with touch pinch gesture
             IsPinchMoveEnabled = true  // move camera with two fingers
         };
+    }
+
+    public void Dispose()
+    {
+        if (_canvasInterop != null)
+        {
+            _canvasInterop.Dispose(); // This will also dispose SceneView, Scene and WebGLDevice
+            _canvasInterop = null;
+        }
+
+        Console.WriteLine("Home.razor DISPOSED");
+        // Called when the component is removed from the UI
     }
 }

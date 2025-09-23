@@ -82,6 +82,8 @@ internal partial class CanvasInterop : ICanvasInterop
     public event EventHandler? BrowserAnimationFrameUpdated;
     public event CanvasResizedEventHandler? CanvasResized;
 
+    public event EventHandler? Disposing;
+
     private bool _isSpectorScriptLoaded;
     private bool _isSpectorCaptureStarted;
     private bool _subscribePointerEventsOnInitialize;
@@ -97,7 +99,7 @@ internal partial class CanvasInterop : ICanvasInterop
     {
         if (_isInitializeCalled)
             return;
-        
+
         _isInitializeCalled = true;
 
         if (!OperatingSystem.IsBrowser())
@@ -124,7 +126,7 @@ internal partial class CanvasInterop : ICanvasInterop
         
         try
         {
-            await InitInterop(); // Set interop field so javascript can call exported functions from this class (with JSExport attribute)
+            await InitInterop(); // Set interop field so javascript can call functions that are exported from CanvasInterop class (using JSExport attribute)
             
             IsInteropInitialized = true;
         }
@@ -292,11 +294,13 @@ internal partial class CanvasInterop : ICanvasInterop
     }
     
     public void Dispose()
-    {
+    { 
+        Disposing?.Invoke(this, EventArgs.Empty);
+
         DisconnectWebGLCanvasJs(CanvasId);
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
-        
+
         if (_initialInterop == this)
         {
             _initialInterop = null;
