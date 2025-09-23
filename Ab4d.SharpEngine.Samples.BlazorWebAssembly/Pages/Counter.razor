@@ -1,4 +1,10 @@
 ﻿@page "/counter"
+@using System.Numerics
+@using Ab4d.SharpEngine.Cameras
+@using Ab4d.SharpEngine.Common
+@using Ab4d.SharpEngine.Materials
+@using Ab4d.SharpEngine.SceneNodes
+@using Ab4d.SharpEngine.WebGL
 
 <PageTitle>Counter</PageTitle>
 
@@ -8,11 +14,63 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+<br/>
+
+<SharpEngineSceneView @ref="_sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
+
 @code {
     private int currentCount = 0;
+
+    private SharpEngineSceneView _sharpEngineSceneView = null!;
+    private BoxModelNode? _boxModelNode;
 
     private void IncrementCount()
     {
         currentCount++;
+
+        if (_boxModelNode != null)
+            _boxModelNode.Material = StandardMaterials.Red;
+    }
+
+    /// <inheritdoc />
+    protected override void OnAfterRender(bool firstRender)
+    {
+        CreateScene3D();
+    }
+
+    private void CreateScene3D()
+    {
+        // We can start using Scene and SceneView even before the WebGLDevice is initialized.
+        // If we want to wait until the gpu device is initialized, then we can use the following code:
+        //if (sharpEngineSceneView.IsInitialized)
+        //    CreateScene3D();
+        //else
+        //    sharpEngineSceneView.SceneViewInitialized += (sender, args) => CreateScene3D();
+        var scene = _sharpEngineSceneView.Scene;
+        var sceneView = _sharpEngineSceneView.SceneView;
+
+
+        _boxModelNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
+        scene.RootNode.Add(_boxModelNode);
+
+
+        sceneView.BackgroundColor = Colors.SkyBlue;
+
+        sceneView.Camera = new TargetPositionCamera()
+        {
+            Heading = 30,
+            Attitude = -20,
+            Distance = 300
+        };
+
+        var pointerCameraController = new PointerCameraController(sceneView)
+        {
+            RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
+            MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
+            ZoomMode = CameraZoomMode.PointerPosition,
+            RotateAroundPointerPosition = true,
+            IsPinchZoomEnabled = true, // zoom with touch pinch gesture
+            IsPinchMoveEnabled = true  // move camera with two fingers
+        };
     }
 }

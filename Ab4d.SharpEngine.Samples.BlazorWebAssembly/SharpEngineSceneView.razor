@@ -1,0 +1,101 @@
+﻿@using System.Numerics
+@using Ab4d.SharpEngine
+@using Ab4d.SharpEngine.Cameras
+@using Ab4d.SharpEngine.Common
+@using Ab4d.SharpEngine.Materials
+@using Ab4d.SharpEngine.SceneNodes
+@using Ab4d.SharpEngine.Utilities
+@using Ab4d.SharpEngine.WebGL
+@inject IJSRuntime JS
+@implements IDisposable
+
+<!-- Define the initial width and height in style. If this is not done, then under some cases, the onResize in sharp-engine.js can start increasing the size in an infinite loop -->
+<canvas id="sharpEngineCanvas" style="width: 300px; height: 150px" @attributes="AdditionalAttributes"></canvas>
+
+@code {
+    // [Parameter]
+    // public string? Style { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private CanvasInterop? _canvasInterop;
+
+    public Scene Scene { get; } = new Scene();
+
+    // When everything is defined in razor file, we do not have a constructor,
+    // so we cannot initialize SceneView (pass Scene instance to its SceneView constructor).
+    // This could be done by using a code-behind where we have a constructor, 
+    // but then the user would need to copy an additional file.
+    private SceneView? _sceneView;
+    public SceneView SceneView
+    {
+        get
+        {
+            _sceneView ??= new SceneView(Scene);
+            return _sceneView;
+        }
+    }
+
+    public WebGLDevice? GpuDevice { get; private set; }
+
+    public bool IsInitialized => GpuDevice != null;
+
+    public event EventHandler? SceneViewInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
+        // Because Blazor uses Single Page Applications style, this needs to be executed only once
+        await CanvasInterop.InitializeInterop();
+    }
+
+    /// <inheritdoc />
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!CanvasInterop.IsInteropInitialized)
+            return;
+
+
+        // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
+        // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
+        // NOTE: canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
+        _canvasInterop = new CanvasInterop(canvasId: "sharpEngineCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
+
+        // Try to connect to the canvas and get the WebGL context.
+        // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
+        // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
+        _canvasInterop.InitWebGL();
+
+        if (!_canvasInterop.IsWebGLInitialized)
+            return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
+
+
+        GpuDevice = WebGLDevice.Create(_canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
+
+        if (!GpuDevice.IsInitialized)
+            return; // Blazor cannot use the WebGL context
+
+        SceneView.Initialize(GpuDevice);
+
+        SceneViewInitialized?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void Dispose()
+    {
+        if (GpuDevice != null)
+        {
+            GpuDevice.Dispose();
+            GpuDevice = null;
+        }
+
+        if (_canvasInterop != null)
+        {
+            _canvasInterop.Dispose(); // This will also dispose SceneView, Scene and WebGLDevice
+            _canvasInterop = null;
+        }
+
+        Console.WriteLine("Home.razor DISPOSED");
+        // Called when the component is removed from the UI
+    }
+}
