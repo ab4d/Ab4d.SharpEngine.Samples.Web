@@ -101,7 +101,7 @@ internal partial class CanvasInterop : ICanvasInterop
         _isInitializeCalled = true;
 
         if (!OperatingSystem.IsBrowser())
-            throw new SharpEngineException("Ab4d.SharpEngine.WebGL can be used only in Blazor WebAssembly.");
+            throw new SharpEngineException("Ab4d.SharpEngine.Web can be used only in Blazor WebAssembly.");
 
         if (IsLoggingInteropEvents)
             Console.WriteLine("Initializing CanvasInterop");
