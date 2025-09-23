@@ -198,7 +198,7 @@ export function releasePointerCapture(canvasId, pointerId) {
 }
 
 export function disconnectWebGLCanvas(canvasId) {
-    log("js: initWebGLCanvas canvasId:" + canvasId);
+    log("js: disconnectWebGLCanvas canvasId:" + canvasId);
 
     if (!resizeObserver) {
         resizeObserver.observe(canvas);
@@ -210,7 +210,8 @@ export function disconnectWebGLCanvas(canvasId) {
     const canvas = getCanvas(canvasId);
 
     if (canvas) {
-        if (dotnet.Module["canvas"] === canvas)
+        const dotnet = globalThis.getDotnetRuntime(0);
+        if (dotnet && dotnet.Module["canvas"] === canvas)
             dotnet.Module["canvas"] = null;
 
         canvasToDisplaySizeMap.delete(canvas)
@@ -260,7 +261,7 @@ function onResize(entries) {
         const displayWidth = Math.round(width * dpr);
         const displayHeight = Math.round(height * dpr);
 
-        const [oldWidth, oldHeight] = canvasToDisplaySizeMap.get(canvas);
+        const [oldWidth, oldHeight] = canvasToDisplaySizeMap.get(canvas) || [0, 0];
 
         if (displayWidth !== oldWidth || displayHeight !== oldHeight) {
             canvasToDisplaySizeMap.set(canvas, [displayWidth, displayHeight]);
