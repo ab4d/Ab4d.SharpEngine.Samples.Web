@@ -1,4 +1,4 @@
-using Ab4d.SharpEngine.Samples.Web;
+using Ab4d.SharpEngine.Samples.BlazorWebAssembly;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

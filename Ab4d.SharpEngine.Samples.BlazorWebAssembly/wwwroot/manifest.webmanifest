@@ -1,6 +1,6 @@
 {
-  "name": "Ab4d.SharpEngine.Samples.Web",
-  "short_name": "Ab4d.SharpEngine.Samples.Web",
+  "name": "Ab4d.SharpEngine.Samples.BlazorWebAssembly",
+  "short_name": "Ab4d.SharpEngine.Samples.BlazorWebAssembly",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
