@@ -9,7 +9,7 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 To check the Ab4d.SharpEngine for desktop and mobile devices see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples).
 
 > [!IMPORTANT]
-> Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production.
+> Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (it will expire on 2025-12-31).
 
 ### Quick start guide
 
