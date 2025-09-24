@@ -19,7 +19,7 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    private CanvasInterop? _canvasInterop;
+    public CanvasInterop CanvasInterop { get; } = new CanvasInterop(canvasId: "sharpEngineCanvas");
 
     public Scene Scene { get; } = new Scene();
 
@@ -59,19 +59,17 @@
 
         // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
         // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
-        // NOTE: canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
-        _canvasInterop = new CanvasInterop(canvasId: "sharpEngineCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
-
+        //
         // Try to connect to the canvas and get the WebGL context.
         // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
         // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        _canvasInterop.InitWebGL();
+        CanvasInterop.InitWebGL();
 
-        if (!_canvasInterop.IsWebGLInitialized)
+        if (!CanvasInterop.IsWebGLInitialized)
             return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
 
 
-        GpuDevice = WebGLDevice.Create(_canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
+        GpuDevice = WebGLDevice.Create(CanvasInterop); // We can also pass an EngineCreateOptions object to the Create method
 
         if (!GpuDevice.IsInitialized)
             return; // Blazor cannot use the WebGL context
@@ -83,19 +81,19 @@
 
     public void Dispose()
     {
+        if (!SceneView.IsDisposed)
+            SceneView.Dispose();
+        
+        if (!Scene.IsDisposed)
+            Scene.Dispose();
+
         if (GpuDevice != null)
         {
             GpuDevice.Dispose();
             GpuDevice = null;
         }
 
-        if (_canvasInterop != null)
-        {
-            _canvasInterop.Dispose(); // This will also dispose SceneView, Scene and WebGLDevice
-            _canvasInterop = null;
-        }
-
-        Console.WriteLine("Home.razor DISPOSED");
-        // Called when the component is removed from the UI
+        if (CanvasInterop.IsWebGLInitialized)
+            CanvasInterop.Dispose();
     }
 }
