@@ -1,14 +1,21 @@
-﻿@page "/counter"
+﻿@page "/"
 @using System.Numerics
 @using Ab4d.SharpEngine.Cameras
 @using Ab4d.SharpEngine.Common
 @using Ab4d.SharpEngine.Materials
 @using Ab4d.SharpEngine.SceneNodes
-@using Ab4d.SharpEngine.WebGL
+@using Ab4d.SharpEngine.Browser
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Quick start</PageTitle>
 
-<h1>Counter</h1>
+<h1>Ab4d.SharpEngine.Web</h1>
+
+<p>This is a simple example of how to use the Ab4d.SharpEngine.Web in a browser.<br/>
+    This sample demonstrates only a few features of the Ab4d.SharpEngine.Web.</p>
+<p>
+    To see the full demonstration of the engine, please check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples">samples for the desktop and mobile devices</a> and
+    <a href="https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm">online help</a>.<br />
+    To see which features are already available in this beta version, check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web#implementation-details-and-roadmap">Implementation details</a>.</p>
 
 <p role="status">Current count: @currentCount</p>
 
@@ -16,12 +23,12 @@
 
 <br/>
 
-<SharpEngineSceneView @ref="_sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
+<SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
 
 @code {
     private int currentCount = 0;
 
-    private SharpEngineSceneView _sharpEngineSceneView = null!;
+    private SharpEngineSceneView sharpEngineSceneView = null!;
     private BoxModelNode? _boxModelNode;
 
     private void IncrementCount()
@@ -35,19 +42,24 @@
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
-        CreateScene3D();
+        if (firstRender)
+            CreateScene3D();
+
+        // We can start using Scene and SceneView even before the WebGLDevice is initialized.
+        // If we want to wait until the gpu device is initialized, then we can use the following code:
+        //if (firstRender)
+        //{
+        //    if (sharpEngineSceneView.IsInitialized)
+        //        CreateScene3D();
+        //    else
+        //        sharpEngineSceneView.SceneViewInitialized += (sender, args) => CreateScene3D();
+        //}
     }
 
     private void CreateScene3D()
     {
-        // We can start using Scene and SceneView even before the WebGLDevice is initialized.
-        // If we want to wait until the gpu device is initialized, then we can use the following code:
-        //if (sharpEngineSceneView.IsInitialized)
-        //    CreateScene3D();
-        //else
-        //    sharpEngineSceneView.SceneViewInitialized += (sender, args) => CreateScene3D();
-        var scene = _sharpEngineSceneView.Scene;
-        var sceneView = _sharpEngineSceneView.SceneView;
+        var scene = sharpEngineSceneView.Scene;
+        var sceneView = sharpEngineSceneView.SceneView;
 
 
         _boxModelNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);

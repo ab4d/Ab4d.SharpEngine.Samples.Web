@@ -1,4 +1,5 @@
-﻿@using System.Numerics
+﻿@page "/manualInitialization"
+@using System.Numerics
 @using Ab4d.SharpEngine
 @using Ab4d.SharpEngine.Cameras
 @using Ab4d.SharpEngine.Common
@@ -6,15 +7,18 @@
 @using Ab4d.SharpEngine.SceneNodes
 @using Ab4d.SharpEngine.Utilities
 @using Ab4d.SharpEngine.WebGL
+@using Ab4d.SharpEngine.Browser
 @inject IJSRuntime JS  
 @implements IDisposable
-@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Manual Initialization</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Ab4d.SharpEngine.Web</h1>
 
-Welcome to your new app.<br/>
+<p>This sample shows how to manually initialize the Ab4d.SharpEngine.Web.</p>
+<p>Instead of using the SharpEngineSceneView component, here we create a canvas DOM element and then connect to it
+    by using CanvasInterop. After that we can create the WebGLDevice, Scene and SceneView objects.
+</p>
 
 
 <canvas id="webGLCanvas" style="width: 70%; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
@@ -117,7 +121,6 @@ Welcome to your new app.<br/>
             _canvasInterop = null;
         }
 
-        Console.WriteLine("Home.razor DISPOSED");
-        // Called when the component is removed from the UI
+        Console.WriteLine("ManualInitialization.razor DISPOSED");
     }
 }
