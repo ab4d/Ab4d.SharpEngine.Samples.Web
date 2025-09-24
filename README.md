@@ -6,7 +6,7 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 
 **Ab4d.SharpEngine is a cross-platform 3D rendering engine for desktop, mobile and browser .Net applications.**
 
-To check the Ab4d.SharpEngine for desktop and mobile devices see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples).
+To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples).
 
 > [!IMPORTANT]
 > Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (the current version will expire on 2025-12-31).
@@ -19,7 +19,7 @@ You can also start it from CLI by executing `dotnet run .` or similar command in
 
 ### Usage in your own project
 
-To use the Ab4d.SharpEngine.Web library in your own project, follow those steps:
+To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
 - Create a new "Blazor WebAssembly Standalone App" project (use .Net 9 or newer).
 - Add reference to Ab4d.SharpEngine.Web NuGet package.
 - Copy the following files from this samples project to your project:
@@ -116,24 +116,24 @@ To use the Ab4d.SharpEngine.Web library in your own project, follow those steps:
 ### Additional samples and documentation
 
 This version of the samples project only demonstrates how to initialize the SharpEngine for the Blazor app. 
-It creates a very simple 3D scene and shows how to use camera controller and do some hit testing.
+It creates a simple 3D scene and demonstrates how to use the camera controller and perform hit testing.
 
-But it does not demonstrate all the features of the engine. This will be done in the future versions of the project.
+But it does not demonstrate all the features of the engine. This will be done in future versions of the project.
 
 The Ab4d.SharpEngine.Web library is going to implement all the features of the Ab4d.SharpEngine for desktop and mobile apps.
-Because it uses the same code (linked files), using the implemented features is the same as with a desktop version.
+Because it uses the same code (linked files), using the implemented features is the same as with the desktop version.
 
-Therefore, for the full demonstration of the engine, please check the samples for the desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
+Therefore, for a full demonstration of the engine, please check the samples for desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
 online help (https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm).
 
-To see what features are already implemented see the "Implementation details" below or 
+To see what features are already implemented, see the "Implementation details" below or 
 use IntelliSense to see what classes are available. 
 
 
 
-### Implementation details and roadmap
+### Roadmap and Implementation details
 
-**beta2** version is planned for October 2025.
+**Beta 2** version is planned for October 2025.
 **v1.0** is planned to be released before the end of 2025.
 
 Namespace implementation status (compared to desktop and mobile Ab4d.SharpEngine):
@@ -173,6 +173,6 @@ You can enable additional logging by setting `CanvasInterop.IsLoggingInteropEven
 
 By default (in Ab4d.SharpEngine.Web beta version) the `Log.LogLevel` is set to `Warn`. Also, `Log.IsLoggingToConsole` is set to true to display the engine's log messages in the browser's Console.
 
-Note that I am not an expert for Blazor and therefore some things may not be created optimally. Please create a PR or add a new issue if you know for any improvements.
+Note that I am not an expert in Blazor and therefore some things may not be created optimally. Please create a PR or add a new issue if you know of any improvements.
 
 Please report the problems or improvement ideas by creating a new [Issue on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web/issues). You can also use the [Feedback form](https://www.ab4d.com/Feedback.aspx) or [Ab4d.SharpEngine Forum](https://forum.ab4d.com/forumdisplay.php?fid=12).
