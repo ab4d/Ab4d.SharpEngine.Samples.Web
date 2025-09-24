@@ -175,7 +175,51 @@ To use the Ab4d.SharpEngine.Samples.Web library **in your own project**, follow 
       };
       ```
       
+### Additional documentation
 
+This version of the samples project only demonstrates how to initialize the SharpEngine for the Blazor app. 
+It creates a very simple 3D scene and shows how to use camera controller and do some hit testing.
+
+But it does not demonstrate all the features of the engine. This will be done in the future versions of the project.
+Until then please use IntelliSense to check what classes are available and 
+then use the samples for the desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
+online help (https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm).
+
+
+### Implementation details and roadmap
+
+**beta2** version is planned for October 2025.
+**v1.0** is planned to be released before the end of 2025.
+
+Namespace implementation status (compared to desktop and mobile Ab4d.SharpEngine):
+- **Animation**: 100% implemented :heavy_check_mark:
+- **Cameras**: 100% implemented :heavy_check_mark:
+- **Effects**:
+    - StandardEffect - missing texture support (planned for beta2)
+    - ThickLineEffect - LineThickness, line patterns and line caps and hidden lines are not supported.
+    
+      WebGL does not support thick lines or geometry shader so this requires a different approach (probably CPU based mesh generation). This will be supported after v1.0. Use TubeLineModelNode and TubePathModelNode with SolidColorMaterial for thick lines (here the line thickness in not in screen space values).
+    - SolidColorEffect - planned for beta2
+    - PixelEffect - planned for v1.0 (probably only 1x1 pixels will be supported with v1.0)
+    - SpriteEffect - planned for v1.0
+    - VertexColorEffect - planned for in v1.0
+    - VolumeRenderingEffect - supported later
+- **Lights**: 100% implemented :heavy_check_mark:
+- **Materials**: see supported Effects
+- **Meshes**: all supported except SubMesh (planned for v1.0)
+- **OverlayPanels**: CameraAxisPanel planned for v1.0
+- **PostProcessing**: planned after v1.0
+- **SceneNodes**: all supported except: height map, instancing, MultiMaterialModelNode and PixelsNode. All planned for v1.0.
+- **Transformations**: 100% implemented :heavy_check_mark:
+- **Utilities**: implemented all except:
+    - BitmapTextCreator - planned for v1.0
+    - ModelMover, ModelRotator and ModelScalar - planned for v1.0
+    - ObjImporter, ObjExporter, StlImporter, StlExporter - planned for v1.0
+    - SpriteBatch - planned for v1.0
+    - TextureLoader, TextureFactory - planned for beta2
+    - VectorFontFactory, TrueTypeFontLoader - planned for v1.0
+
+ 
 ### Troubleshooting
 
 In case of problems, please check the Console in the browser's DevTools (F12). Usually, error messages are displayed there.
