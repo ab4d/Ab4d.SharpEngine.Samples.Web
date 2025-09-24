@@ -53,134 +53,67 @@ To use the Ab4d.SharpEngine.Web library in your own project, follow those steps:
       </ItemGroup>      
       ```
 - Open the razor page that will host the 3D scene (for example Home.razor) and add the following:
-    - Add using, inject and implements to the start of the razor file:
+    - Add using declarations to the start of the razor file:
       ```
       @using System.Numerics
-      @using Ab4d.SharpEngine
+      @using Ab4d.SharpEngine.Cameras
       @using Ab4d.SharpEngine.Common
-      @using Ab4d.SharpEngine.WebGL
-      @inject IJSRuntime JS      
-      @implements IDisposable
+      @using Ab4d.SharpEngine.Materials
+      @using Ab4d.SharpEngine.SceneNodes
+      @using Ab4d.SharpEngine.Browser
       ```
-    - Define the canvas element in your razor file. For example, add the following to Home.razor (before the "@code"):
+    - Add SharpEngineSceneView to your razor file. For example, add the following to Home.razor (before the "@code"):
       ```
-      <canvas id="webGLCanvas" style="width: 70%; height: 500px"></canvas>
+      <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
       ```
 
-      **NOTE:** The id of the canvas will be used in the code to connect to the canvas element.
+    - Override the OnAfterRender method and create the 3D scene there. For example:
+      ```
+      @code {
+          private SharpEngineSceneView sharpEngineSceneView = null!;
       
-      **TIP:** Set the size of the canvas by setting width and height in the style and not by setting width and height properties. Setting width and height properties would set the size of the back-buffers and is not recommended for web.
-
-
-    - Override the OnInitializedAsync and OnAfterRender methods. 
-      In the OnInitializedAsync method call the static `CanvasInterop.InitializeInterop` method. 
-      In the OnAfterRender method create an instance of the `CanvasInterop` and then create the `WebGLDevice`, `Scene` and `SceneView` objects.
-      For example:
-      ```
-      @code
-      {
-          private CanvasInterop? _canvasInterop;
-          
-          protected override async Task OnInitializedAsync()
-          {
-              // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
-              // Because Blazor uses Single Page Applications style, this needs to be executed only once
-              await CanvasInterop.InitializeInterop();
-          }
-          
           /// <inheritdoc />
           protected override void OnAfterRender(bool firstRender)
           {
-              if (!CanvasInterop.IsInteropInitialized)
-                  return;
-          
-          
-              // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
-              // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
-              // NOTE: canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
-              _canvasInterop = new CanvasInterop(canvasId: "webGLCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
-          
-              // Try to connect to the canvas and get the WebGL context.
-              // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
-              // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-              _canvasInterop.InitWebGL();
-          
-              if (!_canvasInterop.IsWebGLInitialized)
-                  return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
-          
-          
-              var gpuDevice = WebGLDevice.Create(_canvasInterop); // We can also pass an EngineCreateOptions object to the Create method
-          
-              if (!gpuDevice.IsInitialized)
-                  return; // Blazor cannot use the WebGL context
-          
-              var scene = new Scene(gpuDevice, "MainScene");         // Create Scene object and also initialize it with the gpuDevice.
-              var sceneView = new SceneView(scene, "MainSceneView");
-          
-          
-              // You can also create the Scene and SceneView objects (and also add SceneNodes to the RootNode)
-              // before initializing the WebGL device:
-              //
-              // var scene = new Scene("MainScene");
-              // var sceneView = new SceneView(scene, "MainSceneView");
-          
-              // Later (even after adding some SceneNodes to the Scene), you can initialize the Scene and SceneView,
-              // by one of the following options:
-          
-              // 1:
-              //sceneView.Initialize(canvasInterop); // This will also call WebGLDevice.Create and will also initialize the Scene
-          
-              // 2:
-              // var gpuDevice = WebGLDevice.Create(canvasInterop);
-              // scene.Initialize(gpuDevice); // This will also initialize the SceneView and set its initial size
-          
-              // 3:
-              // var gpuDevice = WebGLDevice.Create(canvasInterop);
-              // sceneView.Initialize(gpuDevice); // This will also initialize the Scene
+              if (firstRender)
+                  CreateScene3D();
           }
-      }      
-
-      ```
-    - Add Dispose method (note that we added "@implements IDisposable" to the start of the file so Blazor will call the Dispose method).
-      Dispose method is called when the user navigates away from our razor page.
-      ```
-      public void Dispose()
-      {
-          if (_canvasInterop != null)
+      
+          private void CreateScene3D()
           {
-              _canvasInterop.Dispose(); // This will also dispose SceneView, Scene and WebGLDevice
-              _canvasInterop = null;
+              var scene = sharpEngineSceneView.Scene;
+              var sceneView = sharpEngineSceneView.SceneView;
+      
+              var boxModelNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
+              scene.RootNode.Add(boxModelNode);
+      
+              sceneView.BackgroundColor = Colors.SkyBlue;
+      
+              sceneView.Camera = new TargetPositionCamera()
+              {
+                  Heading = 30,
+                  Attitude = -20,
+                  Distance = 300
+              };
+      
+              var pointerCameraController = new PointerCameraController(sceneView)
+              {
+                  RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
+                  MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
+                  ZoomMode = CameraZoomMode.PointerPosition,
+                  RotateAroundPointerPosition = true,
+                  IsPinchZoomEnabled = true, // zoom with touch pinch gesture
+                  IsPinchMoveEnabled = true  // move camera with two fingers
+              };
           }
-      }      
+      }
       ```
-    - After that, you can start using the Scene and SceneView objects, for example:
-      ```
-      // Add a green 3D box to the scene      
-      var boxNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
-      scene.RootNode.Add(boxNode);
-      
-      
-      sceneView.BackgroundColor = Colors.SkyBlue;
-      
-      sceneView.Camera = new TargetPositionCamera()
-      {
-          Heading = 30,
-          Attitude = -20,
-          Distance = 300
-      };
-      
-      var pointerCameraController = new PointerCameraController(sceneView)
-      {
-          RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
-          MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
-          ZoomMode = CameraZoomMode.PointerPosition,
-          RotateAroundPointerPosition = true,
-          IsPinchZoomEnabled = true, // zoom with touch pinch gesture
-          IsPinchMoveEnabled = true  // move camera with two fingers
-      };
-      ```
-      
-### Additional documentation
+    - Instead of using the `SharpEngineSceneView` component, you can also create the canvas DOM element and
+      then manually connect to the canvas. After that you can create the WebGLDevice, Scene and SceneView objects.
+      See the "ManualInitialization.razor" file on how to do that.
+
+          
+### Additional samples and documentation
 
 This version of the samples project only demonstrates how to initialize the SharpEngine for the Blazor app. 
 It creates a very simple 3D scene and shows how to use camera controller and do some hit testing.
