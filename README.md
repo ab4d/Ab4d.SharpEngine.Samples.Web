@@ -9,20 +9,25 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 To check the Ab4d.SharpEngine for desktop and mobile devices see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples).
 
 > [!IMPORTANT]
-> Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (it will expire on 2025-12-31).
+> Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (the current version will expire on 2025-12-31).
 
 ### Quick start guide
 
-To start this samples project, just open it in any .Net IDE and run it. You can also start it from CLI by using `dotnet run .` or similar command.
+To start this samples project, open `Ab4d.SharpEngine.Samples.BlazorWebAssembly` solution or project in any .Net IDE and start it. 
 
-To use the Ab4d.SharpEngine.Samples.Web library **in your own project**, follow those steps:
-- Create a new "Blazor WebAssembly Standalone App" (use .Net 9 or newer).
+You can also start it from CLI by executing `dotnet run .` or similar command in the `Ab4d.SharpEngine.Samples.BlazorWebAssembly` folder.
+
+### Usage in your own project
+
+To use the Ab4d.SharpEngine.Web library in your own project, follow those steps:
+- Create a new "Blazor WebAssembly Standalone App" project (use .Net 9 or newer).
 - Add reference to Ab4d.SharpEngine.Web NuGet package.
 - Copy the following files from this samples project to your project:
-    - `CanvasInterop.cs` (copy to root folder of your project)
-    - `wwwroot/sharp-engine.js` (copy to wwwroot folder)
+    - `CanvasInterop.cs` (copy to the root folder of your project)
+    - `SharpEngineSceneView.razor` (copy to the root folder of your project)
+    - `wwwroot/sharp-engine.js` (copy to the wwwroot folder)
     - `Native/libEGL.c` (create a new Native folder in your project and copy the libEGL.c file there)
-- Open Blazor's csproj file and add the following:
+- Open the csproj file of your project and add the following:
     - Into the first `PropertyGroup`:
       ```
       <!-- unsafe code is required to use JSExport in CanvasInterop -->
@@ -47,7 +52,7 @@ To use the Ab4d.SharpEngine.Samples.Web library **in your own project**, follow 
         <WasmExtraFilesToDeploy Include="sharp-engine.js" />
       </ItemGroup>      
       ```
-- Open the razor page that will host the 3D scene and add the following:
+- Open the razor page that will host the 3D scene (for example Home.razor) and add the following:
     - Add using, inject and implements to the start of the razor file:
       ```
       @using System.Numerics
@@ -181,9 +186,16 @@ This version of the samples project only demonstrates how to initialize the Shar
 It creates a very simple 3D scene and shows how to use camera controller and do some hit testing.
 
 But it does not demonstrate all the features of the engine. This will be done in the future versions of the project.
-Until then please use IntelliSense to check what classes are available and 
-then use the samples for the desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
+
+The Ab4d.SharpEngine.Web library is going to implement all the features of the Ab4d.SharpEngine for desktop and mobile apps.
+Because it uses the same code (linked files), using the implemented features is the same as with a desktop version.
+
+Therefore, for the full demonstration of the engine, please check the samples for the desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
 online help (https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm).
+
+To see what features are already implemented see the "Implementation details" below or 
+use IntelliSense to see what classes are available. 
+
 
 
 ### Implementation details and roadmap
@@ -228,5 +240,6 @@ You can enable additional logging by setting `CanvasInterop.IsLoggingInteropEven
 
 By default (in Ab4d.SharpEngine.Web beta version) the `Log.LogLevel` is set to `Warn`. Also, `Log.IsLoggingToConsole` is set to true to display the engine's log messages in the browser's Console.
 
+Note that I am not an expert for Blazor and therefore some things may not be created optimally. Please create a PR or add a new issue if you know for any improvements.
 
 Please report the problems or improvement ideas by creating a new [Issue on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web/issues). You can also use the [Feedback form](https://www.ab4d.com/Feedback.aspx) or [Ab4d.SharpEngine Forum](https://forum.ab4d.com/forumdisplay.php?fid=12).
