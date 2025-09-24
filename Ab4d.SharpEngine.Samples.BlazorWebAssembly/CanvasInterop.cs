@@ -15,7 +15,7 @@ namespace Ab4d.SharpEngine.WebGL;
 //#pragma warning disable CA1416 // prevented: This call site is reachable on all platforms. 'JSHost.ImportAsync(string, string, CancellationToken)' is only supported on: 'browser'.
 
 [SupportedOSPlatform("browser")]
-internal partial class CanvasInterop : ICanvasInterop
+public partial class CanvasInterop : ICanvasInterop
 {
     private static readonly bool IsLoggingInteropEvents = true; // When set to true, then all interop events are logged to the console
 

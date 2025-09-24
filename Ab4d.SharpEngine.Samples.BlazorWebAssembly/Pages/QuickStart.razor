@@ -1,81 +1,142 @@
 ﻿@page "/"
+@using System.Diagnostics
 @using System.Numerics
 @using Ab4d.SharpEngine.Cameras
 @using Ab4d.SharpEngine.Common
 @using Ab4d.SharpEngine.Materials
 @using Ab4d.SharpEngine.SceneNodes
 @using Ab4d.SharpEngine.Browser
+@using Ab4d.SharpEngine.Lights
+@using Ab4d.SharpEngine.Meshes
 
 <PageTitle>Quick start</PageTitle>
 
 <h1>Ab4d.SharpEngine.Web</h1>
 
-<p>This is a simple example of how to use the Ab4d.SharpEngine.Web in a browser.<br/>
-    This sample demonstrates only a few features of the Ab4d.SharpEngine.Web.</p>
+<p>This is a example of how to use the Ab4d.SharpEngine.Web 3D rendering engine in a browser.<br/>
+    This sample demonstrates only a few features of the engine.</p>
 <p>
-    To see the full demonstration of the engine, please check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples">samples for the desktop and mobile devices</a> and
+    To see the full demonstration of the engine, please check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples" target="_blank">samples for the desktop and mobile devices</a> and
     <a href="https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm">online help</a>.<br />
-    To see which features are already available in this beta version, check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web#implementation-details-and-roadmap">Implementation details</a>.</p>
+    To see which features are already available in this beta version, check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web#implementation-details-and-roadmap" target="_blank">Roadmap and Implementation details</a>.
+</p>
 
-<p role="status">Current count: @currentCount</p>
+<span style="font-weight: bold">Options:</span><br/>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<label>
+    <input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" />
+    Rotate the camera with left mouse button or touch
+</label>
+<br />
 
-<br/>
+<label>
+    <input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" />
+    Move the camera with control + left mouse button or two fingers
+</label>
+<br />
+
+<label>
+    <input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" />
+    Zoom with mouse wheel or touch pinch
+</label>
+<br />
+
+<label>
+    <input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" />
+    Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)
+</label>
+
+<br />
+<br />
+
+<button class="btn-primary" @onclick="OnStartStopCameraRotationButtonClicked">@_cameraRotationButtonText</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="ChangeMaterial">Change material</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="AddManyObjects">Add many objects</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="RemoveAddedObjects">Remove added objects</button>
+@* <button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button> *@
+
+<br />
 
 <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
 
+<br />
+<p>@_infoText</p>
+<p>Check Console in the DevTools (F12) to see render times.</p>
+
 @code {
-    private int currentCount = 0;
+    // BOUND FIELDS:
+    private string _infoText = "Initializing...";
+    private string _cameraRotationButtonText = "Start camera rotation";
+    private bool _useCameraLight = true;
 
     private SharpEngineSceneView sharpEngineSceneView = null!;
-    private BoxModelNode? _boxModelNode;
 
-    private void IncrementCount()
-    {
-        currentCount++;
+    private TargetPositionCamera? _targetPositionCamera;
+    private PointerCameraController? _pointerCameraController;
+    private DirectionalLight? _directionalLight;
 
-        if (_boxModelNode != null)
-            _boxModelNode.Material = StandardMaterials.Red;
-    }
+    private StandardMaterial? _hashMaterial;
+    private ModelNode? _lastSelectedModelNode;
+    private Material? _lastSelectedModelNodeMaterial;
+
+    private List<GroupNode> _addedObjects = new List<GroupNode>();
+    private int _addedObjectsCount;
+
 
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-            CreateScene3D();
+            ShowHash3D();
 
         // We can start using Scene and SceneView even before the WebGLDevice is initialized.
         // If we want to wait until the gpu device is initialized, then we can use the following code:
         //if (firstRender)
         //{
         //    if (sharpEngineSceneView.IsInitialized)
-        //        CreateScene3D();
+        //        ShowHash3D();
         //    else
-        //        sharpEngineSceneView.SceneViewInitialized += (sender, args) => CreateScene3D();
+        //        sharpEngineSceneView.SceneViewInitialized += (sender, args) => ShowHash3D();
         //}
     }
 
-    private void CreateScene3D()
+    private void ShowHash3D()
     {
-        var scene = sharpEngineSceneView.Scene;
-        var sceneView = sharpEngineSceneView.SceneView;
+        var scene         = sharpEngineSceneView.Scene;
+        var sceneView     = sharpEngineSceneView.SceneView;
+        var canvasInterop = sharpEngineSceneView.CanvasInterop;
 
-
-        _boxModelNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
-        scene.RootNode.Add(_boxModelNode);
-
-
-        sceneView.BackgroundColor = Colors.SkyBlue;
-
-        sceneView.Camera = new TargetPositionCamera()
+        canvasInterop.PointerMoved += (sender, args) =>
         {
-            Heading = 30,
-            Attitude = -20,
-            Distance = 300
+            var hitObject = sceneView.GetClosestHitObject(args.MouseX, args.MouseY);
+            if (hitObject != null && hitObject.HitSceneNode != null)
+            {
+                ShowInfoMessage($"Hit object: {hitObject.HitSceneNode.Name}");
+                SelectSceneNode(hitObject.HitSceneNode);
+            }
+            else
+            {
+                ShowInfoMessage("Hit object: none");
+                SelectSceneNode(null);
+            }
         };
 
-        var pointerCameraController = new PointerCameraController(sceneView)
+
+        scene.SetAmbientLight(0.2f);
+
+        _targetPositionCamera = new TargetPositionCamera()
+        {
+            Heading = 30,
+            Attitude = -40,
+            Distance = 300,
+            TargetPosition = new Vector3(0, 0, 0),
+            ShowCameraLight = ShowCameraLightType.Auto,
+            //ProjectionType = ProjectionTypes.Orthographic // uncomment to use orthographic projection instead of perspective 
+        };
+
+        sceneView.Camera = _targetPositionCamera;
+
+        _pointerCameraController = new PointerCameraController(sceneView)
         {
             RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
             MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
@@ -84,5 +145,242 @@
             IsPinchZoomEnabled = true, // zoom with touch pinch gesture
             IsPinchMoveEnabled = true  // move camera with two fingers
         };
+
+
+        float hashModelSize = 100;
+        float hashModelBarThickness = 16;
+        float hashModelBarOffset = 20;
+
+        var hashSymbolMesh = MeshFactory.CreateHashSymbolMesh(centerPosition: new Vector3(0, hashModelBarThickness * 0.5f, 0),
+                                                              shapeYVector: new Vector3(0, 0, 1),
+                                                              extrudeVector: new Vector3(0, hashModelBarThickness, 0),
+                                                              size: hashModelSize,
+                                                              barThickness: hashModelBarThickness,
+                                                              barOffset: hashModelBarOffset,
+                                                              name: "HashSymbolMesh");
+
+        _hashMaterial = new StandardMaterial(diffuseColor: Color3.FromByteRgb(255, 197, 0));
+        //_hashMaterial = new StandardMaterial(diffuseColor: Colors.Silver);
+
+        var hashSymbolNode = new MeshModelNode(hashSymbolMesh, _hashMaterial, "HashSymbolNode");
+        scene.RootNode.Add(hashSymbolNode);
+
+        var wireGridNode = new WireGridNode("Wire grid")
+        {
+            CenterPosition = new Vector3(0, -0.5f, -33),
+            Size = new Vector2(200, 200),
+
+            WidthDirection = new Vector3(1, 0, 0),  // this is also the default value
+            HeightDirection = new Vector3(0, 0, -1), // this is also the default value
+
+            WidthCellsCount = 30,
+            HeightCellsCount = 30,
+
+            MajorLineColor = Colors.Black,
+            MajorLineThickness = 1,
+
+            MinorLineColor = Colors.Gray,
+            MinorLineThickness = 1,
+
+            MajorLinesFrequency = 5,
+
+            IsClosed = true,
+        };
+        scene.RootNode.Add(wireGridNode);
+
+
+        var sphereMaterial = StandardMaterials.Silver.SetSpecular(64);
+        for (int i = 0; i < 6; i++)
+        {
+            var sphereModelNode1 = new SphereModelNode(new Vector3(-67 - 17 + i * 33, 16, -80), radius: 14, sphereMaterial, name: $"Sphere_{i + 1}");
+            scene.RootNode.Add(sphereModelNode1);
+        }
+
+        ShowInfoMessage("Initial 3D scene shown");
     }
+
+    private void SelectSceneNode(SceneNode? sceneNode)
+    {
+        if (sceneNode == _lastSelectedModelNode)
+            return;
+
+        if (_lastSelectedModelNode != null)
+        {
+            _lastSelectedModelNode.Material = _lastSelectedModelNodeMaterial;
+            _lastSelectedModelNode = null;
+            _lastSelectedModelNodeMaterial = null;
+        }
+
+        if (sceneNode is ModelNode modelNode)
+        {
+            _lastSelectedModelNodeMaterial = modelNode.Material;
+            _lastSelectedModelNode = modelNode;
+
+            modelNode.Material = StandardMaterials.Red;
+        }
+    }
+
+
+    private void AddManyObjects()
+    {
+        int objectsCount = 1000;
+
+        var startTime = Stopwatch.GetTimestamp();
+
+        var scene = sharpEngineSceneView.Scene;
+
+        var groupNode = new GroupNode($"AddedObjectsGroup_{_addedObjectsCount}");
+        scene.RootNode.Add(groupNode);
+
+        var material = StandardMaterials.LightGreen;
+
+        for (int i = 0; i < objectsCount; i++)
+        {
+            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsCount * 30, -30, -50 + i * 15), 
+                size: new Vector3(10, 10, 10), 
+                material,
+                name: $"Box_{_addedObjectsCount+1}_{i+1}");
+
+            groupNode.Add(boxModelNode);
+        }
+
+        _addedObjectsCount++;
+
+        Console.WriteLine($"Adding {objectsCount} in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
+
+        _addedObjects.Add(groupNode);
+        
+        ShowRenderedObjectsCount();
+    }
+
+    private void RemoveAddedObjects()
+    {
+        var scene = sharpEngineSceneView.Scene;
+
+        foreach (var groupNode in _addedObjects)
+        {
+            scene.RootNode.Remove(groupNode);
+            _addedObjectsCount--;
+        }
+
+        _addedObjects.Clear();
+
+        ShowRenderedObjectsCount();
+    }
+
+    private void ChangeMaterial()
+    {
+        if (_hashMaterial == null)
+            return;
+        
+        _hashMaterial.DiffuseColor = Color3.FromHsl(Random.Shared.NextDouble() * 360); 
+    }
+
+    private void OnStartStopCameraRotationButtonClicked()
+    {
+        if (_targetPositionCamera == null)
+            return;
+
+        if (_targetPositionCamera.IsRotating)
+        {
+            _targetPositionCamera.StopRotation();
+            _cameraRotationButtonText = "Start camera rotation";
+        }
+        else
+        {
+            _targetPositionCamera.StartRotation(headingChangeInSecond: 40);
+            _cameraRotationButtonText = "Stop camera rotation";
+        }
+    }
+
+    private void ShowRenderedObjectsCount()
+    {
+        int totalObjectsCount = 0;
+        sharpEngineSceneView.Scene.RootNode.ForEachChild((_ => totalObjectsCount++));
+
+        ShowInfoMessage($"Rendering {totalObjectsCount} objects");
+    }
+
+    private void ShowInfoMessage(string message)
+    {
+        _infoText = message;
+        StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
+    }
+
+    private void OnCameraRotateSettingsChanged(ChangeEventArgs e)
+    {
+        if (_pointerCameraController == null)
+            return;
+
+        bool isChecked = e.Value != null && (bool)e.Value;
+
+        _pointerCameraController.RotateCameraConditions = isChecked ? PointerAndKeyboardConditions.LeftPointerButtonPressed
+                                                                    : PointerAndKeyboardConditions.Disabled;
+    }
+
+    private void OnCameraMoveSettingsChanged(ChangeEventArgs e)
+    {
+        if (_pointerCameraController == null)
+            return;
+
+        bool isChecked = e.Value != null && (bool)e.Value;
+
+        _pointerCameraController.MoveCameraConditions = isChecked ? PointerAndKeyboardConditions.ControlKey | PointerAndKeyboardConditions.LeftPointerButtonPressed
+                                                                  : PointerAndKeyboardConditions.Disabled;
+
+        _pointerCameraController.IsPinchMoveEnabled = isChecked;
+    }
+
+    private void OnCameraZoomSettingsChanged(ChangeEventArgs e)
+    {
+        if (_pointerCameraController == null)
+            return;
+
+        bool isChecked = e.Value != null && (bool)e.Value;
+
+        _pointerCameraController.IsPointerWheelZoomEnabled = isChecked;
+        _pointerCameraController.IsPinchZoomEnabled = isChecked;
+    }
+
+    private void OnUseCameraLightCheckBoxChanged(ChangeEventArgs e)
+    {
+        if (_targetPositionCamera == null)
+            return;
+
+        var scene = sharpEngineSceneView.Scene;
+
+        _useCameraLight = e.Value != null && (bool)e.Value;
+        if (_useCameraLight)
+        {
+            if (_directionalLight != null)
+            {
+                scene.Lights.Remove(_directionalLight);
+                _directionalLight = null;
+            }
+            
+            _targetPositionCamera.ShowCameraLight = ShowCameraLightType.Always;
+        }
+        else
+        {
+            _targetPositionCamera.ShowCameraLight = ShowCameraLightType.Never;
+
+            _directionalLight ??= new DirectionalLight(new Vector3(-1, -0.5f, 0));
+            scene.Lights.Add(_directionalLight);
+        }
+    }
+
+    // private async Task CaptureNextFrame()
+    // {
+    //     bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
+
+    //     if (!success)
+    //     {
+    //         ShowInfoMessage("Cannot start Spector capture.");
+    //         return;
+    //     }
+
+    //     sharpEngineSceneView.SceneView.Render(forceRender: true);
+
+    //     sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
+    // }
 }
