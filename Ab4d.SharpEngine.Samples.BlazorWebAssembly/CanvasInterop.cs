@@ -17,7 +17,7 @@ namespace Ab4d.SharpEngine.WebGL;
 [SupportedOSPlatform("browser")]
 public partial class CanvasInterop : ICanvasInterop
 {
-    private static readonly bool IsLoggingInteropEvents = true; // When set to true, then all interop events are logged to the console
+    private static readonly bool IsLoggingInteropEvents = false; // When set to true, then all interop events are logged to the console
 
     // Update the version in the url to the latest version
     private const string SpectorScriptUrl = "https://cdn.jsdelivr.net/npm/spectorjs@0.9.30/dist/spector.bundle.js";
