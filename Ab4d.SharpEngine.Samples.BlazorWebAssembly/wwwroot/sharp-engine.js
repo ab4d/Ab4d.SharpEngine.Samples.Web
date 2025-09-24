@@ -3,7 +3,7 @@ let interop;
 let spector;
 let resizeObserver;
 let canvasToDisplaySizeMap;
-let isLogging = true;
+let isLogging = false;
 let isUpdating = false;
 let isPinchZooming = false;
 
