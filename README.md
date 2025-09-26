@@ -17,6 +17,8 @@ To start this samples project, open `Ab4d.SharpEngine.Samples.BlazorWebAssembly`
 
 You can also start it from CLI by executing `dotnet run .` or similar command in the `Ab4d.SharpEngine.Samples.BlazorWebAssembly` folder.
 
+Check a [working version of the sample](https://www.ab4d.com/sharp-engine-browser-demo).
+
 ### Usage in your own project
 
 To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
