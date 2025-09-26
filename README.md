@@ -164,7 +164,17 @@ Namespace implementation status (compared to desktop and mobile Ab4d.SharpEngine
     - TextureLoader, TextureFactory - planned for beta2
     - VectorFontFactory, TrueTypeFontLoader - planned for v1.0
 
+Other not implemented features:
+- Transparency sorting (planned to beta2)
+- Super-sampling (planned for later)
+
  
+ ### Tips and tricks
+
+ - When you publish the Blazor app to a subfolder on your web site, change the base href value in the wwwroot/index.html
+   from "/" (used when the Blazor app is in the root folder) to your actual folder, for example to "https://www.ab4d.com/sharp-engine-browser-demo/".
+
+
 ### Troubleshooting
 
 In case of problems, please check the Console in the browser's DevTools (F12). Usually, error messages are displayed there.
