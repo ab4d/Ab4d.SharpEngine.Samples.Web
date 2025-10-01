@@ -126,7 +126,7 @@ public partial class CanvasInterop : ICanvasInterop
         
         try
         {
-            await InitInterop(); // Set interop field so javascript can call functions that are exported from CanvasInterop class (using JSExport attribute)
+            await InitInteropAsync(); // Set interop field so javascript can call functions that are exported from CanvasInterop class (using JSExport attribute)
             
             IsInteropInitialized = true;
         }
@@ -480,9 +480,9 @@ public partial class CanvasInterop : ICanvasInterop
     }
     #endregion
     
-    #region JSImport methods: InitInterop, InitWebGLCanvasJs, SubscribeBrowserEventsJs, ...
-    [JSImport("initInterop", "sharp-engine.js")]
-    private static partial Task InitInterop();
+    #region JSImport methods: InitInteropAsync, InitWebGLCanvasJs, SubscribeBrowserEventsJs, ...
+    [JSImport("initInteropAsync", "sharp-engine.js")]
+    private static partial Task InitInteropAsync();
 
     // Returns the string in the format: "OK:width;height;dpiScale" or error text (if text does not start with "OK:")
     // It is not possible (at least in .Net 9) to pass an objects from JS to .Net

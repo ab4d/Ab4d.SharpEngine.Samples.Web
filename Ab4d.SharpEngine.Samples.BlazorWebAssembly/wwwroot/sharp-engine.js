@@ -7,8 +7,8 @@ let isLogging = false;
 let isUpdating = false;
 let isPinchZooming = false;
 
-export async function initInterop() {
-    log("js: initInterop");
+export async function initInteropAsync() {
+    log("js: initInteropAsync");
 
     const dotnet = globalThis.getDotnetRuntime(0);
 
