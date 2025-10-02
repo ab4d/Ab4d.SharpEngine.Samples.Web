@@ -27,6 +27,7 @@ public partial class CanvasInterop : ICanvasInterop
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
 
+    private Dictionary<string, Action<int,int,byte[]?>> _imageBytesLoadedCallbacks = new();
     
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
@@ -94,7 +95,7 @@ public partial class CanvasInterop : ICanvasInterop
         _subscribePointerEventsOnInitialize = subscribePointerEvents;
     }
     
-    #region static Initialize method and GetSharpEngineBrowserInterop
+    #region static Initialize method and GetCanvasInterop
     public static async Task InitializeInterop(string? sharpEngineJsFileUrl = null)
     {
         if (_isInitializeCalled)
@@ -136,12 +137,12 @@ public partial class CanvasInterop : ICanvasInterop
         }
     }
     
-    private static CanvasInterop GetSharpEngineBrowserInterop(string? canvasId)
+    private static CanvasInterop GetCanvasInterop(string? canvasId)
     {
-        return GetSharpEngineBrowserInterop(canvasId, throwExceptionIfNotFound: true)!;
+        return GetCanvasInterop(canvasId, throwExceptionIfNotFound: true)!;
     }
     
-    private static CanvasInterop? GetSharpEngineBrowserInterop(string? canvasId, bool throwExceptionIfNotFound)
+    private static CanvasInterop? GetCanvasInterop(string? canvasId, bool throwExceptionIfNotFound)
     {
         if (canvasId == null)
             throw new Exception("Cannot find CanvasInterop because canvasId that was provided by the javascript is null");
@@ -226,6 +227,16 @@ public partial class CanvasInterop : ICanvasInterop
             throw new SharpEngineException($"Cannot call {methodName} because the Connect method was not called or it failed to connect to the canvas element.");
     }
     
+    public void LoadImageBytes(string fileName, Action<int,int,byte[]?>? onTextureLoadedAction)
+    {
+        CheckIsInitialized();
+
+        if (onTextureLoadedAction != null)
+            _imageBytesLoadedCallbacks.Add(fileName, onTextureLoadedAction);
+
+        LoadImageBytesJs(this.CanvasId, fileName);
+    }
+    
     public void SetCursorStyle(string cursorStyle)
     {
         CheckIsInitialized();
@@ -300,6 +311,8 @@ public partial class CanvasInterop : ICanvasInterop
         DisconnectWebGLCanvasJs(CanvasId);
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
+
+        _imageBytesLoadedCallbacks.Clear();
 
         if (_initialInterop == this)
         {
@@ -388,9 +401,21 @@ public partial class CanvasInterop : ICanvasInterop
         
         if (_additionalInteropObjects != null)
         {
-            foreach (var sharpEngineBrowserInterop in _additionalInteropObjects)
-                sharpEngineBrowserInterop.OnBrowserAnimationFrameUpdated();
+            foreach (var canvasInterop in _additionalInteropObjects)
+                canvasInterop.OnBrowserAnimationFrameUpdated();
         }
+    }
+    
+    [JSExport]
+    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes)
+    {
+        //if (IsLoggingInteropEvents)
+        //    Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+
+        if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbackAction))
+            callbackAction(width, height, imageBytes);
     }
 
     [JSExport]
@@ -399,8 +424,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerMoved '{canvasId ?? ""}': {x} {y}  Buttons: {buttons}  KeyboardModifiers: {keyboardModifiers}");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPointerMoved(x, y, buttons, keyboardModifiers);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPointerMoved(x, y, buttons, keyboardModifiers);
     }
 
     [JSExport]
@@ -409,8 +434,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerDown button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
@@ -419,8 +444,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerUp button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
@@ -429,8 +454,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnMouseWheel '{canvasId ?? ""}': {deltaX} {deltaY}  KeyboardModifiers: {keyboardModifiers}");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
     }
 
     [JSExport]
@@ -439,8 +464,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPinchZoomStarted '{canvasId ?? ""}': distance: {distance} around ({centerX} {centerY})");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPinchZoomStarted(distance, centerX, centerY);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPinchZoomStarted(distance, centerX, centerY);
     }
 
     [JSExport]
@@ -449,8 +474,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPinchZoomEnded '{canvasId ?? ""}'");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPinchZoomEnded();
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPinchZoomEnded();
     }
 
     [JSExport]
@@ -459,8 +484,8 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPinchZoom '{canvasId ?? ""}': distance: {distance} around ({centerX} {centerY})");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
-        sharpEngineBrowserInterop.OnPinchZoomed(distance, centerX, centerY);
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop.OnPinchZoomed(distance, centerX, centerY);
     }
 
 
@@ -470,17 +495,18 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnCanvasResized '{canvasId ?? ""}': {width} {height} {devicePixelRatio}");
 
-        var sharpEngineBrowserInterop = GetSharpEngineBrowserInterop(canvasId);
+        var canvasInterop = GetCanvasInterop(canvasId);
         
-        sharpEngineBrowserInterop.Width    = (int)width;
-        sharpEngineBrowserInterop.Height   = (int)height;
-        sharpEngineBrowserInterop.DpiScale = devicePixelRatio;
+        canvasInterop.Width    = (int)width;
+        canvasInterop.Height   = (int)height;
+        canvasInterop.DpiScale = devicePixelRatio;
         
-        sharpEngineBrowserInterop.OnCanvasResized(width, height, devicePixelRatio);
+        canvasInterop.OnCanvasResized(width, height, devicePixelRatio);
     }
     #endregion
     
     #region JSImport methods: InitInteropAsync, InitWebGLCanvasJs, SubscribeBrowserEventsJs, ...
+
     [JSImport("initInteropAsync", "sharp-engine.js")]
     private static partial Task InitInteropAsync();
 
@@ -489,6 +515,9 @@ public partial class CanvasInterop : ICanvasInterop
     // It was possible to encode width and height into an int, but we also need dpiScale, so we need to pass it as a string.
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
     private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
+
+    [JSImport("loadImageBytes", "sharp-engine.js")]
+    private static partial void LoadImageBytesJs(string canvasId, string imageUrl);
     
     [JSImport("subscribeBrowserEvents", "sharp-engine.js")]
     private static partial void SubscribeBrowserEventsJs(string canvasId, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
