@@ -30,27 +30,14 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
 
     if (canvas)
     {
-        let webglVersion;
-
         var context = canvas.getContext('webgl2', { antialias: useMSAA });
         
-        if (context) {
-            webglVersion = "2";
+        if (!context) {
+            var errorMessage = "WebGL is not supported";
+            console.error(errorMessage);
+            return errorMessage;
         }
-        else {
-            context = canvas.getContext('webgl', { antialias: useMSAA });
-
-            if (context) {
-                console.warn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")
-                webglVersion = "1";
-            }
-            else {
-                var errorMessage = "WebGL 1.0 is not supported";
-                console.error(errorMessage);
-                return errorMessage;
-            }
-        }
-
+        
         if (!initialCanvas)
             initialCanvas = canvas;
 
@@ -82,7 +69,7 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         // It is not possible (at least in .Net 9) to pass an objects for JS to .Net
         // It was possible to encode width and height into an int, but we also need dpiScale,
         // so we need to pass it as a string
-        return "OK:v" + webglVersion + ";" + displayWidth + ";" + displayHeight + ";" + dpi;
+        return "OK:" + displayWidth + ";" + displayHeight + ";" + dpi;
     }
     else
     {
@@ -90,79 +77,6 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         console.error(errorMessage);
         return errorMessage;
     }
-}
-
-export async function loadImageBytes(canvasId, url) {
-    log("js: loadImageBytes: start loading " + url);
-     
-    if (true || !createImageBitmap || typeof OffscreenCanvas === "undefined") {
-        // Before Safari 16.4 (2024-03-27)
-        await loadImageBytesOldWay(canvasId, url);
-        return;
-    }
-
-    const response = await fetch(url, { mode: 'cors' });
-    if (!response.ok)
-        console.error('Image could not be fetched, url: ' + url);
-
-    log("js: image loaded: " + url);
-
-    const blob = await response.blob();
-
-    const bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
-
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(bitmap, 0, 0);
-    const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
-
-    // For large arrays prefer using transferable, otherwise fallback as array
-    const data = Array.from(imageData.data);
-    
-    log("js: image byte array retrieved: " + url);
-
-    if (interop)
-        interop.OnImageBytesLoaded(canvasId, url, bitmap.width, bitmap.height, data);
-}
-
-async function loadImageBytesOldWay(canvasId, url) {
-
-    const image = new Image();
-    image.src = url;
-
-    let data;
-    let width, height;
-
-    try {
-        await image.decode();
-
-        log("js: image loaded by using Image: " + url);
-
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        width = image.width;
-        height = image.height;
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(image, 0, 0);
-        // Get all pixels
-        const imageData = ctx.getImageData(0, 0, width, height);
-        data = Array.from(imageData.data); // Length = width * height * 4
-
-        log("js: image byte array retrieved: " + url);
-    }
-    catch (ex)
-    {
-        data = null;
-        width = 0;
-        height = 0;
-        console.error("js: Texture image '" + url + "' failed to load.", ex);
-    }
-
-    if (interop)
-        interop.OnImageBytesLoaded(canvasId, url, width, height, data);
 }
 
 // NOTE:

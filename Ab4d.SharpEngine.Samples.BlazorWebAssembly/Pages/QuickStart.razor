@@ -135,8 +135,8 @@
         _targetPositionCamera = new TargetPositionCamera()
         {
             Heading = 30,
-            Attitude = -30,
-            Distance = 400,
+            Attitude = -40,
+            Distance = 300,
             TargetPosition = new Vector3(0, 0, 0),
             ShowCameraLight = ShowCameraLightType.Auto,
         };
@@ -164,12 +164,12 @@
         float hashModelBarOffset = 20;
 
         var hashSymbolMesh = MeshFactory.CreateHashSymbolMesh(centerPosition: new Vector3(0, hashModelBarThickness * 0.5f, 0),
-        shapeYVector: new Vector3(0, 0, 1),
-        extrudeVector: new Vector3(0, hashModelBarThickness, 0),
-        size: hashModelSize,
-        barThickness: hashModelBarThickness,
-        barOffset: hashModelBarOffset,
-        name: "HashSymbolMesh");
+                                                              shapeYVector: new Vector3(0, 0, 1),
+                                                              extrudeVector: new Vector3(0, hashModelBarThickness, 0),
+                                                              size: hashModelSize,
+                                                              barThickness: hashModelBarThickness,
+                                                              barOffset: hashModelBarOffset,
+                                                              name: "HashSymbolMesh");
 
         _hashMaterial = new StandardMaterial(diffuseColor: Color3.FromByteRgb(255, 197, 0));
         //_hashMaterial = new StandardMaterial(diffuseColor: Colors.Silver);
@@ -208,42 +208,7 @@
             scene.RootNode.Add(sphereModelNode1);
         }
 
-
-        if (sharpEngineSceneView.IsInitialized)
-            AddTexturePlane();
-        else
-            sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlane();
-
-
         ShowInfoMessage("Initial 3D scene shown");
-    }
-
-    private void AddTexturePlane()
-    {
-        var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
-        if (gpuDevice == null)
-            return;
-
-        Ab4d.SharpEngine.Utilities.TextureLoader.CreateTexture("ab4d-logo-256.png", gpuDevice, gpuImage =>
-        {
-            var textureMaterial = new StandardMaterial(gpuImage)
-            {
-                HasTransparency = true,
-            };
-
-            var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
-                                                    size: new Vector2(60, 60), 
-                                                    normal: new Vector3(0, 0, 1), 
-                                                    heightDirection: new Vector3(0, 1, 0), 
-                                                    name: "TexturePlane")
-            {
-                IsHitTestVisible = false,
-                Material = textureMaterial,
-                BackMaterial = textureMaterial,
-            };
-
-            sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
-        });
     }
 
     private void UpdateRenderTime()
@@ -273,8 +238,7 @@
             modelNode.Material = StandardMaterials.Red;
         }
     }
-
-
+    
     private void AddManyObjects()
     {
         int objectsCount = 1000;

@@ -27,8 +27,6 @@ public partial class CanvasInterop : ICanvasInterop
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
 
-    private Dictionary<string, Action<int,int,byte[]?>> _imageBytesLoadedCallbacks = new();
-    
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
     /// </summary>
@@ -44,11 +42,6 @@ public partial class CanvasInterop : ICanvasInterop
     /// Returns true after the <see cref="InitWebGL"/> method was called, the WebGL context was created and connection with the canvas elements was successfully established.
     /// </summary>
     public bool IsWebGLInitialized { get; private set; }
-
-    /// <summary>
-    /// Returns true when WebGL 2.0 is used. When false, then WebGL 1.0 is used. In this case some features may not be available.
-    /// </summary>
-    public bool IsWebGL2 { get; private set; }
     
     /// <summary>
     /// Gets the width of the canvas in pixels (defines width of the back buffer that is used for rendering).
@@ -196,10 +189,9 @@ public partial class CanvasInterop : ICanvasInterop
         }
 
         var dataParts = result.Substring(3).Split(';'); // Skip "OK:" and then split
-        this.IsWebGL2 = dataParts[0] == "v2";
-        this.Width    = int.Parse(dataParts[1]);
-        this.Height   = int.Parse(dataParts[2]);
-        this.DpiScale = float.Parse(dataParts[3], CultureInfo.InvariantCulture);
+        this.Width    = int.Parse(dataParts[0]);
+        this.Height   = int.Parse(dataParts[1]);
+        this.DpiScale = float.Parse(dataParts[2], CultureInfo.InvariantCulture);
         this.IsUsingMultisampleAntiAliasing = useMultisampleAntiAliasing;
         
         // Set static instances of CanvasInterop so that the static callback functions from javascript can find the target CanvasInterop
@@ -231,16 +223,6 @@ public partial class CanvasInterop : ICanvasInterop
         
         if (checkIfConnectedToCanvas && !IsWebGLInitialized)
             throw new SharpEngineException($"Cannot call {methodName} because the Connect method was not called or it failed to connect to the canvas element.");
-    }
-    
-    public void LoadImageBytes(string fileName, Action<int,int,byte[]?>? onTextureLoadedAction)
-    {
-        CheckIsInitialized();
-
-        if (onTextureLoadedAction != null)
-            _imageBytesLoadedCallbacks.Add(fileName, onTextureLoadedAction);
-
-        LoadImageBytesJs(this.CanvasId, fileName);
     }
     
     public void SetCursorStyle(string cursorStyle)
@@ -317,9 +299,7 @@ public partial class CanvasInterop : ICanvasInterop
         DisconnectWebGLCanvasJs(CanvasId);
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
-
-        _imageBytesLoadedCallbacks.Clear();
-
+        
         if (_initialInterop == this)
         {
             _initialInterop = null;
@@ -410,18 +390,6 @@ public partial class CanvasInterop : ICanvasInterop
             foreach (var canvasInterop in _additionalInteropObjects)
                 canvasInterop.OnBrowserAnimationFrameUpdated();
         }
-    }
-    
-    [JSExport]
-    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes)
-    {
-        //if (IsLoggingInteropEvents)
-        //    Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
-
-        var canvasInterop = GetCanvasInterop(canvasId);
-
-        if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbackAction))
-            callbackAction(width, height, imageBytes);
     }
 
     [JSExport]
@@ -522,9 +490,6 @@ public partial class CanvasInterop : ICanvasInterop
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
     private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
 
-    [JSImport("loadImageBytes", "sharp-engine.js")]
-    private static partial void LoadImageBytesJs(string canvasId, string imageUrl);
-    
     [JSImport("subscribeBrowserEvents", "sharp-engine.js")]
     private static partial void SubscribeBrowserEventsJs(string canvasId, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
     
