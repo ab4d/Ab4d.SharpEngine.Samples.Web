@@ -30,13 +30,25 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
 
     if (canvas)
     {
-        var context = canvas.getContext('webgl2', { antialias: useMSAA });
+        let webglVersion;
 
-        if (!context)
-        {
-            var errorMessage = "WebGL2 is not supported";
-            console.error(errorMessage);
-            return errorMessage;
+        var context = canvas.getContext('webgl2', { antialias: useMSAA });
+        
+        if (context) {
+            webglVersion = "2";
+        }
+        else {
+            context = canvas.getContext('webgl', { antialias: useMSAA });
+
+            if (context) {
+                console.warn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")
+                webglVersion = "1";
+            }
+            else {
+                var errorMessage = "WebGL 1.0 is not supported";
+                console.error(errorMessage);
+                return errorMessage;
+            }
         }
 
         if (!initialCanvas)
@@ -70,7 +82,7 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         // It is not possible (at least in .Net 9) to pass an objects for JS to .Net
         // It was possible to encode width and height into an int, but we also need dpiScale,
         // so we need to pass it as a string
-        return "OK:" + displayWidth + ";" + displayHeight + ";" + dpi;
+        return "OK:v" + webglVersion + ";" + displayWidth + ";" + displayHeight + ";" + dpi;
     }
     else
     {

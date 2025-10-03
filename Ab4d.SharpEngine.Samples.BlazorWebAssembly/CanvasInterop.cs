@@ -46,6 +46,11 @@ public partial class CanvasInterop : ICanvasInterop
     public bool IsWebGLInitialized { get; private set; }
 
     /// <summary>
+    /// Returns true when WebGL 2.0 is used. When false, then WebGL 1.0 is used. In this case some features may not be available.
+    /// </summary>
+    public bool IsWebGL2 { get; private set; }
+    
+    /// <summary>
     /// Gets the width of the canvas in pixels (defines width of the back buffer that is used for rendering).
     /// </summary>
     public int Width { get; private set; }
@@ -191,9 +196,10 @@ public partial class CanvasInterop : ICanvasInterop
         }
 
         var dataParts = result.Substring(3).Split(';'); // Skip "OK:" and then split
-        this.Width    = int.Parse(dataParts[0]);
-        this.Height   = int.Parse(dataParts[1]);
-        this.DpiScale = float.Parse(dataParts[2], CultureInfo.InvariantCulture);
+        this.IsWebGL2 = dataParts[0] == "v2";
+        this.Width    = int.Parse(dataParts[1]);
+        this.Height   = int.Parse(dataParts[2]);
+        this.DpiScale = float.Parse(dataParts[3], CultureInfo.InvariantCulture);
         this.IsUsingMultisampleAntiAliasing = useMultisampleAntiAliasing;
         
         // Set static instances of CanvasInterop so that the static callback functions from javascript can find the target CanvasInterop
