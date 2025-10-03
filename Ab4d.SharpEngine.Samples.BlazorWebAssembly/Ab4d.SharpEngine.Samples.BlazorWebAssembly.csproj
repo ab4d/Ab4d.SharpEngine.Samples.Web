@@ -42,11 +42,8 @@
   <ItemGroup>
     <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9400-beta1" />
   </ItemGroup>
-  <!--<ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
     <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
-  </ItemGroup>-->
-  <ItemGroup>
-    <PackageReference Include="Silk.NET.OpenGLES" Version="2.22.0" />
   </ItemGroup>
 
   <ItemGroup>
