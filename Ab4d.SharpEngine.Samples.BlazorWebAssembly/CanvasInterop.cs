@@ -27,7 +27,7 @@ public partial class CanvasInterop : ICanvasInterop
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
 
-    private Dictionary<string, Action<int,int,byte[]?>> _imageBytesLoadedCallbacks = new();
+    private Dictionary<string, Action<RawImageData?>> _imageBytesLoadedCallbacks = new();
     
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
@@ -233,7 +233,7 @@ public partial class CanvasInterop : ICanvasInterop
             throw new SharpEngineException($"Cannot call {methodName} because the Connect method was not called or it failed to connect to the canvas element.");
     }
     
-    public void LoadImageBytes(string fileName, Action<int,int,byte[]?>? onTextureLoadedAction)
+    public void LoadImageBytes(string fileName, Action<RawImageData?>? onTextureLoadedAction)
     {
         CheckIsInitialized();
 
@@ -415,13 +415,20 @@ public partial class CanvasInterop : ICanvasInterop
     [JSExport]
     private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes)
     {
-        //if (IsLoggingInteropEvents)
-        //    Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
+        // Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
 
         var canvasInterop = GetCanvasInterop(canvasId);
 
         if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbackAction))
-            callbackAction(width, height, imageBytes);
+        {
+            RawImageData? rawImageData;
+            if (imageBytes == null)
+                rawImageData = null;
+            else
+                rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
+            
+            callbackAction(rawImageData);
+        }
     }
 
     [JSExport]
