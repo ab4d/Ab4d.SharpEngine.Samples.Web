@@ -1,5 +1,6 @@
 ﻿using Ab4d.SharpEngine.Browser;
 using Ab4d.SharpEngine.Common;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -26,8 +27,6 @@ public partial class CanvasInterop : ICanvasInterop
     
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
-
-    private Dictionary<string, Action<RawImageData?>> _imageBytesLoadedCallbacks = new();
     
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
@@ -93,6 +92,8 @@ public partial class CanvasInterop : ICanvasInterop
     private bool _isSpectorScriptLoaded;
     private bool _isSpectorCaptureStarted;
     private bool _subscribePointerEventsOnInitialize;
+    
+    private Dictionary<string, List<Action<RawImageData?>>> _imageBytesLoadedCallbacks = new();
 
     public CanvasInterop(string canvasId, bool subscribePointerEvents = true)
     {
@@ -238,7 +239,17 @@ public partial class CanvasInterop : ICanvasInterop
         CheckIsInitialized();
 
         if (onTextureLoadedAction != null)
-            _imageBytesLoadedCallbacks.Add(fileName, onTextureLoadedAction);
+        {
+            // We need to handle multiple requests for the same image file
+            // Therefore we store a list of callbacks for each file name
+            if (!_imageBytesLoadedCallbacks.TryGetValue(fileName, out var callbacks))
+            {
+                callbacks = new List<Action<RawImageData?>>();
+                _imageBytesLoadedCallbacks.Add(fileName, callbacks);
+            }
+            
+            callbacks.Add(onTextureLoadedAction);
+        }
 
         LoadImageBytesJs(this.CanvasId, fileName);
     }
@@ -419,15 +430,17 @@ public partial class CanvasInterop : ICanvasInterop
 
         var canvasInterop = GetCanvasInterop(canvasId);
 
-        if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbackAction))
+        if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
         {
             RawImageData? rawImageData;
             if (imageBytes == null)
                 rawImageData = null;
             else
                 rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
-            
-            callbackAction(rawImageData);
+
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback(rawImageData);
         }
     }
 
