@@ -257,7 +257,6 @@
             var textureMaterial = new StandardMaterial(gpuImage)
             {
                 AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
-                HasTransparency = true,
             };
 
             var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
