@@ -89,22 +89,50 @@
     private int _addedObjectsCount;
 
 
+
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
             ShowHash3D();
-
-        // We can start using Scene and SceneView even before the WebGLDevice is initialized.
-        // If we want to wait until the gpu device is initialized, then we can use the following code:
-        //if (firstRender)
-        //{
-        //    if (sharpEngineSceneView.IsInitialized)
-        //        ShowHash3D();
-        //    else
-        //        sharpEngineSceneView.SceneViewInitialized += (sender, args) => ShowHash3D();
-        //}
     }
+
+    // If we would like to use CreateTextureAsync, then we need to override the OnAfterRenderAsync
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (!firstRender)
+    //         return;
+
+    //     ShowHash3D();
+
+    //     var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
+
+    //     if (gpuDevice == null)
+    //         return;
+
+    //     var gpuImage = await Ab4d.SharpEngine.Utilities.TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
+
+    //     if (gpuImage == null)
+    //         return;
+
+    //     var textureMaterial = new StandardMaterial(gpuImage)
+    //     {
+    //         HasTransparency = true,
+    //     };
+
+    //     var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150),
+    //         size: new Vector2(60, 60),
+    //         normal: new Vector3(0, 0, 1),
+    //         heightDirection: new Vector3(0, 1, 0),
+    //         name: "TexturePlane")
+    //     {
+    //         IsHitTestVisible = false,
+    //         Material = textureMaterial,
+    //         BackMaterial = textureMaterial,
+    //     };
+
+    //     sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+    // }
 
     private void ShowHash3D()
     {
@@ -228,6 +256,7 @@
         {
             var textureMaterial = new StandardMaterial(gpuImage)
             {
+                AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
                 HasTransparency = true,
             };
 
