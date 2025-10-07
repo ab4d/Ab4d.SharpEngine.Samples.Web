@@ -63,6 +63,10 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         var displayWidth  = Math.round(rect.width * dpi);
         var displayHeight = Math.round(rect.height * dpi);
 
+        // Make the size of canvas back buffers the corect size
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+
         // Start observing the canvas size changes
         // ResizeObserver is more accurate than other methods - see https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
         if (!resizeObserver)
