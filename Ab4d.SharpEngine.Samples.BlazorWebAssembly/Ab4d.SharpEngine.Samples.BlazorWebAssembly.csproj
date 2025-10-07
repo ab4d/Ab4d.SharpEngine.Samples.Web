@@ -15,6 +15,7 @@
     <!-- List of possible wasm properties: https://github.com/dotnet/runtime/blob/main/src/mono/wasm/build/WasmApp.Common.targets -->
     <WasmEnableSIMD>true</WasmEnableSIMD>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantTimezone>true</InvariantTimezone>
     <WasmEnableExceptionHandling>true</WasmEnableExceptionHandling>
   </PropertyGroup>
 
