@@ -164,7 +164,7 @@
         _targetPositionCamera = new TargetPositionCamera()
         {
             Heading = 30,
-            Attitude = -30,
+            Attitude = -25,
             Distance = 400,
             TargetPosition = new Vector3(0, 0, 0),
             ShowCameraLight = ShowCameraLightType.Auto,
@@ -253,26 +253,33 @@
         if (gpuDevice == null)
             return;
 
-        Ab4d.SharpEngine.Utilities.TextureLoader.CreateTexture("ab4d-logo-256.png", gpuDevice, gpuImage =>
-        {
-            var textureMaterial = new StandardMaterial(gpuImage)
-            {
-                AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
-            };
 
-            var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
-                                                    size: new Vector2(60, 60), 
-                                                    normal: new Vector3(0, 0, 1), 
-                                                    heightDirection: new Vector3(0, 1, 0), 
-                                                    name: "TexturePlane")
+        Ab4d.SharpEngine.Utilities.TextureLoader.CreateTextureAsync(
+            "ab4d-logo-256.png", gpuDevice, 
+            textureCreatedCallback: gpuImage =>
             {
-                IsHitTestVisible = false,
-                Material = textureMaterial,
-                BackMaterial = textureMaterial,
-            };
+                var textureMaterial = new StandardMaterial(gpuImage)
+                {
+                    AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
+                };
 
-            sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
-        });
+                var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
+                                                        size: new Vector2(60, 60), 
+                                                        normal: new Vector3(0, 0, 1), 
+                                                        heightDirection: new Vector3(0, 1, 0), 
+                                                        name: "TexturePlane")
+                {
+                    IsHitTestVisible = false,
+                    Material = textureMaterial,
+                    BackMaterial = textureMaterial,
+                };
+
+                sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+            },
+            textureCreationFailedCallback: exception =>
+            {
+                ShowInfoMessage("ERROR: " + exception.Message);
+            });
 
 
         // TESTING TextureFactory:

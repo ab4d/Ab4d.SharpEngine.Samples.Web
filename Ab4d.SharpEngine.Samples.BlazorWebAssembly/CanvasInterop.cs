@@ -93,7 +93,7 @@ public partial class CanvasInterop : ICanvasInterop
     private bool _isSpectorCaptureStarted;
     private bool _subscribePointerEventsOnInitialize;
     
-    private Dictionary<string, List<Action<RawImageData?>>> _imageBytesLoadedCallbacks = new();
+    private readonly Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>> _imageBytesLoadedCallbacks = new();
 
     public CanvasInterop(string canvasId, bool subscribePointerEvents = true)
     {
@@ -234,21 +234,21 @@ public partial class CanvasInterop : ICanvasInterop
             throw new SharpEngineException($"Cannot call {methodName} because the Connect method was not called or it failed to connect to the canvas element.");
     }
     
-    public void LoadImageBytes(string fileName, Action<RawImageData?>? onTextureLoadedAction)
+    public void LoadImageBytes(string fileName, Action<RawImageData> onTextureLoadedCallback, Action<string>? onLoadErrorCallback)
     {
         CheckIsInitialized();
 
-        if (onTextureLoadedAction != null)
+        if (onTextureLoadedCallback != null)
         {
             // We need to handle multiple requests for the same image file
             // Therefore we store a list of callbacks for each file name
             if (!_imageBytesLoadedCallbacks.TryGetValue(fileName, out var callbacks))
             {
-                callbacks = new List<Action<RawImageData?>>();
+                callbacks = new List<(Action<RawImageData>, Action<string>?)>();
                 _imageBytesLoadedCallbacks.Add(fileName, callbacks);
             }
             
-            callbacks.Add(onTextureLoadedAction);
+            callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
         }
 
         LoadImageBytesJs(this.CanvasId, fileName);
@@ -424,7 +424,7 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     [JSExport]
-    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes)
+    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes, string? errorText)
     {
         // Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
 
@@ -432,15 +432,23 @@ public partial class CanvasInterop : ICanvasInterop
 
         if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
         {
-            RawImageData? rawImageData;
             if (imageBytes == null)
-                rawImageData = null;
-            else
-                rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
+            {
+                if (errorText == null)
+                    errorText = "Error loading texture " + imageUrl;
 
-            // Maybe more than one callback is registered for the same imageUrl
-            foreach (var callback in callbacks)
-                callback(rawImageData);
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onError?.Invoke(errorText);
+            }
+            else
+            {
+                var rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
+
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onLoaded(rawImageData);
+            }
         }
     }
 

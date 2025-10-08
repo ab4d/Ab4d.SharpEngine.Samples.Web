@@ -8,7 +8,7 @@ let isUpdating = false;
 let isPinchZooming = false;
 
 export async function initInteropAsync() {
-    log("js: initInteropAsync");
+    log("initInteropAsync");
 
     const dotnet = globalThis.getDotnetRuntime(0);
 
@@ -20,11 +20,11 @@ export async function initInteropAsync() {
     //then we also need to change the following line:
     interop = exports.Ab4d.SharpEngine.WebGL.CanvasInterop;
 
-    log("js: .Net interop with CanvasInterop initialized");
+    log(".Net interop with CanvasInterop initialized");
 }
 
 export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscribeRequestAnimationFrame) {
-    log("js: initWebGLCanvas canvasId:" + canvasId);
+    log("initWebGLCanvas canvasId:" + canvasId);
 
     const canvas = globalThis.document.getElementById(canvasId);
 
@@ -97,36 +97,48 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
 }
 
 export async function loadImageBytes(canvasId, url) {
-    log("js: loadImageBytes: start loading " + url);
+    log("loadImageBytes: start loading " + url);
      
-    if (true || !createImageBitmap || typeof OffscreenCanvas === "undefined") {
+    if (!createImageBitmap || typeof OffscreenCanvas === "undefined") {
         // Before Safari 16.4 (2024-03-27)
         await loadImageBytesOldWay(canvasId, url);
         return;
     }
 
     const response = await fetch(url, { mode: 'cors' });
-    if (!response.ok)
-        console.error('Image could not be fetched, url: ' + url);
+    if (!response.ok) {
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, 'Image could not be fetched, url: ' + url);
 
-    log("js: image loaded: " + url);
+        return;
+    }
 
-    const blob = await response.blob();
+    log("image loaded: " + url);
 
-    const bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
+    try {
+        const blob = await response.blob();
 
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(bitmap, 0, 0);
-    const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+        const bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
 
-    // For large arrays prefer using transferable, otherwise fallback as array
-    const data = Array.from(imageData.data);
-    
-    log("js: image byte array retrieved: " + url);
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+        const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
 
-    if (interop)
-        interop.OnImageBytesLoaded(canvasId, url, bitmap.width, bitmap.height, data);
+        const data = Array.from(imageData.data);
+
+        log("image byte array retrieved: " + url);
+
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, bitmap.width, bitmap.height, data, null);
+    }
+    catch (ex) {
+        let message = "Error decoding image " + url + ": " + ex.message;
+        log(message);
+
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, message);
+    }
 }
 
 async function loadImageBytesOldWay(canvasId, url) {
@@ -140,7 +152,7 @@ async function loadImageBytesOldWay(canvasId, url) {
     try {
         await image.decode();
 
-        log("js: image loaded by using Image: " + url);
+        log("image loaded by using Image: " + url);
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -155,18 +167,19 @@ async function loadImageBytesOldWay(canvasId, url) {
         const imageData = ctx.getImageData(0, 0, width, height);
         data = Array.from(imageData.data); // Length = width * height * 4
 
-        log("js: image byte array retrieved: " + url);
+        log("image byte array retrieved: " + url);
+
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, width, height, data, null);
     }
     catch (ex)
     {
-        data = null;
-        width = 0;
-        height = 0;
-        console.error("js: Texture image '" + url + "' failed to load.", ex);
-    }
+        let message = "Error loading " + url + ": " + ex.message;
+        log(message);
 
-    if (interop)
-        interop.OnImageBytesLoaded(canvasId, url, width, height, data);
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, "Error loading " + url + ": " + ex.message);
+    }
 }
 
 // NOTE:
@@ -175,14 +188,14 @@ async function loadImageBytesOldWay(canvasId, url) {
 // But if SetWebGLCanvas is async then it returns no result to .Net and we get an error that "resut is not a string".
 // Therefore we require two methods: SetWebGLCanvas and SubscribeBrowserEvents
 export function subscribeBrowserEvents(canvasId, subscribeMouseEvents, subscribeRequestAnimationFrame) {
-    log("js: subscribeBrowserEvents canvasId:" + canvasId);
+    log("subscribeBrowserEvents canvasId:" + canvasId);
 
     let canvas = getCanvas(canvasId);
     subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame);
 }
 
 export function unsubscribeBrowserEvents(canvasId, unsubscribeMouseEvents, unsubscribeRequestAnimationFrame) {
-    log("js: unsubscribeBrowserEvents canvasId:" + canvasId);
+    log("unsubscribeBrowserEvents canvasId:" + canvasId);
 
     if (!interop)
         return;
@@ -200,7 +213,7 @@ export function unsubscribeBrowserEvents(canvasId, unsubscribeMouseEvents, unsub
             canvas.removeEventListener("touchend", touchEnd, false);
             canvas.removeEventListener("wheel", mouseWheel, false);
 
-            log("js: mouse events unsubscribed");
+            log("mouse events unsubscribed");
         }
     }
 
@@ -209,7 +222,7 @@ export function unsubscribeBrowserEvents(canvasId, unsubscribeMouseEvents, unsub
 }
 
 export function startSpectorCapture(canvasId) {
-    log("js: startSpectorCapture:" + canvasId);
+    log("startSpectorCapture:" + canvasId);
 
     const canvas = getCanvas(canvasId);
 
@@ -226,14 +239,14 @@ export function startSpectorCapture(canvasId) {
 }
 
 export function stopSpectorCapture() {
-    log("js: stopSpectorCapture");
+    log("stopSpectorCapture");
 
     if (spector)
         spector.stopCapture();
 }
 
 export function setCursorStyle(canvasId, cursorStyle) {
-    log("js: setCursorStyle canvasId:" + canvasId + " to " + cursorStyle);
+    log("setCursorStyle canvasId:" + canvasId + " to " + cursorStyle);
 
     const canvas = getCanvas(canvasId);
 
@@ -242,7 +255,7 @@ export function setCursorStyle(canvasId, cursorStyle) {
 }
 
 export function setPointerCapture(canvasId, pointerId) {
-    log("js: setPointerCapture canvasId:" + canvasId);
+    log("setPointerCapture canvasId:" + canvasId);
 
     const canvas = getCanvas(canvasId);
 
@@ -255,7 +268,7 @@ export function setPointerCapture(canvasId, pointerId) {
 }
 
 export function releasePointerCapture(canvasId, pointerId) {
-    log("js: releasePointerCapture canvasId:" + canvasId);
+    log("releasePointerCapture canvasId:" + canvasId);
 
     const canvas = getCanvas(canvasId);
 
@@ -268,7 +281,7 @@ export function releasePointerCapture(canvasId, pointerId) {
 }
 
 export function disconnectWebGLCanvas(canvasId) {
-    log("js: disconnectWebGLCanvas canvasId:" + canvasId);
+    log("disconnectWebGLCanvas canvasId:" + canvasId);
 
     unsubscribeBrowserEvents(canvasId, true, true);
 
@@ -361,7 +374,7 @@ function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeReques
         canvas.addEventListener("touchend", touchEnd, false);
         canvas.addEventListener("wheel", mouseWheel, false);
 
-        log("js: mouse events subscribed");
+        log("mouse events subscribed");
     }
 
     if (subscribeRequestAnimationFrame && !isUpdating) {
@@ -388,7 +401,7 @@ function getKeyboardModifiers(e) {
 
 function log(message) {
     if (isLogging)
-        console.log(message);
+        console.log("js: " + message);
 }
 
 function checkPinch(e, callPinchZoom) {
