@@ -24,36 +24,11 @@
 
 <span style="font-weight: bold">Options:</span><br/>
 
-<label>
-    <input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" />
-    Rotate the camera with left mouse button or touch
-</label>
-<br />
-
-<label>
-    <input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" />
-    Move the camera with control + left mouse button or two fingers
-</label>
-<br />
-
-<label>
-    <input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" />
-    Zoom with mouse wheel or touch pinch
-</label>
-<br />
-
-<label>
-    <input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" />
-    Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)
-</label>
-<br />
-
-<label>
-    <input type="checkbox" @bind="_showRenderTimes" />
-    Show render times in DevTools (F12) Console
-</label>
-
-<br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" />Rotate the camera with left mouse button or touch</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" />Move the camera with control + left mouse button or two fingers</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" />Zoom with mouse wheel or touch pinch</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" />Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)</label><br />
+<label><input type="checkbox" @bind="_showRenderTimes" />Show render times in DevTools (F12) Console</label><br />
 <br />
 
 <button class="btn-primary" @onclick="OnStartStopCameraRotationButtonClicked">@_cameraRotationButtonText</button>
