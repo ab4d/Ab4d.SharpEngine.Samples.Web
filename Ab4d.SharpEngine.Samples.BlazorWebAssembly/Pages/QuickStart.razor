@@ -311,9 +311,13 @@
             });
 
 
-        // Instead of calling CreateTextureAsync that takes a callback, we can also use an overload with await:
+        // Instead of calling CreateTextureAsync that takes a callback, we can also use an overload with await.
+        // To use await, then override the OnAfterRenderAsync method instead of OnAfterRender.
 
         // var gpuImage = await TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
+
+        // if (gpuImage == null)
+        //     return;
 
         // var textureMaterial2 = new StandardMaterial(gpuImage)
         // {
