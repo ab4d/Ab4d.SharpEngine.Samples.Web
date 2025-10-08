@@ -212,13 +212,10 @@
             scene.RootNode.Add(sphereModelNode1);
         }
 
-        AddTexturePlanes();
-
-        // if (sharpEngineSceneView.IsInitialized)
-        //     AddTexturePlanes();
-        // else
-        //     sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlanes();
-
+        if (sharpEngineSceneView.IsInitialized)
+            AddTexturePlanes();
+        else
+            sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlanes();
 
         ShowInfoMessage("Initial 3D scene shown");
     }
@@ -249,6 +246,7 @@
 
 
         // We can also use the TextureLoader to load the texture.
+        // TextureLoader requires that the GpuDevice is defined.
 
         if (!sharpEngineSceneView.IsInitialized)
             return;
@@ -331,7 +329,7 @@
             new GradientStop(Colors.Red, 1),
         };
         var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, gradientStops, isHorizontal: true);
-        
+
         var gradientMaterial = new StandardMaterial(gradientTexture);
 
         var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(80, 30, -150), 
@@ -405,7 +403,7 @@
         Console.WriteLine($"Adding {objectsCount} in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
 
         _addedObjects.Add(groupNode);
-        
+
         ShowRenderedObjectsCount();
     }
 
