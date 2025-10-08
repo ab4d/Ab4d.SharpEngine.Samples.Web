@@ -8,6 +8,7 @@
 @using Ab4d.SharpEngine.Browser
 @using Ab4d.SharpEngine.Lights
 @using Ab4d.SharpEngine.Meshes
+@using Ab4d.SharpEngine.Utilities
 
 <PageTitle>Ab4d.SharpEngine.Web - Quick start</PageTitle>
 
@@ -272,6 +273,36 @@
 
             sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
         });
+
+
+        // TESTING TextureFactory:
+
+        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.Create1x1Texture(gpuDevice, Colors.Yellow);
+        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, Colors.Yellow, Colors.Blue, isHorizontal: false);
+
+        // var gradientStops = new GradientStop[]
+        // {
+        //     new GradientStop(Colors.Yellow, 0),
+        //     new GradientStop(Colors.Blue, 0.3f),
+        //     new GradientStop(Colors.Red, 0.8f),
+        //     new GradientStop(Colors.Red, 1),
+        // };
+        // var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, gradientStops, isHorizontal: true);
+        
+        // var textureMaterial = new StandardMaterial(gradientTexture);
+
+        // var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
+        //     size: new Vector2(60, 60), 
+        //     normal: new Vector3(0, 0, 1), 
+        //     heightDirection: new Vector3(0, 1, 0), 
+        //     name: "TexturePlane")
+        // {
+        //     IsHitTestVisible = false,
+        //     Material = textureMaterial,
+        //     BackMaterial = textureMaterial,
+        // };
+
+        // sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
     }
 
     private void UpdateRenderTime()
