@@ -237,44 +237,73 @@
             scene.RootNode.Add(sphereModelNode1);
         }
 
+        AddTexturePlanes();
 
-        if (sharpEngineSceneView.IsInitialized)
-            AddTexturePlane();
-        else
-            sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlane();
+        // if (sharpEngineSceneView.IsInitialized)
+        //     AddTexturePlanes();
+        // else
+        //     sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlanes();
 
 
         ShowInfoMessage("Initial 3D scene shown");
     }
 
-    private void AddTexturePlane()
+    private void AddTexturePlanes()
     {
+        // The easiest way to show texture is to create a new StandardMaterial
+        // and specify the textureFileName and initialDiffuseColor (shown until the texture is loaded).
+        // This also does not require that the GpuDevice is initialized.
+
+        var textureMaterial = new StandardMaterial(textureFileName: "ab4d-logo-256.png", 
+                                                   initialDiffuseColor: Colors.Gray,
+                                                   alphaClipThreshold: 0.5f); // alphaClipThreshold is optional and defines which pixels are discarded
+
+        var planeModelNode1 = new PlaneModelNode(centerPosition: new Vector3(-80, 30, -150), 
+            size: new Vector2(60, 60), 
+            normal: new Vector3(0, 0, 1), 
+            heightDirection: new Vector3(0, 1, 0), 
+            name: "Texture1Plane")
+        {
+            IsHitTestVisible = false,
+            Material = textureMaterial,
+            BackMaterial = textureMaterial,
+        };
+
+        sharpEngineSceneView.Scene.RootNode.Add(planeModelNode1);
+
+
+
+        // We can also use the TextureLoader to load the texture.
+
+        if (!sharpEngineSceneView.IsInitialized)
+            return;
+
         var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
         if (gpuDevice == null)
             return;
 
-
-        Ab4d.SharpEngine.Utilities.TextureLoader.CreateTextureAsync(
+        // The CreateTextureAsync can take textureCreatedCallback and textureCreationFailedCallback callback actions:
+        TextureLoader.CreateTextureAsync(
             "ab4d-logo-256.png", gpuDevice, 
             textureCreatedCallback: gpuImage =>
             {
-                var textureMaterial = new StandardMaterial(gpuImage)
+                var textureMaterial2 = new StandardMaterial(gpuImage)
                 {
                     AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
                 };
 
-                var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
+                var planeModelNode2 = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
                                                         size: new Vector2(60, 60), 
                                                         normal: new Vector3(0, 0, 1), 
                                                         heightDirection: new Vector3(0, 1, 0), 
-                                                        name: "TexturePlane")
+                                                        name: "Texture2Plane")
                 {
                     IsHitTestVisible = false,
-                    Material = textureMaterial,
-                    BackMaterial = textureMaterial,
+                    Material = textureMaterial2,
+                    BackMaterial = textureMaterial2,
                 };
 
-                sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+                sharpEngineSceneView.Scene.RootNode.Add(planeModelNode2);
             },
             textureCreationFailedCallback: exception =>
             {
@@ -282,34 +311,62 @@
             });
 
 
-        // TESTING TextureFactory:
+        // Instead of calling CreateTextureAsync that takes a callback, we can also use an overload with await:
 
-        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.Create1x1Texture(gpuDevice, Colors.Yellow);
-        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, Colors.Yellow, Colors.Blue, isHorizontal: false);
+        // var gpuImage = await TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
 
-        // var gradientStops = new GradientStop[]
+        // var textureMaterial2 = new StandardMaterial(gpuImage)
         // {
-        //     new GradientStop(Colors.Yellow, 0),
-        //     new GradientStop(Colors.Blue, 0.3f),
-        //     new GradientStop(Colors.Red, 0.8f),
-        //     new GradientStop(Colors.Red, 1),
+        //     AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
         // };
-        // var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, gradientStops, isHorizontal: true);
-        
-        // var textureMaterial = new StandardMaterial(gradientTexture);
 
-        // var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
+        // var planeModelNode2 = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
         //     size: new Vector2(60, 60), 
         //     normal: new Vector3(0, 0, 1), 
         //     heightDirection: new Vector3(0, 1, 0), 
-        //     name: "TexturePlane")
+        //     name: "Texture2Plane")
         // {
         //     IsHitTestVisible = false,
-        //     Material = textureMaterial,
-        //     BackMaterial = textureMaterial,
+        //     Material = textureMaterial2,
+        //     BackMaterial = textureMaterial2,
         // };
 
-        // sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+        // sharpEngineSceneView.Scene.RootNode.Add(planeModelNode2);
+
+
+        //
+        // TESTING TextureFactory:
+        //
+
+        // We can also create a simple single color 1x1 texture:
+        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.Create1x1Texture(gpuDevice, Colors.Yellow);
+
+        // or a simple gradient with two colors:
+        //var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, Colors.Yellow, Colors.Blue, isHorizontal: false);
+
+        var gradientStops = new GradientStop[]
+        {
+            new GradientStop(Colors.Yellow, 0),
+            new GradientStop(Colors.Blue, 0.3f),
+            new GradientStop(Colors.Red, 0.8f),
+            new GradientStop(Colors.Red, 1),
+        };
+        var gradientTexture = Ab4d.SharpEngine.Utilities.TextureFactory.CreateGradientTexture(gpuDevice, gradientStops, isHorizontal: true);
+        
+        var gradientMaterial = new StandardMaterial(gradientTexture);
+
+        var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(80, 30, -150), 
+            size: new Vector2(60, 60), 
+            normal: new Vector3(0, 0, 1), 
+            heightDirection: new Vector3(0, 1, 0), 
+            name: "GradientPlane")
+        {
+            IsHitTestVisible = false,
+            Material = gradientMaterial,
+            BackMaterial = gradientMaterial,
+        };
+
+        sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
     }
 
     private void UpdateRenderTime()
