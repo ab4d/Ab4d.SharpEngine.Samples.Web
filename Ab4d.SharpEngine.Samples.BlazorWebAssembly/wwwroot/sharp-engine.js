@@ -188,7 +188,7 @@ export async function loadImageBytes(canvasId, url) {
             interop.OnImageBytesLoaded(canvasId, url, bitmap.width, bitmap.height, data, null);
     }
     catch (ex) {
-        message = `loadImageBytes: error decoding image '${url}': ${ex.message}`;
+        let message = `loadImageBytes: error decoding image '${url}': ${ex.message}`;
         log(message);
 
         if (interop)
