@@ -1,9 +1,10 @@
-﻿let initialCanvas;
+﻿let isLogging = true; // Set this to true to write log messages from javascript to console
+
+let initialCanvas;
 let interop;
 let spector;
 let resizeObserver;
 let canvasToDisplaySizeMap;
-let isLogging = false;
 let isUpdating = false;
 let isPinchZooming = false;
 
@@ -86,7 +87,7 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         // It is not possible (at least in .Net 9) to pass an objects for JS to .Net
         // It was possible to encode width and height into an int, but we also need dpiScale,
         // so we need to pass it as a string
-        return "OK:v" + webglVersion + ";" + displayWidth + ";" + displayHeight + ";" + dpi;
+        return `OK:v${webglVersion};${displayWidth};${displayHeight};${dpi}`;
     }
     else
     {
@@ -94,6 +95,60 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
         console.error(errorMessage);
         return errorMessage;
     }
+}
+
+export function loadTextFile(canvasId, url) {
+    log("loadTextFile: start loading " + url);
+
+    fetch(url, { mode: 'cors' })
+        .then(response => {
+            if (!response.ok) {
+                log(`loadTextFile: HTTP error loading '${url}': ${response.status}`);
+                if (interop)
+                    interop.OnTextFileLoaded(canvasId, url, 0, 0, null, `HTTP error! Status: ${response.status}`);
+            }
+            else {
+                return response.text();
+            }
+        })
+        .then(text => {
+            if (interop && text) {
+                log("loadTextFile: text loaded: " + url);
+                interop.OnTextFileLoaded(canvasId, url, text, null);
+            }
+        })
+        .catch(error => {
+            log(`loadTextFile: error loading '${url}': ${error.message}`);
+            if (interop)
+                interop.OnTextFileLoaded(canvasId, url, 0, 0, null, error.message);
+        });
+}
+
+export function loadBinaryFile(canvasId, url) {
+    log("loadBinaryFile: start loading " + url);
+
+    fetch(url, { mode: 'cors' })
+        .then(response => {
+            if (!response.ok) {
+                if (interop)
+                    interop.OnBinaryFileLoaded(canvasId, url, 0, 0, null, `HTTP error! Status: ${response.status}`);
+            }
+            else {
+                return response.arrayBuffer();
+            }
+        })
+        .then(buffer => {
+            if (interop && buffer) {
+                log("loadBinaryFile: file loaded: " + url);
+                const byteArray = new Uint8Array(buffer);
+                interop.OnBinaryFileLoaded(canvasId, url, byteArray, null);
+            }
+        })
+        .catch(error => {
+            log(`loadBinaryFile: error loading '${url}': ${error.message}`);
+            if (interop)
+                interop.OnBinaryFileLoaded(canvasId, url, 0, 0, null, error.message);
+        });
 }
 
 export async function loadImageBytes(canvasId, url) {
@@ -113,7 +168,7 @@ export async function loadImageBytes(canvasId, url) {
         return;
     }
 
-    log("image loaded: " + url);
+    log("loadImageBytes: Image loaded: " + url);
 
     try {
         const blob = await response.blob();
@@ -127,13 +182,13 @@ export async function loadImageBytes(canvasId, url) {
 
         const data = Array.from(imageData.data);
 
-        log("image byte array retrieved: " + url);
+        log("loadImageBytes: image byte array retrieved: " + url);
 
         if (interop)
             interop.OnImageBytesLoaded(canvasId, url, bitmap.width, bitmap.height, data, null);
     }
     catch (ex) {
-        let message = "Error decoding image " + url + ": " + ex.message;
+        message = `loadImageBytes: error decoding image '${url}': ${ex.message}`;
         log(message);
 
         if (interop)
@@ -178,7 +233,7 @@ async function loadImageBytesOldWay(canvasId, url) {
         log(message);
 
         if (interop)
-            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, "Error loading " + url + ": " + ex.message);
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, message);
     }
 }
 

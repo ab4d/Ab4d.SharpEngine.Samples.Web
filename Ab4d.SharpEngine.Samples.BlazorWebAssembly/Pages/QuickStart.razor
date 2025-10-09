@@ -24,11 +24,11 @@
 
 <span style="font-weight: bold">Options:</span><br/>
 
-<label><input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" />Rotate the camera with left mouse button or touch</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" />Move the camera with control + left mouse button or two fingers</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" />Zoom with mouse wheel or touch pinch</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" />Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)</label><br />
-<label><input type="checkbox" @bind="_showRenderTimes" />Show render times in DevTools (F12) Console</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" /> Rotate the camera with left mouse button or touch</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" /> Move the camera with control + left mouse button or two fingers</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" /> Zoom with mouse wheel or touch pinch</label><br />
+<label><input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" /> Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)</label><br />
+<label><input type="checkbox" @bind="_showRenderTimes" /> Show render times in DevTools (F12) Console</label><br />
 <br />
 
 <button class="btn-primary" @onclick="OnStartStopCameraRotationButtonClicked">@_cameraRotationButtonText</button>
@@ -212,6 +212,43 @@
             scene.RootNode.Add(sphereModelNode1);
         }
 
+
+        //string objUrl = "/models/Teapot.obj";
+        //string objUrl = "/models/house-with-trees.obj";
+        string objUrl = "/models/Teapot-with-material.obj";
+
+        var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
+
+        // var importedNode = await objImporter.Import(objUrl);
+        // sharpEngineSceneView.Scene.RootNode.Add(importedNode);
+
+        objImporter.Import(objUrl, importCompleteCallback: importedNode =>
+        {
+            if (importedNode != null)
+            {
+                Utilities.ModelUtils.PositionAndScaleSceneNode(importedNode, new Vector3(100, 0, 0), PositionTypes.Bottom, new Vector3(80, 80, 80));
+                sharpEngineSceneView.Scene.RootNode.Add(importedNode);
+            }
+        },
+        importFailedCallback: error => Console.WriteLine($"Obj load error: {error}"));
+
+        // //canvasInterop.LoadTextFile("/models/house-with-trees.obj",
+        // canvasInterop.LoadTextFile(objUrl,
+        //     onLoadedCallback: objText =>
+        //     {
+        //         Console.WriteLine($"Obj file loaded - len: {objText.Length}");
+
+        //         var objImporter = new ObjImporter(sharpEngineSceneView.GpuDevice);
+        //         var teapotNode = objImporter.Import(objText, mtlFileContent: null, defaultMaterial: null);
+
+        //         Utilities.ModelUtils.PositionAndScaleSceneNode(teapotNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
+
+        //         sharpEngineSceneView.Scene.RootNode.Add(teapotNode);
+        //     },
+        //     onLoadErrorCallback: error => Console.WriteLine($"Obj load error: {error}") );
+
+
+
         if (sharpEngineSceneView.IsInitialized)
             AddTexturePlanes();
         else
@@ -222,6 +259,16 @@
 
     private void AddTexturePlanes()
     {
+
+
+        // var objImporter = new ObjImporter(scene);
+        // objImporter.Import("models/house-with-trees.obj", importedNode =>
+        // {
+        //     scene.RootNode.Add(importedNode);
+        // });
+
+
+
         // The easiest way to show texture is to create a new StandardMaterial
         // and specify the textureFileName and initialDiffuseColor (shown until the texture is loaded).
         // This also does not require that the GpuDevice is initialized.

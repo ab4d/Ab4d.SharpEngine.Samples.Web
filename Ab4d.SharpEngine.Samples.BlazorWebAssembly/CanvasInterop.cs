@@ -74,7 +74,12 @@ public partial class CanvasInterop : ICanvasInterop
     /// Returns true when pointer (mouse, pointer and touch) events are subscribed in javascript.
     /// </summary>
     public bool ArePointerEventsSubscribed { get; private set; }
-    
+
+    /// <summary>
+    /// Event that is triggered when this CanvasInterop initializes the WebGL and communication with the canvas.
+    /// </summary>
+    public event EventHandler? WebGLInitialized;
+
     public event MouseButtonEventHandler? PointerDown;
     public event MouseButtonEventHandler? PointerUp;
     public event MouseMoveEventHandler? PointerMoved;
@@ -93,7 +98,9 @@ public partial class CanvasInterop : ICanvasInterop
     private bool _isSpectorCaptureStarted;
     private bool _subscribePointerEventsOnInitialize;
     
-    private readonly Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>> _imageBytesLoadedCallbacks = new();
+    private Dictionary<string, List<(Action<string> onLoaded, Action<string>? onError)>>? _textFileLoadedCallbacks;
+    private Dictionary<string, List<(Action<byte[]> onLoaded, Action<string>? onError)>>? _binaryFileLoadedCallbacks;
+    private Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>>? _imageBytesLoadedCallbacks;
 
     public CanvasInterop(string canvasId, bool subscribePointerEvents = true)
     {
@@ -220,6 +227,11 @@ public partial class CanvasInterop : ICanvasInterop
         if (IsLoggingInteropEvents)
             Console.WriteLine($"Initialized WebGL for '{this.CanvasId}': {this.Width} x {this.Height}; dpiScale: {this.DpiScale}");
 
+        if (WebGLInitialized != null)
+        {
+            WebGLInitialized.Invoke(this, EventArgs.Empty);
+            WebGLInitialized = null; // Remove all subscribers to prevent GC links
+        }
     }
 
     private void CheckIsInitialized(bool checkIfConnectedToCanvas = true, [CallerMemberName] string? methodName = null)
@@ -234,24 +246,121 @@ public partial class CanvasInterop : ICanvasInterop
             throw new SharpEngineException($"Cannot call {methodName} because the Connect method was not called or it failed to connect to the canvas element.");
     }
     
-    public void LoadImageBytes(string fileName, Action<RawImageData> onTextureLoadedCallback, Action<string>? onLoadErrorCallback)
+    public void LoadTextFile(string fileName, Action<string> onLoadedCallback, Action<string>? onLoadErrorCallback)
     {
-        CheckIsInitialized();
-
-        if (onTextureLoadedCallback != null)
+        if (!IsInteropInitialized)
         {
-            // We need to handle multiple requests for the same image file
-            // Therefore we store a list of callbacks for each file name
-            if (!_imageBytesLoadedCallbacks.TryGetValue(fileName, out var callbacks))
-            {
-                callbacks = new List<(Action<RawImageData>, Action<string>?)>();
-                _imageBytesLoadedCallbacks.Add(fileName, callbacks);
-            }
-            
-            callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+            WebGLInitialized += (sender, args) => LoadTextFile(fileName, onLoadedCallback, onLoadErrorCallback);
+            return;
         }
 
+        // We need to handle multiple requests for the same image file
+        // Therefore we store a list of callbacks for each file name
+        _textFileLoadedCallbacks ??= new Dictionary<string, List<(Action<string> onLoaded, Action<string>? onError)>>();
+
+        if (_textFileLoadedCallbacks.TryGetValue(fileName, out var callbacks))
+        {
+            // Request to load this file was already issued - just add another callback action
+            callbacks.Add((onLoadedCallback, onLoadErrorCallback));
+            return;
+        }
+        
+        // This is the first request to load this file
+        callbacks = new List<(Action<string>, Action<string>?)>();
+        callbacks.Add((onLoadedCallback, onLoadErrorCallback));
+
+        _textFileLoadedCallbacks.Add(fileName, callbacks);
+
+        LoadTextFileJs(this.CanvasId, fileName);
+    }
+
+    public async Task<string> LoadTextFileAsync(string fileName)
+    {
+        var tcs = new TaskCompletionSource<string>();
+
+        LoadTextFile(fileName, 
+            onLoadedCallback: fileContent => tcs.SetResult(fileContent),
+            onLoadErrorCallback: errorText => tcs.SetException(new Exception(errorText)));
+
+        return await tcs.Task;
+    }
+    
+    public void LoadBinaryFile(string fileName, Action<byte[]> onLoadedCallback, Action<string>? onLoadErrorCallback)
+    {
+        if (!IsInteropInitialized)
+        {
+            WebGLInitialized += (sender, args) => LoadBinaryFile(fileName, onLoadedCallback, onLoadErrorCallback);
+            return;
+        }
+
+        // We need to handle multiple requests for the same image file
+        // Therefore we store a list of callbacks for each file name
+        _binaryFileLoadedCallbacks ??= new Dictionary<string, List<(Action<byte[]> onLoaded, Action<string>? onError)>>();
+
+        if (_binaryFileLoadedCallbacks.TryGetValue(fileName, out var callbacks))
+        {
+            // Request to load this file was already issued - just add another callback action
+            callbacks.Add((onLoadedCallback, onLoadErrorCallback));
+            return;
+        }
+         
+        // This is the first request to load this file
+        callbacks = new List<(Action<byte[]>, Action<string>?)>();
+        callbacks.Add((onLoadedCallback, onLoadErrorCallback));
+
+        _binaryFileLoadedCallbacks.Add(fileName, callbacks);
+
+        LoadBinaryFileJs(this.CanvasId, fileName);
+    }
+
+    public async Task<byte[]> LoadBinaryFileAsync(string fileName)
+    {
+        var tcs = new TaskCompletionSource<byte[]>();
+
+        LoadBinaryFile(fileName, 
+            onLoadedCallback: fileBytes => tcs.SetResult(fileBytes),
+            onLoadErrorCallback: errorText => tcs.SetException(new Exception(errorText)));
+
+        return await tcs.Task;
+    }
+    
+    public void LoadImageBytes(string fileName, Action<RawImageData> onTextureLoadedCallback, Action<string>? onLoadErrorCallback)
+    {
+        if (!IsInteropInitialized)
+        {
+            WebGLInitialized += (sender, args) => LoadImageBytes(fileName, onTextureLoadedCallback, onLoadErrorCallback);
+            return;
+        }
+
+        // We need to handle multiple requests for the same image file
+        // Therefore we store a list of callbacks for each file name
+        _imageBytesLoadedCallbacks ??= new Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>>();
+
+        if (_imageBytesLoadedCallbacks.TryGetValue(fileName, out var callbacks))
+        {
+            // Request to load this texture was already issued - just add another callback action
+            callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+            return;
+        }
+
+        // This is the first request to load this file
+        callbacks = new List<(Action<RawImageData>, Action<string>?)>();
+        callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+
+        _imageBytesLoadedCallbacks.Add(fileName, callbacks);
+
         LoadImageBytesJs(this.CanvasId, fileName);
+    }
+
+    public async Task<RawImageData> LoadImageBytesAsync(string fileName)
+    {
+        var tcs = new TaskCompletionSource<RawImageData>();
+
+        LoadImageBytes(fileName, 
+            onTextureLoadedCallback: rawImageData => tcs.SetResult(rawImageData),
+            onLoadErrorCallback: errorText => tcs.SetException(new Exception(errorText)));
+
+        return await tcs.Task;
     }
     
     public void SetCursorStyle(string cursorStyle)
@@ -424,18 +533,69 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     [JSExport]
-    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes, string? errorText)
+    private static void OnTextFileLoaded(string canvasId, string url, string? fileContent, string? errorText)
     {
-        // Console.WriteLine($"OnImageBytesLoaded '{imageUrl}': {width} x {height} = {imageBytes?.Length ?? 0:N0} bytes");
-
         var canvasInterop = GetCanvasInterop(canvasId);
 
-        if (canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
+        if (canvasInterop._textFileLoadedCallbacks != null && 
+            canvasInterop._textFileLoadedCallbacks.Remove(url, out var callbacks))
+        {
+            if (fileContent == null)
+            {
+                if (errorText == null)
+                    errorText = "Error loading text file: " + url;
+
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onError?.Invoke(errorText);
+            }
+            else
+            {
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onLoaded(fileContent);
+            }
+        }
+    }
+    
+    [JSExport]
+    private static void OnBinaryFileLoaded(string canvasId, string url, byte[]? fileBytes, string? errorText)
+    {
+        var canvasInterop = GetCanvasInterop(canvasId);
+
+        if (canvasInterop._binaryFileLoadedCallbacks != null && 
+            canvasInterop._binaryFileLoadedCallbacks.Remove(url, out var callbacks))
+        {
+            if (fileBytes == null)
+            {
+                if (errorText == null)
+                    errorText = "Error loading binary file: " + url;
+
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onError?.Invoke(errorText);
+            }
+            else
+            {
+                // Maybe more than one callback is registered for the same imageUrl
+                foreach (var callback in callbacks)
+                    callback.onLoaded(fileBytes);
+            }
+        }
+    }
+    
+    [JSExport]
+    private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes, string? errorText)
+    {
+        var canvasInterop = GetCanvasInterop(canvasId);
+
+        if (canvasInterop._imageBytesLoadedCallbacks != null && 
+            canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
         {
             if (imageBytes == null)
             {
                 if (errorText == null)
-                    errorText = "Error loading texture " + imageUrl;
+                    errorText = "Error loading texture: " + imageUrl;
 
                 // Maybe more than one callback is registered for the same imageUrl
                 foreach (var callback in callbacks)
@@ -550,6 +710,12 @@ public partial class CanvasInterop : ICanvasInterop
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
     private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
 
+    [JSImport("loadTextFile", "sharp-engine.js")]
+    private static partial void LoadTextFileJs(string canvasId, string url);
+    
+    [JSImport("loadBinaryFile", "sharp-engine.js")]
+    private static partial void LoadBinaryFileJs(string canvasId, string url);
+    
     [JSImport("loadImageBytes", "sharp-engine.js")]
     private static partial void LoadImageBytesJs(string canvasId, string imageUrl);
     
