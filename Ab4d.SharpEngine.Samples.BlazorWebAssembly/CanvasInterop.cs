@@ -438,7 +438,9 @@ public partial class CanvasInterop : ICanvasInterop
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
 
-        _imageBytesLoadedCallbacks.Clear();
+        _textFileLoadedCallbacks?.Clear();
+        _binaryFileLoadedCallbacks?.Clear();
+        _imageBytesLoadedCallbacks?.Clear();
 
         if (_initialInterop == this)
         {
