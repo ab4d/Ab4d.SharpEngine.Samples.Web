@@ -9,6 +9,7 @@
 @using Ab4d.SharpEngine.Lights
 @using Ab4d.SharpEngine.Meshes
 @using Ab4d.SharpEngine.Utilities
+@implements IDisposable
 
 <PageTitle>Ab4d.SharpEngine.Web - Quick start</PageTitle>
 
@@ -585,4 +586,9 @@
 
     //     sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
     // }
+
+    public void Dispose()
+    {
+        sharpEngineSceneView.Dispose();
+    }
 }
