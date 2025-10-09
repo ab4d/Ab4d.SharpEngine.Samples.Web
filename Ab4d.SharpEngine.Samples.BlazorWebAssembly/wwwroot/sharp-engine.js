@@ -1,4 +1,4 @@
-﻿let isLogging = true; // Set this to true to write log messages from javascript to console
+﻿let isLogging = false; // Set this to true to write log messages from javascript to console
 
 let initialCanvas;
 let interop;
