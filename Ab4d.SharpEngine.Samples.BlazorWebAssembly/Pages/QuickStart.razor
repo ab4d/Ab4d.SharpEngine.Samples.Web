@@ -201,7 +201,7 @@
             MajorLinesFrequency = 5,
 
             IsClosed = true,
-            };
+        };
         scene.RootNode.Add(wireGridNode);
 
 
@@ -219,7 +219,8 @@
 
         var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
 
-        // var importedNode = await objImporter.Import(objUrl);
+        // To uses await call the ImportAsync method (see also ObjFileViewer.razor)
+        // var importedNode = await objImporter.ImportAsync(objUrl);
         // sharpEngineSceneView.Scene.RootNode.Add(importedNode);
 
         objImporter.Import(objUrl, importCompleteCallback: importedNode =>
