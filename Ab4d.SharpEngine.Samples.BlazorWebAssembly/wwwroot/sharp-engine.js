@@ -105,7 +105,7 @@ export function loadTextFile(canvasId, url) {
             if (!response.ok) {
                 log(`loadTextFile: HTTP error loading '${url}': ${response.status}`);
                 if (interop)
-                    interop.OnTextFileLoaded(canvasId, url, 0, 0, null, `HTTP error! Status: ${response.status}`);
+                    interop.OnTextFileLoaded(canvasId, url, null, `HTTP error! Status: ${response.status}`);
             }
             else {
                 return response.text();
@@ -120,7 +120,7 @@ export function loadTextFile(canvasId, url) {
         .catch(error => {
             log(`loadTextFile: error loading '${url}': ${error.message}`);
             if (interop)
-                interop.OnTextFileLoaded(canvasId, url, 0, 0, null, error.message);
+                interop.OnTextFileLoaded(canvasId, url, null, error.message);
         });
 }
 
@@ -131,7 +131,7 @@ export function loadBinaryFile(canvasId, url) {
         .then(response => {
             if (!response.ok) {
                 if (interop)
-                    interop.OnBinaryFileLoaded(canvasId, url, 0, 0, null, `HTTP error! Status: ${response.status}`);
+                    interop.OnBinaryFileLoaded(canvasId, url, null, `HTTP error! Status: ${response.status}`);
             }
             else {
                 return response.arrayBuffer();
@@ -147,7 +147,7 @@ export function loadBinaryFile(canvasId, url) {
         .catch(error => {
             log(`loadBinaryFile: error loading '${url}': ${error.message}`);
             if (interop)
-                interop.OnBinaryFileLoaded(canvasId, url, 0, 0, null, error.message);
+                interop.OnBinaryFileLoaded(canvasId, url, null, error.message);
         });
 }
 
