@@ -71,7 +71,10 @@
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-            ShowHash3D();
+        {
+            InitializeScene();
+            CreateDemoScene();
+        }
     }
 
     // //If we would like to use CreateTextureAsync, then we need to override the OnAfterRenderAsync
@@ -80,7 +83,8 @@
     //     if (!firstRender)
     //         return;
 
-    //     ShowHash3D();
+    //     await AddBitmapText();
+    //     await AddVectorFont();
 
     //     // var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
 
@@ -114,7 +118,7 @@
     // }
 
 
-    private void ShowHash3D()
+    private void InitializeScene()
     {
         var scene         = sharpEngineSceneView.Scene;
         var sceneView     = sharpEngineSceneView.SceneView;
@@ -144,7 +148,7 @@
         {
             Heading = 30,
             Attitude = -25,
-            Distance = 400,
+            Distance = 500,
             TargetPosition = new Vector3(0, 0, 0),
             ShowCameraLight = ShowCameraLightType.Auto,
         };
@@ -166,7 +170,11 @@
 
 
         scene.SetAmbientLight(0.2f);
+    }
 
+    private void CreateDemoScene()
+    {
+        var scene = sharpEngineSceneView.Scene;
 
         float hashModelSize = 100;
         float hashModelBarThickness = 16;
@@ -265,6 +273,7 @@
         {
             AddTexturePlanes();
             _ = AddBitmapText(); // call async method from sync context
+            _ = AddVectorFont(); // call async method from sync context
         }
         else
         {
@@ -272,6 +281,7 @@
             {
                 AddTexturePlanes();
                 await AddBitmapText();
+                await AddVectorFont();
             };
         }
 
@@ -280,14 +290,6 @@
 
     private void AddTexturePlanes()
     {
-        // var objImporter = new ObjImporter(scene);
-        // objImporter.Import("models/house-with-trees.obj", importedNode =>
-        // {
-        //     scene.RootNode.Add(importedNode);
-        // });
-
-
-
         // The easiest way to show texture is to create a new StandardMaterial
         // and specify the textureFileName and initialDiffuseColor (shown until the texture is loaded).
         // This also does not require that the GpuDevice is initialized.
@@ -411,7 +413,7 @@
 
         sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
     }
-    
+
     private async Task AddBitmapText()
     {
         var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
@@ -428,15 +430,52 @@
         _bitmapTextCreator = await BitmapTextCreator.CreateAsync(sharpEngineSceneView.Scene, bitmapFont);
 
         var bitmapTextNode = _bitmapTextCreator.CreateTextNode("Bitmap font", 
-            position: new Vector3(0, 0, 100), 
-            positionType: PositionTypes.Center, 
-            textDirection: new Vector3(1, 0, 0), 
-            upDirection: new Vector3(0, 0, -1), 
-            fontSize: 20, 
-            textColor: Colors.Black, 
-            isSolidColorMaterial: true);
+                                                               position: new Vector3(0, 0, 85), 
+                                                               positionType: PositionTypes.Center, 
+                                                               textDirection: new Vector3(1, 0, 0), 
+                                                               upDirection: new Vector3(0, 0, -1), 
+                                                               fontSize: 20, 
+                                                               textColor: Colors.Black, 
+                                                               isSolidColorMaterial: true);
 
         sharpEngineSceneView.Scene.RootNode.Add(bitmapTextNode);
+    }
+
+    private async Task AddVectorFont()
+    {
+        // Load the font file
+        // This method can be called multiple times when the same fontName and fontFilePath is used.
+        // You can also check if font is loaded by calling:
+        // bool isLoaded = TrueTypeFontLoader.Instance.IsFontLoaded(fontName);
+
+        var fontFile = "/fonts/Roboto-Regular.ttf";
+        var fontName = "RobotoRegular";
+
+        try
+        {
+            await TrueTypeFontLoader.Instance.LoadFontFileAsync(fontFile, fontName, sharpEngineSceneView.CanvasInterop);
+
+            // You can also use the async version of LoadFontFile method that read the font file in a background thread:
+            //await TrueTypeFontLoader.Instance.LoadFontFileAsync(fontFileName, fontName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading font: " + ex.Message);
+            return;
+        }
+
+        // After font is loaded, we can create an instance of VectorFontFactory by passing the fontName to constructor
+        var vectorFontFactory = new VectorFontFactory(fontName);
+
+        var textMesh = vectorFontFactory.CreateTextMesh("Vector FONT",
+                                                        new Vector3(0, 0, 110),
+                                                        TextPositionTypes.Center,
+                                                        textDirection: new Vector3(1, 0, 0),
+                                                        upDirection: new Vector3(0, 0, -1),
+                                                        fontSize: 20);
+
+        var meshModelNode = new MeshModelNode(textMesh!, StandardMaterials.Gold, "VectorTextNode") { BackMaterial = StandardMaterials.Black };
+        sharpEngineSceneView.Scene.RootNode.Add(meshModelNode);
     }
 
     private void UpdateRenderTime()
