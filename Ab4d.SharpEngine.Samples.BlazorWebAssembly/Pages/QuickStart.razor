@@ -36,7 +36,7 @@
 <button class="btn-primary" style="margin-top: 3pt" @onclick="ChangeMaterial">Change material</button>
 <button class="btn-primary" style="margin-top: 3pt" @onclick="AddManyObjects">Add many objects</button>
 <button class="btn-primary" style="margin-top: 3pt" @onclick="RemoveAddedObjects">Remove added objects</button>
-@* <button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button> *@
+<button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button>
 
 <br />
 
@@ -58,14 +58,14 @@
     private PointerCameraController? _pointerCameraController;
     private DirectionalLight? _directionalLight;
 
-    private StandardMaterial? _hashMaterial;
+    private StandardMaterialBase? _hashMaterial;
     private ModelNode? _lastSelectedModelNode;
     private Material? _lastSelectedModelNodeMaterial;
 
     private List<GroupNode> _addedObjects = new List<GroupNode>();
     private int _addedObjectsCount;
 
-
+    private BitmapTextCreator _bitmapTextCreator;
 
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
@@ -74,7 +74,7 @@
             ShowHash3D();
     }
 
-    // If we would like to use CreateTextureAsync, then we need to override the OnAfterRenderAsync
+    // //If we would like to use CreateTextureAsync, then we need to override the OnAfterRenderAsync
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (!firstRender)
@@ -82,34 +82,37 @@
 
     //     ShowHash3D();
 
-    //     var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
+    //     // var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
 
-    //     if (gpuDevice == null)
-    //         return;
+    //     // if (gpuDevice == null)
+    //     //     sharpEngineSceneView.Scene.SceneInitialized += async (sender, args) => await ShowBitmapText();
+    //     // else
+    //     //     await ShowBitmapText();
 
-    //     var gpuImage = await Ab4d.SharpEngine.Utilities.TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
+    //     // var gpuImage = await Ab4d.SharpEngine.Utilities.TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
 
-    //     if (gpuImage == null)
-    //         return;
+    //     // if (gpuImage == null)
+    //     //     return;
 
-    //     var textureMaterial = new StandardMaterial(gpuImage)
-    //     {
-    //         HasTransparency = true,
-    //     };
+    //     // var textureMaterial = new StandardMaterial(gpuImage)
+    //     // {
+    //     //     HasTransparency = true,
+    //     // };
 
-    //     var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150),
-    //         size: new Vector2(60, 60),
-    //         normal: new Vector3(0, 0, 1),
-    //         heightDirection: new Vector3(0, 1, 0),
-    //         name: "TexturePlane")
-    //     {
-    //         IsHitTestVisible = false,
-    //         Material = textureMaterial,
-    //         BackMaterial = textureMaterial,
-    //     };
+    //     // var planeModelNode = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150),
+    //     //     size: new Vector2(60, 60),
+    //     //     normal: new Vector3(0, 0, 1),
+    //     //     heightDirection: new Vector3(0, 1, 0),
+    //     //     name: "TexturePlane")
+    //     // {
+    //     //     IsHitTestVisible = false,
+    //     //     Material = textureMaterial,
+    //     //     BackMaterial = textureMaterial,
+    //     // };
 
-    //     sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+    //     // sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
     // }
+
 
     private void ShowHash3D()
     {
@@ -164,6 +167,7 @@
 
         scene.SetAmbientLight(0.2f);
 
+
         float hashModelSize = 100;
         float hashModelBarThickness = 16;
         float hashModelBarOffset = 20;
@@ -206,10 +210,16 @@
         scene.RootNode.Add(wireGridNode);
 
 
+        // The first sphere is rendered by a SolidColorMaterial that renders the whole object with a single solid color (without any light shading)
+        var solidColorMaterial = new SolidColorMaterial(diffuseColor: Colors.Silver);
+
+        // Other spheres are rendered by a specular silver material (renders a white reflection)
         var sphereMaterial = StandardMaterials.Silver.SetSpecular(64);
+
         for (int i = 0; i < 6; i++)
         {
-            var sphereModelNode1 = new SphereModelNode(new Vector3(-67 - 17 + i * 33, 16, -80), radius: 14, sphereMaterial, name: $"Sphere_{i + 1}");
+            Material usedMaterial = i == 0 ? solidColorMaterial : sphereMaterial;
+            var sphereModelNode1 = new SphereModelNode(new Vector3(-67 - 17 + i * 33, 16, -80), radius: 14, usedMaterial, name: $"Sphere_{i + 1}");
             scene.RootNode.Add(sphereModelNode1);
         }
 
@@ -252,17 +262,24 @@
 
 
         if (sharpEngineSceneView.IsInitialized)
+        {
             AddTexturePlanes();
+            _ = AddBitmapText(); // call async method from sync context
+        }
         else
-            sharpEngineSceneView.SceneViewInitialized += (sender, args) => AddTexturePlanes();
+        {
+            sharpEngineSceneView.SceneViewInitialized += async (sender, args) =>
+            {
+                AddTexturePlanes();
+                await AddBitmapText();
+            };
+        }
 
         ShowInfoMessage("Initial 3D scene shown");
     }
 
     private void AddTexturePlanes()
     {
-
-
         // var objImporter = new ObjImporter(scene);
         // objImporter.Import("models/house-with-trees.obj", importedNode =>
         // {
@@ -393,6 +410,33 @@
         };
 
         sharpEngineSceneView.Scene.RootNode.Add(planeModelNode);
+    }
+    
+    private async Task AddBitmapText()
+    {
+        var gpuDevice = sharpEngineSceneView.Scene.GpuDevice;
+
+        if (gpuDevice == null) // bitmap text can be created only after the GpuDevice was initialized
+            return;
+
+        // See Text/BitmapTextSample.cs file in the Ab4d.SharpEngine.Samples.Common project
+        // (project is part of Ab4d.SharpEngine samples - https://github.com/ab4d/Ab4d.SharpEngine.Samples)
+        // to see how to create a custom bitmap font.
+        // There are also Arial, Arial Black, Roboto Black and Arial Black with outline bitmap fonts in the Resources\BitmapFonts folder.
+
+        var bitmapFont = await BitmapFont.CreateAsync("/fonts/roboto_64.fnt", gpuDevice);
+        _bitmapTextCreator = await BitmapTextCreator.CreateAsync(sharpEngineSceneView.Scene, bitmapFont);
+
+        var bitmapTextNode = _bitmapTextCreator.CreateTextNode("Bitmap font", 
+            position: new Vector3(0, 0, 100), 
+            positionType: PositionTypes.Center, 
+            textDirection: new Vector3(1, 0, 0), 
+            upDirection: new Vector3(0, 0, -1), 
+            fontSize: 20, 
+            textColor: Colors.Black, 
+            isSolidColorMaterial: true);
+
+        sharpEngineSceneView.Scene.RootNode.Add(bitmapTextNode);
     }
 
     private void UpdateRenderTime()
@@ -572,20 +616,20 @@
         }
     }
 
-    // private async Task CaptureNextFrame()
-    // {
-    //     bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
+    private async Task CaptureNextFrame()
+    {
+        bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
 
-    //     if (!success)
-    //     {
-    //         ShowInfoMessage("Cannot start Spector capture.");
-    //         return;
-    //     }
+        if (!success)
+        {
+            ShowInfoMessage("Cannot start Spector capture.");
+            return;
+        }
 
-    //     sharpEngineSceneView.SceneView.Render(forceRender: true);
+        sharpEngineSceneView.SceneView.Render(forceRender: true);
 
-    //     sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
-    // }
+        sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
+    }
 
     public void Dispose()
     {
