@@ -529,10 +529,10 @@
 
         for (int i = 0; i < objectsCount; i++)
         {
-            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsCount * 30, -30, -50 + i * 15), 
-                size: new Vector3(10, 10, 10), 
-                material,
-                name: $"Box_{_addedObjectsCount+1}_{i+1}");
+            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsCount * 30, -30, -50 + i * 15),
+                                                size: new Vector3(10, 10, 10),
+                                                material,
+                                                name: $"Box_{_addedObjectsCount + 1}_{i + 1}");
 
             groupNode.Add(boxModelNode);
         }
@@ -553,6 +553,10 @@
         foreach (var groupNode in _addedObjects)
         {
             scene.RootNode.Remove(groupNode);
+
+            // Also dispose all meshes, materials and textures here.
+            groupNode.DisposeWithAllChildren(disposeMeshes: true, disposeMaterials: true, disposeTextures: true);
+
             _addedObjectsCount--;
         }
 
