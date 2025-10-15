@@ -335,7 +335,9 @@
             "ab4d-logo-256.png", gpuDevice, 
             textureCreatedCallback: gpuImage =>
             {
-                var textureMaterial2 = new StandardMaterial(gpuImage)
+                // This time we use SolidColorMaterial instead of StandardMaterial
+                // Therefore, this texture will not be affected by lighting and will always show its full colors.
+                var textureMaterial2 = new SolidColorMaterial(gpuImage)
                 {
                     AlphaClipThreshold = 0.5f, // Set AlphaClipThreshold to a value between 0 and 1 to discard pixels with alpha below 0.5 (by default AlphaClipThreshold is zero that disabled alpha clipping)
                 };
