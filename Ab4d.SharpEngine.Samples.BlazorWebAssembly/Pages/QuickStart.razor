@@ -70,6 +70,9 @@
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
+        Utilities.Log.LogLevel = LogLevels.Trace;
+        Utilities.Log.IsLoggingToDebugOutput = true;
+
         if (firstRender)
         {
             InitializeScene();
@@ -80,6 +83,10 @@
     // //If we would like to use CreateTextureAsync, then we need to override the OnAfterRenderAsync
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
+
+    //     Utilities.Log.LogLevel = LogLevels.Trace;
+    //     Utilities.Log.IsLoggingToDebugOutput = true;
+
     //     if (!firstRender)
     //         return;
 
