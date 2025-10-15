@@ -132,19 +132,14 @@ To see what features are already implemented, see the "Implementation details" b
 use IntelliSense to see what classes are available. 
 
 
+### Current implementation details
 
-### Roadmap and Implementation details
-
-**Beta 2** version is planned for October 2025.
-**v1.0** is planned to be released before the end of 2025.
-
-Namespace implementation status (compared to desktop and mobile Ab4d.SharpEngine):
+Namespace implementation status (**compared to desktop and mobile Ab4d.SharpEngine**):
 - **Animation**: 100% implemented :heavy_check_mark:
 - **Cameras**: 100% implemented :heavy_check_mark:
 - **Effects**:
     - StandardEffect - missing texture support (planned for beta2)
-    - ThickLineEffect - LineThickness, line patterns and line caps and hidden lines are not supported.
-    
+    - ThickLineEffect - LineThickness, line patterns and line caps and hidden lines are not supported.   
       WebGL does not support thick lines or geometry shader so this requires a different approach (probably CPU based mesh generation). This will be supported after v1.0. Use TubeLineModelNode and TubePathModelNode with SolidColorMaterial for thick lines (here the line thickness in not in screen space values).
     - SolidColorEffect - planned for beta2
     - PixelEffect - planned for v1.0 (probably only 1x1 pixels will be supported with v1.0)
@@ -169,6 +164,13 @@ Namespace implementation status (compared to desktop and mobile Ab4d.SharpEngine
 Other not implemented features:
 - Transparency sorting (planned to beta2)
 - Super-sampling (planned for later)
+
+
+### Roadmap 
+
+**Beta 2** version is planned for October 2025.
+
+**v1.0** is planned to be released before the end of 2025.
 
  
  ### Tips and tricks
