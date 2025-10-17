@@ -31,6 +31,7 @@ public partial class CanvasInterop : ICanvasInterop
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
     private static List<string>? _urlRequestsOnDisposedInterop;
+    private static int _canvasIndex;
     
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
@@ -111,6 +112,12 @@ public partial class CanvasInterop : ICanvasInterop
     private Dictionary<string, List<(Action<byte[]> onLoaded, Action<string>? onError)>>? _binaryFileLoadedCallbacks;
     private Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>>? _imageBytesLoadedCallbacks;
 
+    public CanvasInterop(bool subscribePointerEvents = true)
+    {
+        CanvasId = GetNextCanvasId();
+        _subscribePointerEventsOnInitialize = subscribePointerEvents;
+    }
+    
     public CanvasInterop(string canvasId, bool subscribePointerEvents = true)
     {
         CanvasId = canvasId;
@@ -157,6 +164,12 @@ public partial class CanvasInterop : ICanvasInterop
         {
             throw new SharpEngineException("Error initializing javascript interop: " + ex.Message, ex);
         }
+    }
+
+    public static string GetNextCanvasId()
+    {
+        _canvasIndex++;
+        return $"sharpEngineCanvas_{_canvasIndex}";
     }
     
     private static CanvasInterop? GetCanvasInterop(string? canvasId, string requestUrl)
