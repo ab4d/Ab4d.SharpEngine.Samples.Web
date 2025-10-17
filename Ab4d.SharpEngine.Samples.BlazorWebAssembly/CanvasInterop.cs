@@ -101,6 +101,7 @@ public partial class CanvasInterop : ICanvasInterop
     
     public event EventHandler? BrowserAnimationFrameUpdated;
     public event CanvasResizedEventHandler? CanvasResized;
+    public event EventHandler? ContextLost;
 
     public event EventHandler? Disposing;
 
@@ -583,6 +584,11 @@ public partial class CanvasInterop : ICanvasInterop
         if (CanvasResized != null)
             CanvasResized(this, new CanvasResizedEventArgs(width, height, devicePixelRatio));
     }
+    
+    protected void OnContextLost()
+    {
+        ContextLost?.Invoke(this, EventArgs.Empty);
+    }
     #endregion
 
     #region JSExport methods: OnFrameUpdateJsCallback, OnPointerMovedJsCallback, ...
@@ -786,6 +792,17 @@ public partial class CanvasInterop : ICanvasInterop
 
             canvasInterop.OnCanvasResized(width, height, devicePixelRatio);
         }
+    }
+    
+    [JSExport]
+    private static void OnContextLostJsCallback(string? canvasId)
+    {
+        Console.WriteLine($"OnContextLostJsCallback '{canvasId ?? ""}'");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+
+        if (canvasInterop != null)
+            canvasInterop.OnContextLost();
     }
     #endregion
     

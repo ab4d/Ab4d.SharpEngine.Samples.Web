@@ -71,7 +71,6 @@
     protected override void OnAfterRender(bool firstRender)
     {
         Utilities.Log.LogLevel = LogLevels.Trace;
-        Utilities.Log.IsLoggingToDebugOutput = true;
 
         if (firstRender)
         {
@@ -177,6 +176,12 @@
 
 
         scene.SetAmbientLight(0.2f);
+
+        canvasInterop.ContextLost += (sender, args) =>
+        {
+            // Usually here we would save the current state of the 3D scene so that can be recreated when the page is reloaded by the used
+            ShowInfoMessage("ERROR: WebGL context lost! Please reload the web page...");
+        };
     }
 
     private void CreateDemoScene()

@@ -45,18 +45,27 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
             context = canvas.getContext('webgl', { antialias: useMSAA });
 
             if (context) {
-                console.warn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")
+                logWarn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")
                 webglVersion = "1";
             }
             else {
                 var errorMessage = "WebGL 1.0 is not supported";
-                console.error(errorMessage);
+                logError(errorMessage);
                 return errorMessage;
             }
         }
 
         if (!initialCanvas)
             initialCanvas = canvas;
+
+        canvas.addEventListener("webglcontextlost",
+            function (e) {
+                logError("WebGL context lost for " + canvasId);
+                if (interop)
+                    interop.OnContextLostJsCallback(canvasId);
+            }, false
+        );
+        
 
         const dotnet = globalThis.getDotnetRuntime(0);
         dotnet.Module["canvas"] = canvas; // This is requried to be able to create WebGL context (call EGL.CreateContext)
@@ -448,7 +457,7 @@ function getCanvas(canvasId) {
     const canvas = globalThis.document.getElementById(canvasId);
 
     if (!canvas)
-        console.error("Canvas not found: " + canvasId);
+        logError("Canvas not found: " + canvasId);
 
     return canvas;
 }
@@ -460,6 +469,14 @@ function getKeyboardModifiers(e) {
 function log(message) {
     if (isLogging)
         console.log("sharp-engine.js: " + message);
+}
+
+function logWarn(message) {
+    console.warn("sharp-engine.js: " + message);
+}
+
+function logError(message) {
+    console.error("sharp-engine.js: " + message);
 }
 
 function checkPinch(e, callPinchZoom) {
