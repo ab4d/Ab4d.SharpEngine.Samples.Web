@@ -1,4 +1,4 @@
-﻿let isLogging = false; // Set this to true to write log messages from javascript to console
+﻿let isLogging = false; // Set this to true to write log messages from javascript to console. This can be also set from CanvasInterop by setting IsLoggingJavaScript to true.
 
 let initialCanvas;
 let interop;
@@ -24,7 +24,10 @@ export async function initInteropAsync() {
     log(".Net interop with CanvasInterop initialized");
 }
 
-export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscribeRequestAnimationFrame) {
+export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscribeRequestAnimationFrame, enableJavaScriptLogging) {
+    if (enableJavaScriptLogging)
+        isLogging = true; // if enableJavaScriptLogging is false, then do not override if isLogging is set to true here
+
     log("initWebGLCanvas canvasId:" + canvasId);
 
     const canvas = globalThis.document.getElementById(canvasId);
@@ -456,7 +459,7 @@ function getKeyboardModifiers(e) {
 
 function log(message) {
     if (isLogging)
-        console.log("js: " + message);
+        console.log("sharp-engine.js: " + message);
 }
 
 function checkPinch(e, callPinchZoom) {

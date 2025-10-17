@@ -1,5 +1,7 @@
 ﻿using Ab4d.SharpEngine.Browser;
 using Ab4d.SharpEngine.Common;
+using Ab4d.SharpEngine.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
@@ -19,6 +21,7 @@ namespace Ab4d.SharpEngine.WebGL;
 public partial class CanvasInterop : ICanvasInterop
 {
     private static readonly bool IsLoggingInteropEvents = false; // When set to true, then all interop events are logged to the console
+    private static readonly bool IsLoggingJavaScript = false; // When set to true, then javascript functions will log to console
 
     // Update the version in the url to the latest version
     private const string SpectorScriptUrl = "https://cdn.jsdelivr.net/npm/spectorjs@0.9.30/dist/spector.bundle.js";
@@ -27,6 +30,7 @@ public partial class CanvasInterop : ICanvasInterop
     
     private static CanvasInterop? _initialInterop;
     private static List<CanvasInterop>? _additionalInteropObjects;
+    private static List<string>? _urlRequestsOnDisposedInterop;
     
     /// <summary>
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
@@ -48,6 +52,11 @@ public partial class CanvasInterop : ICanvasInterop
     /// Returns true when WebGL 2.0 is used. When false, then WebGL 1.0 is used. In this case some features may not be available.
     /// </summary>
     public bool IsWebGL2 { get; private set; }
+
+    /// <summary>
+    /// True when this CanvasInterop was disposed
+    /// </summary>
+    public bool IsDisposed { get; private set; }
     
     /// <summary>
     /// Gets the width of the canvas in pixels (defines width of the back buffer that is used for rendering).
@@ -150,12 +159,32 @@ public partial class CanvasInterop : ICanvasInterop
         }
     }
     
-    private static CanvasInterop GetCanvasInterop(string? canvasId)
+    private static CanvasInterop? GetCanvasInterop(string? canvasId, string requestUrl)
     {
-        return GetCanvasInterop(canvasId, throwExceptionIfNotFound: true)!;
+        var canvasInterop = GetCanvasInterop(canvasId, writeWarningIfNotFound: false);
+
+        if (canvasInterop == null)
+        {
+            bool isRequestedOnDisposedInterop;
+            if (_urlRequestsOnDisposedInterop != null)
+                isRequestedOnDisposedInterop = _urlRequestsOnDisposedInterop.Remove(requestUrl); // if removed, then this was issued from CanvasInterop that was already disposed
+            else
+                isRequestedOnDisposedInterop = false;
+
+            string message = $"'{requestUrl}' content received but that CanvasInterop object ('{canvasId}') that started the request";
+
+            if (isRequestedOnDisposedInterop)
+                message += " was already disposed.";
+            else
+                message = "WARNING: " + message + " is not found.";
+
+            Console.WriteLine(message);
+        }
+
+        return canvasInterop;
     }
-    
-    private static CanvasInterop? GetCanvasInterop(string? canvasId, bool throwExceptionIfNotFound)
+
+    private static CanvasInterop? GetCanvasInterop(string? canvasId, bool writeWarningIfNotFound = true)
     {
         if (canvasId == null)
             throw new Exception("Cannot find CanvasInterop because canvasId that was provided by the javascript is null");
@@ -181,9 +210,9 @@ public partial class CanvasInterop : ICanvasInterop
             }
         }
 
-        if (throwExceptionIfNotFound && foundInterop == null)
-            throw new Exception($"Cannot find any CanvasInterop object that was initialized with the canvasId: '{canvasId}'");
-        
+        if (foundInterop == null && writeWarningIfNotFound)
+            Console.WriteLine($"WARNING: CanvasInterop object with canvasId '{canvasId}' not found. Probably it was disposed when a javascript request was not yet finished.");
+
         return foundInterop;
     }
     #endregion
@@ -192,7 +221,7 @@ public partial class CanvasInterop : ICanvasInterop
     {
         CheckIsInitialized(checkIfConnectedToCanvas: false);
 
-        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true);
+        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, IsLoggingJavaScript);
 
         if (string.IsNullOrEmpty(result) || !result.StartsWith("OK:"))
         {
@@ -432,15 +461,38 @@ public partial class CanvasInterop : ICanvasInterop
     
     public void Dispose()
     { 
+        if (IsDisposed)
+            return;
+
         Disposing?.Invoke(this, EventArgs.Empty);
 
         DisconnectWebGLCanvasJs(CanvasId);
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
 
-        _textFileLoadedCallbacks?.Clear();
-        _binaryFileLoadedCallbacks?.Clear();
-        _imageBytesLoadedCallbacks?.Clear();
+        if (_textFileLoadedCallbacks != null && _textFileLoadedCallbacks.Count > 0)
+        {
+            _urlRequestsOnDisposedInterop ??= new List<string>();
+            _urlRequestsOnDisposedInterop.AddRange(_textFileLoadedCallbacks.Keys);
+
+            _textFileLoadedCallbacks.Clear();
+        }
+        
+        if (_binaryFileLoadedCallbacks != null && _binaryFileLoadedCallbacks.Count > 0)
+        {
+            _urlRequestsOnDisposedInterop ??= new List<string>();
+            _urlRequestsOnDisposedInterop.AddRange(_binaryFileLoadedCallbacks.Keys);
+
+            _binaryFileLoadedCallbacks.Clear();
+        }
+        
+        if (_imageBytesLoadedCallbacks != null && _imageBytesLoadedCallbacks.Count > 0)
+        {
+            _urlRequestsOnDisposedInterop ??= new List<string>();
+            _urlRequestsOnDisposedInterop.AddRange(_imageBytesLoadedCallbacks.Keys);
+
+            _imageBytesLoadedCallbacks.Clear();
+        }
 
         if (_initialInterop == this)
         {
@@ -460,6 +512,8 @@ public partial class CanvasInterop : ICanvasInterop
         
         if (_additionalInteropObjects != null && _additionalInteropObjects.Count == 0) 
             _additionalInteropObjects = null;
+
+        IsDisposed = true;
     }
 
     #region OnPointerButtonPressed and other On... methods
@@ -537,80 +591,98 @@ public partial class CanvasInterop : ICanvasInterop
     [JSExport]
     private static void OnTextFileLoaded(string canvasId, string url, string? fileContent, string? errorText)
     {
-        var canvasInterop = GetCanvasInterop(canvasId);
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnTextFileLoaded '{url}' ({(fileContent?.Length ?? 0):N0} chars) for canvasId: '{canvasId ?? ""}'");
 
-        if (canvasInterop._textFileLoadedCallbacks != null && 
-            canvasInterop._textFileLoadedCallbacks.Remove(url, out var callbacks))
+        var canvasInterop = GetCanvasInterop(canvasId, url);
+
+        if (canvasInterop == null ||
+            canvasInterop._textFileLoadedCallbacks == null ||
+            !canvasInterop._textFileLoadedCallbacks.Remove(url, out var callbacks))
         {
-            if (fileContent == null)
-            {
-                if (errorText == null)
-                    errorText = "Error loading text file: " + url;
+            return;
+        }
 
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onError?.Invoke(errorText);
-            }
-            else
-            {
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onLoaded(fileContent);
-            }
+        if (fileContent == null)
+        {
+            if (errorText == null)
+                errorText = "Error loading text file: " + url;
+
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onError?.Invoke(errorText);
+        }
+        else
+        {
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onLoaded(fileContent);
         }
     }
     
     [JSExport]
     private static void OnBinaryFileLoaded(string canvasId, string url, byte[]? fileBytes, string? errorText)
     {
-        var canvasInterop = GetCanvasInterop(canvasId);
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnBinaryFileLoaded '{url}' ({(fileBytes?.Length ?? 0):N0} bytes) for canvasId: '{canvasId ?? ""}'");
 
-        if (canvasInterop._binaryFileLoadedCallbacks != null && 
-            canvasInterop._binaryFileLoadedCallbacks.Remove(url, out var callbacks))
+        var canvasInterop = GetCanvasInterop(canvasId, url);
+
+        if (canvasInterop == null ||
+            canvasInterop._binaryFileLoadedCallbacks == null ||
+            !canvasInterop._binaryFileLoadedCallbacks.Remove(url, out var callbacks))
         {
-            if (fileBytes == null)
-            {
-                if (errorText == null)
-                    errorText = "Error loading binary file: " + url;
+            return;
+        }
 
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onError?.Invoke(errorText);
-            }
-            else
-            {
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onLoaded(fileBytes);
-            }
+        if (fileBytes == null)
+        {
+            if (errorText == null)
+                errorText = "Error loading binary file: " + url;
+
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onError?.Invoke(errorText);
+        }
+        else
+        {
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onLoaded(fileBytes);
         }
     }
     
     [JSExport]
     private static void OnImageBytesLoaded(string canvasId, string imageUrl, int width, int height, byte[]? imageBytes, string? errorText)
     {
-        var canvasInterop = GetCanvasInterop(canvasId);
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnImageBytesLoaded '{imageUrl}' ({width} x {height}) for canvasId: '{canvasId ?? ""}'");
 
-        if (canvasInterop._imageBytesLoadedCallbacks != null && 
-            canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
+        var canvasInterop = GetCanvasInterop(canvasId, imageUrl);
+
+        if (canvasInterop == null ||
+            canvasInterop._imageBytesLoadedCallbacks == null ||
+            !canvasInterop._imageBytesLoadedCallbacks.Remove(imageUrl, out var callbacks))
         {
-            if (imageBytes == null)
-            {
-                if (errorText == null)
-                    errorText = "Error loading texture: " + imageUrl;
+            return;
+        }
 
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onError?.Invoke(errorText);
-            }
-            else
-            {
-                var rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
+        if (imageBytes == null)
+        {
+            if (errorText == null)
+                errorText = "Error loading texture: " + imageUrl;
 
-                // Maybe more than one callback is registered for the same imageUrl
-                foreach (var callback in callbacks)
-                    callback.onLoaded(rawImageData);
-            }
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onError?.Invoke(errorText);
+        }
+        else
+        {
+            var rawImageData = new RawImageData(width, height, width * 4, PixelFormat.Rgba, imageBytes, checkTransparency: true);
+
+            // Maybe more than one callback is registered for the same imageUrl
+            foreach (var callback in callbacks)
+                callback.onLoaded(rawImageData);
         }
     }
 
@@ -621,7 +693,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPointerMoved '{canvasId ?? ""}': {x} {y}  Buttons: {buttons}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPointerMoved(x, y, buttons, keyboardModifiers);
+        canvasInterop?.OnPointerMoved(x, y, buttons, keyboardModifiers);
     }
 
     [JSExport]
@@ -631,7 +703,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPointerDown button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
@@ -641,7 +713,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPointerUp button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
@@ -651,7 +723,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnMouseWheel '{canvasId ?? ""}': {deltaX} {deltaY}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
+        canvasInterop?.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
     }
 
     [JSExport]
@@ -661,7 +733,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPinchZoomStarted '{canvasId ?? ""}': distance: {distance} around ({centerX} {centerY})");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPinchZoomStarted(distance, centerX, centerY);
+        canvasInterop?.OnPinchZoomStarted(distance, centerX, centerY);
     }
 
     [JSExport]
@@ -671,7 +743,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPinchZoomEnded '{canvasId ?? ""}'");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPinchZoomEnded();
+        canvasInterop?.OnPinchZoomEnded();
     }
 
     [JSExport]
@@ -681,7 +753,7 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnPinchZoom '{canvasId ?? ""}': distance: {distance} around ({centerX} {centerY})");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop.OnPinchZoomed(distance, centerX, centerY);
+        canvasInterop?.OnPinchZoomed(distance, centerX, centerY);
     }
 
 
@@ -692,12 +764,15 @@ public partial class CanvasInterop : ICanvasInterop
             Console.WriteLine($"OnCanvasResized '{canvasId ?? ""}': {width} {height} {devicePixelRatio}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        
-        canvasInterop.Width    = (int)width;
-        canvasInterop.Height   = (int)height;
-        canvasInterop.DpiScale = devicePixelRatio;
-        
-        canvasInterop.OnCanvasResized(width, height, devicePixelRatio);
+
+        if (canvasInterop != null)
+        {
+            canvasInterop.Width = (int)width;
+            canvasInterop.Height = (int)height;
+            canvasInterop.DpiScale = devicePixelRatio;
+
+            canvasInterop.OnCanvasResized(width, height, devicePixelRatio);
+        }
     }
     #endregion
     
@@ -710,7 +785,7 @@ public partial class CanvasInterop : ICanvasInterop
     // It is not possible (at least in .Net 9) to pass an objects from JS to .Net
     // It was possible to encode width and height into an int, but we also need dpiScale, so we need to pass it as a string.
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
-    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
+    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool enableJavaScriptLogging);
 
     [JSImport("loadTextFile", "sharp-engine.js")]
     private static partial void LoadTextFileJs(string canvasId, string url);
