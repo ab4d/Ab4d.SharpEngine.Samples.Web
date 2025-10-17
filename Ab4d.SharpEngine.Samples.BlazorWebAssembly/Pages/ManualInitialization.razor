@@ -37,7 +37,7 @@
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
-        if (!CanvasInterop.IsInteropInitialized)
+        if (!CanvasInterop.IsInteropInitialized || _canvasInterop != null)
             return;
 
 
