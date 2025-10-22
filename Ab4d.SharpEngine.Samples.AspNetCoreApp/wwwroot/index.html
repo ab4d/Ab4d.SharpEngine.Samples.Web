@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample</title>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+<body>
+    <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; height: 500px; margin-top: 10pt"></canvas>
+
+    <br />
+
+    <a href="javascript:renderScene();">RenderScene</a><br />
+    <a href="javascript:toggleCameraRotation();">Toggle camera rotation</a><br />
+    <a href="javascript:dumpSceneInfo();">Dump Scene info</a><br />
+    
+    <script type="module">
+        import { renderScene, dumpSceneInfo, toggleCameraRotation } from './sharp-engine-wasm-test.js';
+
+        // Expose the function globally so they can be called from the <a href="javascript:..." code above
+        window.renderScene = renderScene;
+        window.dumpSceneInfo = dumpSceneInfo;
+        window.toggleCameraRotation = toggleCameraRotation;
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- unsafe code is required to use JSExport in CanvasInterop -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- The following emscripten flags are required for Ab4d.SharpEngine to use WebGL from the browser -->
+    <EmccFlags>-lGL -s FULL_ES3=1 -sMAX_WEBGL_VERSION=2</EmccFlags>
+
+    <!-- Blazor WebAssembly supports SIMD instructions (when supported by the browser), so it is recommended to enable that -->
+    <WasmEnableSIMD>true</WasmEnableSIMD>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\WebGLWebAssemblyTest\MinCanvasInterop.cs" Link="MinCanvasInterop.cs" />
+    <Compile Include="..\WebGLWebAssemblyTest\SharpEngineTest.cs" Link="SharpEngineTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.9" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\My\Ab4d\SharpEngine\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--The following NativeFileReference is required for Ab4d.SharpEngine.Web to use WebGL from the browser -->
+    <NativeFileReference Include="Native/libEGL.c" ScanForPInvokes="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--The following javascript file is required for CanvasInterop class to be able to communicate with the browser -->
+    <WasmExtraFilesToDeploy Include="sharp-engine.js" />
+  </ItemGroup>
+
+</Project>

@@ -256,3 +256,7 @@ paket-files/
 !*.obj
 
 .DS_STORE
+
+
+# Prevent commiting files that are copied from compiled _framework folder
+*_framework/

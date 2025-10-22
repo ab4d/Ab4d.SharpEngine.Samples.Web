@@ -1,0 +1,87 @@
+﻿@page "/"
+@using System.Numerics
+@using Ab4d.SharpEngine
+@using Ab4d.SharpEngine.Cameras
+@using Ab4d.SharpEngine.Common
+@using Ab4d.SharpEngine.Materials
+@using Ab4d.SharpEngine.SceneNodes
+@using Ab4d.SharpEngine.Utilities
+@using Ab4d.SharpEngine.WebGL
+@using Ab4d.SharpEngine.Browser
+@using WebGLWebAssemblyTest
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Blazor tester</PageTitle>
+
+<h1>Blazor tester for WebAssembly that is using Ab4d.SharpEngine</h1>
+
+This page is based on the ManualInitialization.razor page from the main Ab4d.SharpEngine.Samples.BlazorWebAssembly samples project.<br/>
+<br/>
+It is used to be able to debug the SharpEngineTest calls that is defined in the Ab4d.SharpEngine.Samples.WebAssemblyTest project.<br/>
+<br/>
+
+The following public methods on SharpEngineTest can be called:<br/>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="OnToggleCameraRotation">ToggleCameraRotation</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="OnDumpSceneInfo">DumpSceneInfo</button>
+<br />
+<br />
+
+<canvas id="webGLCanvas" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
+
+
+@code
+{
+    private CanvasInterop? _canvasInterop;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
+        // Because Blazor uses Single Page Applications style, this needs to be executed only once
+        await CanvasInterop.InitializeInterop();
+    }
+
+    /// <inheritdoc />
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!CanvasInterop.IsInteropInitialized || _canvasInterop != null)
+            return;
+
+
+        // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
+        // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
+        // NOTE: canvasId is the id of the canvas that shows WebGL graphics (see the html part of the code above)
+        _canvasInterop = new CanvasInterop(canvasId: "webGLCanvas"); // if we do not need pointer events, we can also add: subscribePointerEvents: false
+
+        // Try to connect to the canvas and get the WebGL context.
+        // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
+        // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
+        _canvasInterop.InitWebGL();
+
+        if (!_canvasInterop.IsWebGLInitialized)
+            return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
+
+
+        SharpEngineTest.Instance.InitSharpEngine(_canvasInterop);
+    }
+     
+
+    private void OnToggleCameraRotation()
+    {
+        SharpEngineTest.Instance.ToggleCameraRotation();
+    }
+
+    private void OnDumpSceneInfo()
+    {
+        SharpEngineTest.Instance.DumpSceneInfo();
+    }
+
+    public void Dispose()
+    {
+        if (_canvasInterop != null)
+        {
+            _canvasInterop.Dispose(); // This will also dispose SceneView, Scene and WebGLDevice
+            _canvasInterop = null;
+        }
+    }
+}

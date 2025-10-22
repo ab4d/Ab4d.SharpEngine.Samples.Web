@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample</title>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <style>
+        .loader {
+            position: fixed; /* or absolute if inside a container */
+            top: 20%;
+            left: 30%;
+            /*transform: translate(-50%, -50%);*/
+            z-index: 9999; /* higher than canvas */
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <div>
+        <div id="loader" class="loader"></div>
+        <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; height: 500px; margin-top: 10pt"></canvas>
+    </div>
+
+    <br />
+
+    <a href="javascript:renderScene();">RenderScene</a><br />
+    <a href="javascript:toggleCameraRotation();">Toggle camera rotation</a><br />
+    <a href="javascript:dumpSceneInfo();">Dump Scene info</a><br />
+    
+    <script type="module">
+
+        //document.getElementById('loader').classList.add('hidden');        
+
+        //document.getElementById('loader').classList.remove('hidden');        
+
+        import { renderScene, dumpSceneInfo, toggleCameraRotation } from './sharp-engine-wasm-test.js';
+
+        // Expose the function globally so they can be called from the <a href="javascript:..." code above
+        window.renderScene = renderScene;
+        window.dumpSceneInfo = dumpSceneInfo;
+        window.toggleCameraRotation = toggleCameraRotation;
+    </script>
+    <script>
+        window.stopLoading = () => {
+            document.getElementById('loader').classList.add('hidden');
+        }
+    </script>
+
+
+</body>
+</html>

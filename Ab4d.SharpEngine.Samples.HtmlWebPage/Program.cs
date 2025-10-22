@@ -1,0 +1,1 @@
+﻿Console.WriteLine("Static site"); // This is required so Visual Studio can have a project
