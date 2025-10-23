@@ -3,18 +3,21 @@
 @using Ab4d.SharpEngine.Samples.WebAssemblyDemo
 @implements IDisposable
 
-<PageTitle>Blazor tester</PageTitle>
+<PageTitle>WebAssemblyDemo Blazor tester</PageTitle>
 
 <h2>Blazor tester for Ab4d.SharpEngine.Samples.WebAssemblyDemo project</h2>
 
 <p>The purpose of this project is to be able to debug the code in the Ab4d.SharpEngine.Samples.WebAssemblyDemo project. 
-    This is only possible when the code from WebAssemblyDemo project runs in a Blazor WebAssemble project 
+    This is only possible when the code from WebAssemblyDemo project runs in a Blazor WebAssembly project 
     (it is not possible to debug it when started in Asp.Net Core and any other web server).</p>
-<p>To test this put a breakpoint in the link SharpEngineTest.cs file that is shown in this project.</p>
+<p>To test this, put a breakpoint in the linked SharpEngineTest.cs file in Ab4d.SharpEngine.Samples.BlazorWebAssemblyTesterApp (this) project.</p>
 
-The following public methods on SharpEngineTest can be called:<br/>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="OnToggleCameraRotation">ToggleCameraRotation</button>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="OnDumpSceneInfo">DumpSceneInfo</button>
+The following methods from SharpEngineTest are exported and can be called from JavaScript:<br/>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="OnToggleCameraRotation">Toggle camera rotation</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="OnChangeMaterialToBlue">Change material to Blue</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="OnChangeMaterialToRandom">Change material to a random color</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="Add100Objects">Add 100 objects</button>
+<button class="btn-primary" style="margin-top: 3pt" @onclick="Add1000Objects">Add 1000 objects</button>
 <br />
 <br />
 
@@ -62,11 +65,26 @@ The following public methods on SharpEngineTest can be called:<br/>
         SharpEngineTest.Instance.ToggleCameraRotation();
     }
 
-    private void OnDumpSceneInfo()
+    private void OnChangeMaterialToBlue()
     {
-        SharpEngineTest.Instance.DumpSceneInfo();
+        SharpEngineTest.Instance.ChangeMaterial(colorText: "blue"); // colorText could be also "#0000FF"
+    }
+    
+    private void OnChangeMaterialToRandom()
+    {
+        SharpEngineTest.Instance.ChangeMaterial(""); // empty text or null will generate a random color
     }
 
+    public void Add100Objects()
+    {
+        SharpEngineTest.Instance.AddObjects(100);
+    }
+    
+    public void Add1000Objects()
+    {
+        SharpEngineTest.Instance.AddObjects(1000);
+    }
+    
     public void Dispose()
     {
         if (_canvasInterop != null)

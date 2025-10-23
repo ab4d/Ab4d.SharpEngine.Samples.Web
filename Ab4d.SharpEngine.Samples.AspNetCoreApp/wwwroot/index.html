@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sample</title>
+    <title>Ab4d.SharpEngine browser demo without Blazor</title>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
 
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
         .loader {
             position: fixed;
             top: 20%;
@@ -27,23 +31,33 @@
 </head>
 <body>
     
+    <h2>Ab4d.SharpEngine browser demo without a Blazor</h2>
+
+    <p>This sample is showing how to show 3D graphics by using Ab4d.SharpEngine library in a simple HTML and JavaScript based web page.</p>
+
     <div>
         <div id="loader" class="loader"></div>
         <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; height: 500px; margin-top: 10pt"></canvas>
     </div>
 
     <br />
-
-    <a href="javascript:renderScene();">RenderScene</a><br />
-    <a href="javascript:toggleCameraRotation();">Toggle camera rotation</a><br />
-    <a href="javascript:dumpSceneInfo();">Dump Scene info</a><br />
     
+    <span style="font-weight: bold">Available actions:</span><span> (call methods in SharpEngineTest .Net project):</span><br/>
+    <a href="javascript:toggleCameraRotation();">Toggle camera rotation</a><br />
+    <a href="javascript:changeMaterialToBlue();">Change material to Blue</a><br />
+    <a href="javascript:changeMaterialToRandom();">Change material to a random color</a><br />
+    <a href="javascript:addObjects(100);">Add 100 objects</a><br />
+    <a href="javascript:addObjects(1000);">Add 1000 objects</a><br />
+    
+    <br/>
+    <span>See also Browser's console to see log messages from JavaScript and .Net.</span>
+
     <script type="module">
         // The code here does the following:
         // - loads and initializes the dotnet runtime
         // - calls .Net method JavaScriptInterop.InitSharpEngineJSExport that initializes the Ab4d.SharpEngine
         // - provides functions that can call .Net methods that are defined in JavaScriptInterop.cs (have JSExport attribute)
-        
+
         console.log("js: Starting loading and initializing dotnet");
 
         // Set up the .NET WebAssembly runtime
@@ -63,22 +77,28 @@
 
         // stop and hide the loader animation:
         document.getElementById('loader').style.display = 'none';
-        
+
         // Expose the following function globally so they can be called from the <a href="javascript:..." code above
-        window.renderScene = () => {
-            console.log("js: renderScene");
-            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.RenderSceneJSExport();
-        }
 
         window.toggleCameraRotation = () => {
             console.log("js: toggleCameraRotation");
             exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.ToggleCameraRotationJSExport();
         }
 
-        window.dumpSceneInfo = () => {
-            console.log("js: dumpSceneInfo");
-            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.DumpSceneInfoJSExport();
-        }   
+        window.changeMaterialToBlue = () => {
+            console.log("js: ChangeMaterialJSExport('blue')");
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.ChangeMaterialJSExport("blue"); // colorText could be also "#0000FF"
+        }
+
+        window.changeMaterialToRandom = () => {
+            console.log("js: ChangeMaterialJSExport('')");
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.ChangeMaterialJSExport(""); // empty text or null will generate a random color
+        }
+
+        window.addObjects = (objectsCount) => {
+            console.log("js: AddObjectsJSExport:", objectsCount);
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.AddObjectsJSExport(objectsCount);
+        }
     </script>
 
 </body>

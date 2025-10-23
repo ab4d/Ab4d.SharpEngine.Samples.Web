@@ -4,6 +4,7 @@ using System.Numerics;
 using Ab4d.SharpEngine.Cameras;
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Materials;
+using Ab4d.SharpEngine.Meshes;
 using Ab4d.SharpEngine.SceneNodes;
 
 namespace Ab4d.SharpEngine.Samples.WebAssemblyDemo;
@@ -14,6 +15,9 @@ public class SharpEngineTest
     private Ab4d.SharpEngine.WebGL.WebGLDevice? _webGlDevice;
     private Scene? _scene;
     private SceneView? _sceneView;
+
+    private StandardMaterial? _hashMaterial;
+    private int _addedObjectsCount;
 
     public static SharpEngineTest Instance = new SharpEngineTest();
 
@@ -48,21 +52,34 @@ public class SharpEngineTest
             _sceneView = new SceneView(_scene, "MainSceneView");
 
 
-            var boxNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Gold) { UseSharedBoxMesh = false };
-            _scene.RootNode.Add(boxNode);
+            float hashModelSize = 100;
+            float hashModelBarThickness = 16;
+            float hashModelBarOffset = 20;
 
+            var hashSymbolMesh = MeshFactory.CreateHashSymbolMesh(centerPosition: new Vector3(0, hashModelBarThickness * 0.5f, 0),
+                                                                  shapeYVector: new Vector3(0, 0, 1),
+                                                                  extrudeVector: new Vector3(0, hashModelBarThickness, 0),
+                                                                  size: hashModelSize,
+                                                                  barThickness: hashModelBarThickness,
+                                                                  barOffset: hashModelBarOffset,
+                                                                  name: "HashSymbolMesh");
+
+            _hashMaterial = new StandardMaterial(diffuseColor: Color3.FromByteRgb(255, 197, 0));
+
+            var hashSymbolNode = new MeshModelNode(hashSymbolMesh, _hashMaterial, "HashSymbolNode");
+            _scene.RootNode.Add(hashSymbolNode);
 
             
             var wireGridNode = new WireGridNode("Wire grid")
             {
-                CenterPosition = new Vector3(0, -0.5f, -33),
+                CenterPosition = new Vector3(0, -0.5f, 0),
                 Size = new Vector2(200, 200),
 
                 WidthDirection = new Vector3(1, 0, 0),   // this is also the default value
                 HeightDirection = new Vector3(0, 0, -1), // this is also the default value
 
-                WidthCellsCount = 30,
-                HeightCellsCount = 30,
+                WidthCellsCount = 20,
+                HeightCellsCount = 20,
 
                 MajorLineColor = Colors.Black,
                 MajorLineThickness = 1,
@@ -74,20 +91,19 @@ public class SharpEngineTest
 
                 IsClosed = true,
             };
+
             _scene.RootNode.Add(wireGridNode);
 
 
-            _sceneView.BackgroundColor = Colors.LightYellow;
+            _sceneView.BackgroundColor = Colors.LightSkyBlue;
 
             var camera = new TargetPositionCamera()
             {
                 Heading = 30,
-                Attitude = -20,
-                Distance = 300,
+                Attitude = -25,
+                Distance = 500,
                 ShowCameraLight = ShowCameraLightType.Always
             };
-
-            //camera.StartRotation(40);
 
             _sceneView.Camera = camera;
 
@@ -113,26 +129,19 @@ public class SharpEngineTest
         }
     }
 
-    public void RenderScene()
+    public void ChangeMaterial(string? colorText)
     {
-        if (_sceneView == null)
-        {
-            Log("RenderScene - no sceneView");
+        if (_hashMaterial == null)
             return;
-        }
 
-        try
-        {
-            //Log($"Render sceneView, size: {_sceneView.Width} x {_sceneView.Height}");
-            bool isRendered = _sceneView.Render(forceRender: false, forceUpdateAll: false);
-            if (isRendered)
-                Log($"Scene rendered");
-        }
-        catch (Exception ex)
-        {
-            Log("RenderScene error: " + ex.Message);
-            throw;
-        }
+        Color3 newColor;
+
+        if (string.IsNullOrEmpty(colorText) || !Color3.TryParse(colorText, out newColor))
+            newColor = Color3.FromHsl(Random.Shared.NextSingle() * 360); // if colorText was not set or we cannot parse it, create a random color
+
+        _hashMaterial.DiffuseColor = newColor;
+
+        Log($"Hash color changed to {newColor.ToKnownColorString()}"); // this will display a known color (e.g. "blue") or hex value of the color ("#0000FF") if color is not known.
     }
 
     public void ToggleCameraRotation()
@@ -141,35 +150,39 @@ public class SharpEngineTest
             return;
 
         if (targetPositionCamera.IsRotating)
+        {
             targetPositionCamera.StopRotation();
+            Log("Camera rotation stopped");
+        }
         else
+        {
             targetPositionCamera.StartRotation(40);
-    }
-    
-    public void OnCanvasResized(int width, int height, float dpiScale)
-    {
-        try
-        {
-            Log($"OnCanvasResized size: {width} x {height} (dpi: {dpiScale})");
-            _sceneView?.Resize(width, height, dpiScale);
-        }
-        catch (Exception ex)
-        {
-            Log("OnCanvasResized error: " + ex.Message);
-            throw;
+            Log("Camera rotation started");
         }
     }
-    
-    public void DumpSceneInfo()
+
+    public void AddObjects(int objectsCount)
     {
-        if (_sceneView == null || _scene == null)
+        if (_scene == null)
             return;
 
-        if (_sceneView.Camera is TargetPositionCamera targetPositionCamera)
-            Log($"Camera: pos: {targetPositionCamera.GetCameraPosition()} => TargetPosition: {targetPositionCamera.TargetPosition} (lookDir: {targetPositionCamera.GetLookDirection()}; aspect: {targetPositionCamera.AspectRatio}");
+        _addedObjectsCount++; // start with 1
+        var groupNode = new GroupNode($"AddedObjectsGroup_{_addedObjectsCount}");
+        _scene.RootNode.Add(groupNode);
 
-        var infoText = _scene.GetSceneNodesInfo();
-        Log(infoText);
+        var material = StandardMaterials.LightGreen;
+
+        for (int i = 0; i < objectsCount; i++)
+        {
+            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsCount * 30, -30, -50 + i * 15),
+                size: new Vector3(10, 10, 10),
+                material,
+                name: $"Box_{_addedObjectsCount + 1}_{i + 1}");
+
+            groupNode.Add(boxModelNode);
+        }
+
+        Log($"Added {objectsCount} boxes");
     }
     
     private void Log(string message)

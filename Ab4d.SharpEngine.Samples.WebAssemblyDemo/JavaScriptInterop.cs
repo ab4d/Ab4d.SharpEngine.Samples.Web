@@ -34,22 +34,14 @@ public static partial class JavaScriptInterop
     }
     
     [JSExport]
-    public static void RenderSceneJSExport()
+    public static void ChangeMaterialJSExport(string? colorText)
     {
-        SharpEngineTest.Instance.RenderScene();
+        SharpEngineTest.Instance.ChangeMaterial(colorText);
     }
     
     [JSExport]
-    public static void DumpSceneInfoJSExport()
+    public static void AddObjectsJSExport(int objectsCount)
     {
-        SharpEngineTest.Instance.DumpSceneInfo();
+        SharpEngineTest.Instance.AddObjects(objectsCount);
     }
-
-       
-    // Resize is handled by the standard CanvasInterop.cs and sharp-engine.js
-    //[JSExport]
-    //public static void OnCanvasResizedJSCallback(int width, int height, float dpiScale)
-    //{
-    //    SharpEngineTest.Instance.OnCanvasResized(width, height, dpiScale);
-    //}
 }
