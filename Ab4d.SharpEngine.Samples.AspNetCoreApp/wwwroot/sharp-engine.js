@@ -1,4 +1,8 @@
-﻿let isLogging = false; // Set this to true to write log messages from javascript to console. This can be also set from CanvasInterop by setting IsLoggingJavaScript to true.
+﻿// This is a JavaScript that is used for communication between JavaScript and Ab4d.SharpEngine for the browser.
+// It initializes the WebGL context for the canvas and is used to report when the size of the canvas is changed,
+// and to subscribe to mouse and touch events on the canvas.
+
+let isLogging = false; // Set this to true to write log messages from javascript to console. This can be also set from CanvasInterop by setting IsLoggingJavaScript to true.
 
 let initialCanvas;
 let interop;

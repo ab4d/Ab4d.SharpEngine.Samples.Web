@@ -17,7 +17,8 @@ public class SharpEngineTest
     private SceneView? _sceneView;
 
     private StandardMaterial? _hashMaterial;
-    private int _addedObjectsCount;
+    private int _addedObjectsGroupIndex;
+    private int _totalAddedObjectsCount;
 
     public static SharpEngineTest Instance = new SharpEngineTest();
 
@@ -29,7 +30,7 @@ public class SharpEngineTest
     // The following method can be called from BlazorTesterApp project
     public void InitSharpEngine(ICanvasInterop canvasInterop)
     {
-        Log("InitSharpEngine called");
+        Log("InitSharpEngine from WebAssemblyDemo called");
 
         _canvasInterop = canvasInterop;
 
@@ -166,27 +167,32 @@ public class SharpEngineTest
         if (_scene == null)
             return;
 
-        _addedObjectsCount++; // start with 1
-        var groupNode = new GroupNode($"AddedObjectsGroup_{_addedObjectsCount}");
+        _addedObjectsGroupIndex++; // start with 1
+        var groupNode = new GroupNode($"AddedObjectsGroup_{_addedObjectsGroupIndex}");
         _scene.RootNode.Add(groupNode);
 
         var material = StandardMaterials.LightGreen;
 
         for (int i = 0; i < objectsCount; i++)
         {
-            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsCount * 30, -30, -50 + i * 15),
+            var boxModelNode = new BoxModelNode(centerPosition: new Vector3(_addedObjectsGroupIndex * 30 - 130, -30, -50 + i * 15),
                 size: new Vector3(10, 10, 10),
                 material,
-                name: $"Box_{_addedObjectsCount + 1}_{i + 1}");
+                name: $"Box_{_addedObjectsGroupIndex + 1}_{i + 1}");
 
             groupNode.Add(boxModelNode);
         }
 
-        Log($"Added {objectsCount} boxes");
+        _totalAddedObjectsCount += objectsCount;
+
+        Log($"Added {objectsCount} boxes (total {_totalAddedObjectsCount} objects added)");
     }
     
     private void Log(string message)
     {
         Console.WriteLine("SharpEngineTest: " + message);
+
+        // Call JavaScript showInfoText function to change the Info text on the web page
+        _ = JavaScriptInterop.ShowInfoText(message); // Call async method from sync context
     }
 }
