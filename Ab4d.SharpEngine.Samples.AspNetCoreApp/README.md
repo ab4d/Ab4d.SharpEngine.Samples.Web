@@ -11,6 +11,8 @@ WebAssembly files from the output folder of the Ab4d.SharpEngine.Samples.WebAsse
 
 To see how to use a very simple **Html Web Page** project to serve as a web server, see the [Ab4d.SharpEngine.Samples.HtmlWebPage project](../Ab4d.SharpEngine.Samples.HtmlWebPage/README.md).
 
+The following sections are the same as for the *Html Web Page project.
+
 
 ## Create 3D scene with Ab4d.SharpEngine library
 
