@@ -37,9 +37,10 @@ app.UseFileServer(options);
 app.Run();
 
 // ADDITIONAL INFO:
-// To compile the WebAssembly project (WebGLWebAssemblyTest) when stating this Asp.Net Core project,
-// we need to manually add project dependency to WebGLWebAssemblyTest.
+// To compile the WebAssembly project (Ab4d.SharpEngine.Samples.WebAssemblyDemo) when stating this Asp.Net Core project,
+// we need to manually add project dependency to Ab4d.SharpEngine.Samples.WebAssemblyDemo.
+//
 // This is done in Visual Studio by clicking the little down arrow right to the start "https" button.
 // Then select "Configure startup projects..." and select "Project dependencies".
-// In the Project dropdown select the Asp.Net project and check the WebAssembly project.
-// This will compile (if not already up to date) the WebAssembly project before starting the Asp.Net Core project.
+// In the Project dropdown select the Asp.Net project and check the Ab4d.SharpEngine.Samples.WebAssemblyDemo project.
+// This will compile (if not already up to date) the Ab4d.SharpEngine.Samples.WebAssemblyDemo project before starting this Asp.Net Core project.

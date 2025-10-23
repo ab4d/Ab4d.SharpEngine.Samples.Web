@@ -1,25 +1,16 @@
 ﻿@page "/"
-@using System.Numerics
-@using Ab4d.SharpEngine
-@using Ab4d.SharpEngine.Cameras
-@using Ab4d.SharpEngine.Common
-@using Ab4d.SharpEngine.Materials
-@using Ab4d.SharpEngine.SceneNodes
-@using Ab4d.SharpEngine.Utilities
 @using Ab4d.SharpEngine.WebGL
-@using Ab4d.SharpEngine.Browser
-@using WebGLWebAssemblyTest
-@inject IJSRuntime JS
+@using Ab4d.SharpEngine.Samples.WebAssemblyDemo
 @implements IDisposable
 
 <PageTitle>Blazor tester</PageTitle>
 
-<h1>Blazor tester for WebAssembly that is using Ab4d.SharpEngine</h1>
+<h2>Blazor tester for Ab4d.SharpEngine.Samples.WebAssemblyDemo project</h2>
 
-This page is based on the ManualInitialization.razor page from the main Ab4d.SharpEngine.Samples.BlazorWebAssembly samples project.<br/>
-<br/>
-It is used to be able to debug the SharpEngineTest calls that is defined in the Ab4d.SharpEngine.Samples.WebAssemblyTest project.<br/>
-<br/>
+<p>The purpose of this project is to be able to debug the code in the Ab4d.SharpEngine.Samples.WebAssemblyDemo project. 
+    This is only possible when the code from WebAssemblyDemo project runs in a Blazor WebAssemble project 
+    (it is not possible to debug it when started in Asp.Net Core and any other web server).</p>
+<p>To test this put a breakpoint in the link SharpEngineTest.cs file that is shown in this project.</p>
 
 The following public methods on SharpEngineTest can be called:<br/>
 <button class="btn-primary" style="margin-top: 3pt" @onclick="OnToggleCameraRotation">ToggleCameraRotation</button>

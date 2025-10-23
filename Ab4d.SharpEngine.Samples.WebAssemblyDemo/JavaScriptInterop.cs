@@ -2,14 +2,14 @@
 using System.Threading.Tasks;
 using Ab4d.SharpEngine.WebGL;
 
-namespace WebGLWebAssemblyTest;
+namespace Ab4d.SharpEngine.Samples.WebAssemblyDemo;
 
 // This class must be partial for the code generator to be able to generate JS interop code from methods marked as JSExport
 public static partial class JavaScriptInterop
 {
     // The following method is called from javascript from sharp-engine-wasm-test
     [JSExport]
-    public async static Task InitSharpEngineJSCallback()
+    public async static Task InitSharpEngineJSExport()
     {
         await CanvasInterop.InitializeInterop();
 
@@ -25,40 +25,31 @@ public static partial class JavaScriptInterop
 
 
         SharpEngineTest.Instance.InitSharpEngine(canvasInterop);
-
-        //var canvasInterop = new MinCanvasInterop(width, height);
-        //SharpEngineTest.Instance.InitSharpEngine(canvasInterop);
     }
 
-    //[JSExport]
-    //public static void InitSharpEngineJSCallback(int width, int height)
-    //{
-    //    var canvasInterop = new MinCanvasInterop(width, height);
-    //    SharpEngineTest.Instance.InitSharpEngine(canvasInterop);
-    //}
-
     [JSExport]
-    public static void ToggleCameraRotationJSCallback()
+    public static void ToggleCameraRotationJSExport()
     {
         SharpEngineTest.Instance.ToggleCameraRotation();
     }
     
     [JSExport]
-    public static void RenderSceneJSCallback()
+    public static void RenderSceneJSExport()
     {
         SharpEngineTest.Instance.RenderScene();
     }
     
     [JSExport]
-    public static void DumpSceneInfoJSCallback()
+    public static void DumpSceneInfoJSExport()
     {
         SharpEngineTest.Instance.DumpSceneInfo();
     }
 
-        
-    [JSExport]
-    public static void OnCanvasResizedJSCallback(int width, int height, float dpiScale)
-    {
-        SharpEngineTest.Instance.OnCanvasResized(width, height, dpiScale);
-    }
+       
+    // Resize is handled by the standard CanvasInterop.cs and sharp-engine.js
+    //[JSExport]
+    //public static void OnCanvasResizedJSCallback(int width, int height, float dpiScale)
+    //{
+    //    SharpEngineTest.Instance.OnCanvasResized(width, height, dpiScale);
+    //}
 }

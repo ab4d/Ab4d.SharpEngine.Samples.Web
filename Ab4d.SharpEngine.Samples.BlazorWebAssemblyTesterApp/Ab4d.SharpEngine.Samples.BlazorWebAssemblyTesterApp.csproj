@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\WebGLWebAssemblyTest\MinCanvasInterop.cs" Link="MinCanvasInterop.cs" />
-    <Compile Include="..\WebGLWebAssemblyTest\SharpEngineTest.cs" Link="SharpEngineTest.cs" />
+    <Compile Include="..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\CanvasInterop.cs" Link="CanvasInterop.cs" />
+    <Compile Include="..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\SharpEngineTest.cs" Link="SharpEngineTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

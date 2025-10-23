@@ -1,13 +1,12 @@
 ﻿using Ab4d.SharpEngine.Browser;
 using System;
 using System.Numerics;
-using Ab4d.SharpEngine;
 using Ab4d.SharpEngine.Cameras;
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Materials;
 using Ab4d.SharpEngine.SceneNodes;
 
-namespace WebGLWebAssemblyTest;
+namespace Ab4d.SharpEngine.Samples.WebAssemblyDemo;
 
 public class SharpEngineTest
 {

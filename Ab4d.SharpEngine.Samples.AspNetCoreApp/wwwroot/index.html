@@ -4,9 +4,33 @@
     <title>Sample</title>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="favicon.png" />
+
+    <style>
+        .loader {
+            position: fixed;
+            top: 20%;
+            left: 30%;
+            z-index: 9999; /* higher than canvas */
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; height: 500px; margin-top: 10pt"></canvas>
+    
+    <div>
+        <div id="loader" class="loader"></div>
+        <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; height: 500px; margin-top: 10pt"></canvas>
+    </div>
 
     <br />
 
@@ -15,14 +39,47 @@
     <a href="javascript:dumpSceneInfo();">Dump Scene info</a><br />
     
     <script type="module">
-        import { renderScene, dumpSceneInfo, toggleCameraRotation } from './sharp-engine-wasm-test.js';
+        // The code here does the following:
+        // - loads and initializes the dotnet runtime
+        // - calls .Net method JavaScriptInterop.InitSharpEngineJSExport that initializes the Ab4d.SharpEngine
+        // - provides functions that can call .Net methods that are defined in JavaScriptInterop.cs (have JSExport attribute)
+        
+        console.log("js: Starting loading and initializing dotnet");
 
-        // Expose the function globally so they can be called from the <a href="javascript:..." code above
-        window.renderScene = renderScene;
-        window.dumpSceneInfo = dumpSceneInfo;
-        window.toggleCameraRotation = toggleCameraRotation;
+        // Set up the .NET WebAssembly runtime
+        import { dotnet } from './_framework/dotnet.js'
+
+        // Get exported methods from the .NET assembly
+        const { getAssemblyExports, getConfig } = await dotnet
+            .withDiagnosticTracing(false)
+            .create();
+
+        const config = getConfig();
+        const exports = await getAssemblyExports(config.mainAssemblyName);
+
+        // Initialize the WebAssembly code that use SharpEngine
+        console.log("js: Start calling JavaScriptInterop.InitSharpEngineJSExport");
+        exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.InitSharpEngineJSExport();
+
+        // stop and hide the loader animation:
+        document.getElementById('loader').style.display = 'none';
+        
+        // Expose the following function globally so they can be called from the <a href="javascript:..." code above
+        window.renderScene = () => {
+            console.log("js: renderScene");
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.RenderSceneJSExport();
+        }
+
+        window.toggleCameraRotation = () => {
+            console.log("js: toggleCameraRotation");
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.ToggleCameraRotationJSExport();
+        }
+
+        window.dumpSceneInfo = () => {
+            console.log("js: dumpSceneInfo");
+            exports.Ab4d.SharpEngine.Samples.WebAssemblyDemo.JavaScriptInterop.DumpSceneInfoJSExport();
+        }   
     </script>
-
 
 </body>
 </html>

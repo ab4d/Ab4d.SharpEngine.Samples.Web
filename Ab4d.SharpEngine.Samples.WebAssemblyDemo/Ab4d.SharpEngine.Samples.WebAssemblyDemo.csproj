@@ -15,7 +15,7 @@
 
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
 
-    <RootNamespace>WebGLWebAssemblyTest</RootNamespace>
+    <RootNamespace>Ab4d.SharpEngine.Samples.WebAssemblyDemo</RootNamespace>
 
     <EmccFlags>-lGL -s FULL_ES3=1 -sMAX_WEBGL_VERSION=2</EmccFlags>
     <WasmEnableSIMD>true</WasmEnableSIMD>
