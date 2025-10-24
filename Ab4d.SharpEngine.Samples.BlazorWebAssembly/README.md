@@ -6,21 +6,21 @@ Using Blazor WebAssembly project is the recommended way to use Ab4d.SharpEngine 
 the best integration of the library and is the only way to debug the .Net code that uses the library.
 
 But if you want to use Ab4d.SharpEngine in a website that does not use Blazor WebAssembly, then 
-then a .Net WebAssembly project needs to be created (TargetFramework is set to `net9.0-browser` and RuntimeIdentifier is set to `browser-wasm`).
-Open the `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` solution to see a demonstration of that. Also read the following and releated 
+a .Net WebAssembly project needs to be created (`TargetFramework` is set to `net9.0-browser` and `RuntimeIdentifier` is set to `browser-wasm`).
+Open the `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` solution to see a demonstration of that. Also read the following and related 
 [readme file](../Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
 
 ### Quick start guide
 
-To start this samples project, open `Ab4d.SharpEngine.Samples.BlazorWebAssembly` solution or project in any .Net IDE and start it. 
+To start this project, open `Ab4d.SharpEngine.Samples.BlazorWebAssembly` solution or project in any .Net IDE and start it. 
 
 You can also start it from CLI by executing `dotnet run .` or similar command in the `Ab4d.SharpEngine.Samples.BlazorWebAssembly` folder.
 
-Check a [working version of the sample](https://www.ab4d.com/sharp-engine-browser-demo).
+Check a [live version of this sample in your browser](https://www.ab4d.com/sharp-engine-browser-demo).
 
 ### Usage in your own project
 
-To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
+To use the Ab4d.SharpEngine.Web library in your own project Blazor WebAssembly project, follow these steps:
 - Create a new "Blazor WebAssembly Standalone App" project (use .Net 9 or newer).
 - Add reference to Ab4d.SharpEngine.Web NuGet package.
 - Copy the following files from this samples project to your project:
@@ -49,12 +49,12 @@ To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
       </ItemGroup>
       
       <ItemGroup>
-        <!--The following javascript file is required for CanvasInterop class to be able to communicate with the browser -->
+        <!--The following JavaScript file is required for CanvasInterop class to be able to communicate with the browser -->
         <WasmExtraFilesToDeploy Include="sharp-engine.js" />
       </ItemGroup>      
       ```
 - Open the razor page that will host the 3D scene (for example Home.razor) and add the following:
-    - Add using declarations to the start of the razor file:
+    - Add using declarations to the start of the Razor file:
       ```
       @using System.Numerics
       @using Ab4d.SharpEngine.Cameras
@@ -116,6 +116,6 @@ To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
 
 ### See also
 
-- [Troubleshooting](../Ab4d.SharpEngine.Samples.Web?tab=readme-ov-file#troubleshooting)
+- [Troubleshooting](../README.md?tab=readme-ov-file#troubleshooting)
 - [Ab4d.SharpEngine samples for desktop and mobile device (demonstrate all features of the engine)](https://github.com/ab4d/Ab4d.SharpEngine.Samples)
 - [Online help (for desktop and mobile version of the library)](https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm)
