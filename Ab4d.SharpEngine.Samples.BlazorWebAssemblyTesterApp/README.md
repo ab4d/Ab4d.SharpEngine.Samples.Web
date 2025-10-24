@@ -1,4 +1,4 @@
-# Simple ASP.NET Core website with Ab4d.SharpEngine
+# Blazor project to debug the code in Ab4d.SharpEngine.Samples.WebAssemblyDemo
 
 The purpose of this project is to be able to debug the code in the Ab4d.SharpEngine.Samples.WebAssemblyDemo project. 
 
