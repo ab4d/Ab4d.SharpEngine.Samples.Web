@@ -6,113 +6,16 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 
 **Ab4d.SharpEngine is a cross-platform 3D rendering engine for desktop, mobile and browser .Net applications.**
 
-To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples).
+To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples) (those sample also demonstrate all of the features of the Ab4d.SharpEngine library).
 
 > [!IMPORTANT]
 > Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (the current version will expire on 2025-12-31).
 
 ### Quick start guide
 
-To start this samples project, open `Ab4d.SharpEngine.Samples.BlazorWebAssembly` solution or project in any .Net IDE and start it. 
-
-You can also start it from CLI by executing `dotnet run .` or similar command in the `Ab4d.SharpEngine.Samples.BlazorWebAssembly` folder.
-
-Check a [working version of the sample](https://www.ab4d.com/sharp-engine-browser-demo).
-
-### Usage in your own project
-
-To use the Ab4d.SharpEngine.Web library in your own project, follow these steps:
-- Create a new "Blazor WebAssembly Standalone App" project (use .Net 9 or newer).
-- Add reference to Ab4d.SharpEngine.Web NuGet package.
-- Copy the following files from this samples project to your project:
-    - `CanvasInterop.cs` (copy to the root folder of your project)
-    - `SharpEngineSceneView.razor` (copy to the root folder of your project)
-    - `wwwroot/sharp-engine.js` (copy to the wwwroot folder)
-    - `Native/libEGL.c` (create a new Native folder in your project and copy the libEGL.c file there)
-- Open the csproj file of your project and add the following:
-    - Into the first `PropertyGroup`:
-      ```
-      <!-- unsafe code is required to use JSExport in CanvasInterop -->
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-     
-      <!-- The following emscripten flags are required for Ab4d.SharpEngine to use WebGL from the browser -->
-      <EmccFlags>-lGL -s FULL_ES3=1 -sMAX_WEBGL_VERSION=2</EmccFlags>
-
-      <!-- Blazor WebAssembly supports SIMD instructions (when supported by the browser), so it is recommended to enable that -->
-      <WasmEnableSIMD>true</WasmEnableSIMD>
-      ```
-    - Optionally, you can set additional properties for the DEBUG and RELEASE builds. See the csproj file in this sample for example PropertyGroup blocks.
-    - Add the following two ItemGroups to the csproj file:
-      ```
-      <ItemGroup>
-        <!--The following NativeFileReference is required for Ab4d.SharpEngine.Web to use WebGL from the browser -->
-        <NativeFileReference Include="Native/libEGL.c" ScanForPInvokes="true" />
-      </ItemGroup>
-      
-      <ItemGroup>
-        <!--The following javascript file is required for CanvasInterop class to be able to communicate with the browser -->
-        <WasmExtraFilesToDeploy Include="sharp-engine.js" />
-      </ItemGroup>      
-      ```
-- Open the razor page that will host the 3D scene (for example Home.razor) and add the following:
-    - Add using declarations to the start of the razor file:
-      ```
-      @using System.Numerics
-      @using Ab4d.SharpEngine.Cameras
-      @using Ab4d.SharpEngine.Common
-      @using Ab4d.SharpEngine.Materials
-      @using Ab4d.SharpEngine.SceneNodes
-      @using Ab4d.SharpEngine.Browser
-      ```
-    - Add SharpEngineSceneView to your razor file. For example, add the following to Home.razor (before the "@code"):
-      ```
-      <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 50%; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
-      ```
-
-    - Override the OnAfterRender method and create the 3D scene there. For example:
-      ```
-      @code {
-          private SharpEngineSceneView sharpEngineSceneView = null!;
-      
-          /// <inheritdoc />
-          protected override void OnAfterRender(bool firstRender)
-          {
-              if (firstRender)
-                  CreateScene3D();
-          }
-      
-          private void CreateScene3D()
-          {
-              var scene = sharpEngineSceneView.Scene;
-              var sceneView = sharpEngineSceneView.SceneView;
-      
-              var boxModelNode = new BoxModelNode(centerPosition: new Vector3(0, 0, 0), size: new Vector3(100, 40, 80), material: StandardMaterials.Green);
-              scene.RootNode.Add(boxModelNode);
-      
-              sceneView.BackgroundColor = Colors.SkyBlue;
-      
-              sceneView.Camera = new TargetPositionCamera()
-              {
-                  Heading = 30,
-                  Attitude = -20,
-                  Distance = 300
-              };
-      
-              var pointerCameraController = new PointerCameraController(sceneView)
-              {
-                  RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
-                  MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
-                  ZoomMode = CameraZoomMode.PointerPosition,
-                  RotateAroundPointerPosition = true,
-                  IsPinchZoomEnabled = true, // zoom with touch pinch gesture
-                  IsPinchMoveEnabled = true  // move camera with two fingers
-              };
-          }
-      }
-      ```
-    - Instead of using the `SharpEngineSceneView` component, you can also create the canvas DOM element and
-      then manually connect to the canvas. After that you can create the WebGLDevice, Scene and SceneView objects.
-      See the "ManualInitialization.razor" file on how to do that.
+This repository contains two solutions:
+- `Ab4d.SharpEngine.Samples.BlazorWebAssembly.sln` that shows how to use Ab4d.SharpEngine in a **Blazor WebAssembly** app. This provides the best integration and debugging experiance. See [readme](Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
+- `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` that uses 4 projects and shows how to use Ab4d.SharpEngine in a **Asp.Net Core** or **Simple Html** website. See [readme](Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
 
           
 ### Additional samples and documentation
@@ -137,38 +40,54 @@ use IntelliSense to see what classes are available.
 Namespace implementation status (**compared to desktop and mobile Ab4d.SharpEngine**):
 - **Animation**: 100% implemented :heavy_check_mark:
 - **Cameras**: 100% implemented :heavy_check_mark:
-- **Effects**:
-    - StandardEffect - missing texture support (planned for beta2)
+- **Materials**:
+    - StandardEffect - 100% implemented :heavy_check_mark:
     - ThickLineEffect - LineThickness, line patterns and line caps and hidden lines are not supported.   
       WebGL does not support thick lines or geometry shader so this requires a different approach (probably CPU based mesh generation). This will be supported after v1.0. Use TubeLineModelNode and TubePathModelNode with SolidColorMaterial for thick lines (here the line thickness in not in screen space values).
-    - SolidColorEffect - planned for beta2
     - PixelEffect - planned for v1.0 (probably only 1x1 pixels will be supported with v1.0)
-    - SpriteEffect - planned for v1.0
-    - VertexColorEffect - planned for in v1.0
-    - VolumeRenderingEffect - supported later
+    - SpriteEffect - planned for v1.0 :one:
+    - VertexColorEffect - planned for v1.0 :one:
+    - VolumeRenderingEffect - supported later :two:
 - **Lights**: 100% implemented :heavy_check_mark:
-- **Materials**: see supported Effects
-- **Meshes**: all supported except SubMesh (planned for v1.0)
-- **OverlayPanels**: CameraAxisPanel planned for v1.0
-- **PostProcessing**: planned after v1.0
-- **SceneNodes**: all supported except: height map, instancing, MultiMaterialModelNode and PixelsNode. All planned for v1.0.
+- **Materials**: 
+    - StandardMaterial - 100% implemented :heavy_check_mark:
+    - SolidColorMaterial - (using StandardEffect) - 100% implemented :heavy_check_mark:
+    - LineMaterial - Rendering colored lines with 1px line thikness. See comment with ThickLineEffect for more info.
+    - PolyLineMaterial - Polylines are rendered as multiple individual lines. Because line thickness is limited to 1px, no mitered and beveled joints are required.
+    - PositionColoredLineMaterial - supported later
+    - VertexColorMaterial - planned for v1.0 :one:
+    - PrimitiveIdMaterial - planned after v1.0 :one:
+    - DepthOnlyMaterial - supported later :two:
+    - VolumeMaterial - supported later :two:
+- **Meshes**: all supported except SubMesh (planned for v1.0) :one:
+- **OverlayPanels**: CameraAxisPanel planned for v1.0 :one:
+- **PostProcessing**: planned after v1.0 :one:
+- **SceneNodes**: all supported except: height map, instancing, MultiMaterialModelNode and PixelsNode. All planned for v1.0 :one:
 - **Transformations**: 100% implemented :heavy_check_mark:
 - **Utilities**: implemented all except:
-    - BitmapTextCreator - planned for v1.0
-    - ModelMover, ModelRotator and ModelScalar - planned for v1.0
-    - ObjImporter, ObjExporter, StlImporter, StlExporter - planned for v1.0
-    - SpriteBatch - planned for v1.0
-    - TextureLoader, TextureFactory - planned for beta2
-    - VectorFontFactory, TrueTypeFontLoader - planned for v1.0
-
+    - BezierCurve, BSpline - 100% implemented :heavy_check_mark:
+    - BitmapTextCreator - 100% implemented :heavy_check_mark:
+    - CameraController - 100% implemented :heavy_check_mark:
+    - EdgeLinesFactory - 100% implemented :heavy_check_mark:
+    - CameraUtils, LineUtils, MathUtils, MeshUtils, ModelUtils, TransformationUtils - 100% implemented :heavy_check_mark:
+    - LineSelectorData (used for line selection) - 100% implemented :heavy_check_mark:
+    - MeshBooleanOperations - 100% implemented :heavy_check_mark:
+    - MeshOctree - 100% implemented :heavy_check_mark:
+    - MeshTrianglesSorter - 100% implemented :heavy_check_mark:
+    - ModelMover, ModelRotator and ModelScalar - planned for v1.0 :one:
+    - ObjImporter - 100% implemented :heavy_check_mark:
+    - ObjExporter - planned for v1.0 :one:
+    - StlImporter, StlExporter - planned for v1.0 :one:
+    - TextureLoader, TextureFactory - 100% implemented :heavy_check_mark:
+    - Triangulator - 100% implemented :heavy_check_mark:
+    - TrueTypeFontLoader, VectorFontFactory - 100% implemented :heavy_check_mark:
+    - SpriteBatch - planned for v1.0 :one:
+   
 Other not implemented features:
-- Transparency sorting (planned to beta2)
 - Super-sampling (planned for later)
 
 
 ### Roadmap 
-
-**Beta 2** version is planned for October 2025.
 
 **v1.0** is planned to be released before the end of 2025.
 

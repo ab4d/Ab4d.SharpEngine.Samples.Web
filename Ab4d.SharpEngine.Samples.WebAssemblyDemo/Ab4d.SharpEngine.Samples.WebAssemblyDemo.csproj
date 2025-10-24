@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0-browser</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
@@ -9,8 +11,6 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <InvariantTimezone>true</InvariantTimezone>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
-
-    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
 
     <RootNamespace>Ab4d.SharpEngine.Samples.WebAssemblyDemo</RootNamespace>
 
