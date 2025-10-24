@@ -6,7 +6,7 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 
 **Ab4d.SharpEngine is a cross-platform 3D rendering engine for desktop, mobile and browser .Net applications.**
 
-To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples) (those sample also demonstrate all of the features of the Ab4d.SharpEngine library).
+To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples) (those samples also demonstrate all of the features of the Ab4d.SharpEngine library).
 
 > [!IMPORTANT]
 > Ab4d.SharpEngine for browser (Ab4d.SharpEngine.Web assembly) is in beta and is not yet ready for production (the current version will expire on 2025-12-31).
@@ -14,24 +14,24 @@ To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.Shar
 ### Quick start guide
 
 This repository contains two solutions:
-- `Ab4d.SharpEngine.Samples.BlazorWebAssembly.sln` that shows how to use Ab4d.SharpEngine in a **Blazor WebAssembly** app. This provides the best integration and debugging experiance. See [readme](Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
+- `Ab4d.SharpEngine.Samples.BlazorWebAssembly.sln` that shows how to use Ab4d.SharpEngine in a **Blazor WebAssembly** app. This provides the best integration and debugging experience. See [readme](Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
 - `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` that uses 4 projects and shows how to use Ab4d.SharpEngine in a **Asp.Net Core** or **Simple Html** website. See [readme](Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
 
           
 ### Additional samples and documentation
 
-This version of the samples project only demonstrates how to initialize the SharpEngine for the Blazor app. 
-It creates a simple 3D scene and demonstrates how to use the camera controller and perform hit testing.
+This beta version of the samples only demonstrates a few of the features of the Ab4d.SharpEngine library.
+For example, a simple 3D scene is created and the samples demonstrate how to use the camera controller and perform hit testing.
 
-But it does not demonstrate all the features of the engine. This will be done in future versions of the project.
+But the samples do not demonstrate all the features of the engine. This will be done in future versions of the project.
 
 The Ab4d.SharpEngine.Web library is going to implement all the features of the Ab4d.SharpEngine for desktop and mobile apps.
-Because it uses the same code (linked files), using the implemented features is the same as with the desktop version.
+Because it uses the same code (linked files), using the implemented features is almost always identical to the desktop version.
 
 Therefore, for a full demonstration of the engine, please check the samples for desktop and mobile devices (https://github.com/ab4d/Ab4d.SharpEngine.Samples) and
 online help (https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm).
 
-To see what features are already implemented, see the "Implementation details" below or 
+To see what features are already implemented, see the "Implementation details" below, or 
 use IntelliSense to see what classes are available. 
 
 
@@ -44,7 +44,7 @@ Namespace implementation status (**compared to desktop and mobile Ab4d.SharpEngi
     - StandardEffect - 100% implemented :heavy_check_mark:
     - ThickLineEffect - LineThickness, line patterns and line caps and hidden lines are not supported.   
       WebGL does not support thick lines or geometry shader so this requires a different approach (probably CPU based mesh generation). This will be supported after v1.0. Use TubeLineModelNode and TubePathModelNode with SolidColorMaterial for thick lines (here the line thickness in not in screen space values).
-    - PixelEffect - planned for v1.0 (probably only 1x1 pixels will be supported with v1.0)
+    - PixelEffect - planned for v1.0 :one:
     - SpriteEffect - planned for v1.0 :one:
     - VertexColorEffect - planned for v1.0 :one:
     - VolumeRenderingEffect - supported later :two:
@@ -52,9 +52,9 @@ Namespace implementation status (**compared to desktop and mobile Ab4d.SharpEngi
 - **Materials**: 
     - StandardMaterial - 100% implemented :heavy_check_mark:
     - SolidColorMaterial - (using StandardEffect) - 100% implemented :heavy_check_mark:
-    - LineMaterial - Rendering colored lines with 1px line thikness. See comment with ThickLineEffect for more info.
+    - LineMaterial - Rendering colored lines with 1px line thickness. See comment with ThickLineEffect for more info.
     - PolyLineMaterial - Polylines are rendered as multiple individual lines. Because line thickness is limited to 1px, no mitered and beveled joints are required.
-    - PositionColoredLineMaterial - supported later
+    - PositionColoredLineMaterial - supported later :two:
     - VertexColorMaterial - planned for v1.0 :one:
     - PrimitiveIdMaterial - planned after v1.0 :one:
     - DepthOnlyMaterial - supported later :two:
@@ -89,13 +89,13 @@ Other not implemented features:
 
 ### Roadmap 
 
-**v1.0** is planned to be released before the end of 2025.
+**v1.0** is planned for release before the end of 2025.
 
  
  ### Tips and tricks
 
- - When you publish the Blazor app to a subfolder on your web site, change the base href value in the wwwroot/index.html
-   from "/" (used when the Blazor app is in the root folder) to your actual folder, for example to "https://www.ab4d.com/sharp-engine-browser-demo/".
+ - When you publish the Blazor app to a subfolder on your website, change the base href value in the wwwroot/index.html
+   from "/" (used when the Blazor app is in the root folder) to your actual folder, for example, to "https://www.ab4d.com/sharp-engine-browser-demo/".
 
 
 ### Troubleshooting
