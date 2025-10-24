@@ -1,11 +1,11 @@
 # Ab4d.SharpEngine WebAssembly demo for non-Blazor websites
 
-This sample shows how to create a .Net WebAssembly project with Ab4d.SharpEngine library that can be shown on a website that does not use Blazor WebAssembly clinet rendering.
+This sample shows how to create a .Net WebAssembly project with Ab4d.SharpEngine library that can be shown on a website that does not use Blazor WebAssembly client rendering.
 
-When using Ab4d.SharpEngine for browser, the development experience is the best when the library is used in Blazor WebAssembly project.
+When using Ab4d.SharpEngine for the browser the development experience is best when the library is used in a Blazor WebAssembly project.
 This is demonstrated by the [Ab4d.SharpEngine.Samples.BlazorWebAssembly project](../Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
 
-But to add 3D graphics to an existing website that does not use Blazor WebAssembly, then a .Net WebAssembly project needs to be created (TargetFramework is set to `net9.0-browser` and RuntimeIdentifier is set to `browser-wasm`).
+But to add 3D graphics to an existing website that does not use Blazor WebAssembly, then a .Net WebAssembly project needs to be created (`TargetFramework` is set to `net9.0-browser` and `RuntimeIdentifier` is set to `browser-wasm`).
 When such project is compiled, the WebAssembly (wasm) files are generated and they can be loaded in an existing website.
 
 For example, this solution shows how to show this WebAssembly project in:
@@ -19,8 +19,10 @@ there is also [Ab4d.SharpEngine.Samples.BlazorWebAssemblyTesterApp project](../A
 
 ### Quick start guide
 
-To start this samples project, open `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo` solution or project in any .Net IDE. 
+To start this samples project, open `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo` solution in any .Net IDE. 
 Then you can set `Ab4d.SharpEngine.Samples.AspNetCoreApp` as startup project and start it.
+
+You can also start the Ab4d.SharpEngine.Samples.AspNetCoreApp from CLI by executing `dotnet run .` or similar command in the Ab4d.SharpEngine.Samples.AspNetCoreApp folder.
 
 To run the "Simple Html web page" sample, first generate the wasm files by starting the `compile_debug_version.bat` and `compile_publish_version.bat` batch scripts
 and the start the web server by starting `start_debug_local_web_server.bat` and `start_publish_local_web_server.bat` scripts.
@@ -31,7 +33,7 @@ and the start the web server by starting `start_debug_local_web_server.bat` and 
 To use Ab4d.SharpEngine.Web library in your own Blazor WebAssembly project, follow the guides on [Ab4d.SharpEngine.Samples.BlazorWebAssembly project](../Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
 
 To use the Ab4d.SharpEngine.Web library in your own non-Blazor WebAssembly project, follow these steps:
-- Create a new "Console application" project (use .Net 9 or newer). Note: if a class library is created, then wasm files are not generated
+- Create a new "Console application" project (use .Net 9 or newer). Note: if a class library is created, then wasm files are not generated.
 - Add reference to Ab4d.SharpEngine.Web NuGet package.
 - Copy the following files from this samples project to your project:
     - `CanvasInterop.cs` (copy to the root folder of your project)
@@ -68,6 +70,6 @@ To use the Ab4d.SharpEngine.Web library in your own non-Blazor WebAssembly proje
 
 ### See also
 
-- [Troubleshooting](../Ab4d.SharpEngine.Samples.Web?tab=readme-ov-file#troubleshooting)
+- [Troubleshooting](../README.md?tab=readme-ov-file#troubleshooting)
 - [Ab4d.SharpEngine samples for desktop and mobile device (demonstrate all features of the engine)](https://github.com/ab4d/Ab4d.SharpEngine.Samples)
 - [Online help (for desktop and mobile version of the library)](https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm)
