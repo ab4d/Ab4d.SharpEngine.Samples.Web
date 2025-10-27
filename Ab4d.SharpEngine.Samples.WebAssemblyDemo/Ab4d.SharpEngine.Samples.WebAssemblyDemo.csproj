@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0-browser</TargetFramework>
-    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
 
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -12,6 +11,8 @@
     <InvariantTimezone>true</InvariantTimezone>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
 
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+
     <RootNamespace>Ab4d.SharpEngine.Samples.WebAssemblyDemo</RootNamespace>
 
     <EmccFlags>-lGL -s FULL_ES3=1 -sMAX_WEBGL_VERSION=2</EmccFlags>
@@ -20,15 +21,16 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
+    <!--<PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>-->
     <WasmBuildNative>true</WasmBuildNative>
     <RunAOTCompilation>true</RunAOTCompilation>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
     <WasmEmitSourceMap>false</WasmEmitSourceMap>
-    <WasmNativeStrip>true</WasmNativeStrip>
+    <CompressionEnabled>true</CompressionEnabled>
+    <!--<WasmNativeStrip>true</WasmNativeStrip>-->
   </PropertyGroup>
   
     <ItemGroup>
@@ -36,12 +38,12 @@
     <NativeFileReference Include="Native/libEGL.c" ScanForPInvokes="true" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9400-beta1" />
-  </ItemGroup>-->
+  <ItemGroup>
+    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9431-beta2" />
+  </ItemGroup>
 
-<ItemGroup>
+<!--<ItemGroup>
   <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
-</ItemGroup>
+</ItemGroup>-->
 
 </Project>

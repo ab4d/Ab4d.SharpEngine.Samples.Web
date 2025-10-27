@@ -1,16 +1,41 @@
 # Simple HTML and JavaScript web page with Ab4d.SharpEngine
 
-This project shows how to create a simple web page with Ab4d.SharpEngine that uses only HTML and JavaScript 
-to start the WebAssembly that shows 3D graphics.
+This project demonstrates how to create a simple web page that uses only HTML and JavaScript 
+to start the WebAssembly that is compiled from the `Ab4d.SharpEngine.Samples.WebAssemblyDemo` project.
+
+This project is similar to `Ab4d.SharpEngine.Samples.AspNetCoreApp` project,
+but instead of using Asp.Net Core to as a web server, this project uses a **simple Python web server** (defined in `server.py`)
+or a **more advanced Express node.js web server** (defined in `server.js`).
 
 
-## Starting web server
+### Prepare required files
 
-A simple Python script is used to create a very simple web server (defined in `serve.py`). It serves all the files from the wwwroot folder.
+Before the web server can be started, the required files must be prepared in the `wwwroot` folder.
 
-Before the web server is started, the two bat scripts (`start_debug_local_web_server.bat` and `start_publish_local_web_server.bat`) from this folder copy the output folder to the wwwroot folder. First, static files (index.html, sharp-engine.js, webassembly-demo.js and favicon) are copied from the Ab4d.SharpEngine.Samples.AspNetCoreApp project. Then, WebAssembly files are copied from Ab4d.SharpEngine.Samples.BlazorWebAssembly output folder (debug or release folder).
+The wwwroot folder must contain the **HTML and JavaScript files** that load and start the WebAssembly.
+Those files are copied from the wwwroot folder of the Ab4d.SharpEngine.Samples.AspNetCoreApp project.
 
-You can use the `compile_debug_version.bat` and `compile_publish_version.bat` to compile the Ab4d.SharpEngine.Samples.BlazorWebAssembly and prepare the files in the output folders.
+Then, the wwwroot folder must also contain the _framework folder with **WebAssembly files** that are compiled from the Ab4d.SharpEngine.Samples.WebAssemblyDemo project.
+
+Compiling and copying the required files can be done by executing one of the following scripts:
+- `compile_debug_version.bat` that compiles the Ab4d.SharpEngine.Samples.WebAssemblyDemo project in debug mode and copies the required files to the wwwroot and wwwroot\_framework folders.
+- `compile_publish_version.bat` that compiles the Ab4d.SharpEngine.Samples.WebAssemblyDemo project in release mode, compresses the .js and .wasm files into Brotli compressed files (requires ThirdParty brotli tool) and copies the required files to the wwwroot and wwwroot\_framework folders.
+
+
+### Starting web server
+
+This project provides two options to start a local web server that serves the web page from wwwroot:
+
+1. **Simple Python web server** - this option requires that Python is installed.
+   This server is started by using server.py script.
+   This is a very simple web server that does not support HTTP/2 and can be quite slow, especially when serving many files (for example, for debug build).
+   This server also does not support Brotli compressed files.
+
+2. **Using Express Node.js web server** - this option requires that Node.js and the express npm package are installed.
+   Express is much faster than the simple Python web server. What is more, the specified script also supports serving Brotli compressed files if they are available
+   (when `compile_publish_version.bat` is called and Brotil compression utility is available).
+   Brotli compressed files are much smaller and therefore the web page loads faster
+1. (for example, serving only 2.2 MB when Brotli compressed instead of 9.3 MB of uncompressed data).
 
 To see how to use **Asp.Net Core** project to serve as a web server, see the [Ab4d.SharpEngine.Samples.AspNetCoreApp project](../Ab4d.SharpEngine.Samples.AspNetCoreApp/README.md).
 

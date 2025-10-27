@@ -1,18 +1,38 @@
 # Simple ASP.NET Core website with Ab4d.SharpEngine
 
-This project demonstrates how to create a simple Asp.Net Core website that starts a WebAssembly that shows 3D graphics.
+This project demonstrates how to create a simple web page that uses only HTML and JavaScript 
+to start the WebAssembly that is compiled from the `Ab4d.SharpEngine.Samples.WebAssemblyDemo` project.
+
+To serve the web page, this project uses an **Asp.Net Core web server**.
+To see how to use a Node.js web server or a simple Python, see the [Ab4d.SharpEngine.Samples.HtmlWebPage project](../Ab4d.SharpEngine.Samples.HtmlWebPage/README.md).
+
+### Prepare required files
+
+Before the web server can be started, the required files must be prepared in the `wwwroot` folder.
+
+The wwwroot folder must contain the **HTML and JavaScript files** that load and start the WebAssembly.
+
+Then, the wwwroot folder must also contain the `_framework` folder with **WebAssembly files** that are compiled from the Ab4d.SharpEngine.Samples.WebAssemblyDemo project.
+
+By default, this project is dependent on the Ab4d.SharpEngine.Samples.WebAssemblyDemo project so 
+when it is compiled, the WebAssemblyDemo project is also compiled and the WebAssembly files are
+available in its Debug or Release folder.
+
+You can also manually compile the Ab4d.SharpEngine.Samples.WebAssemblyDemo project by starting 
+the `compile_publish_version.bat` script. This compiles the WebAssemblyDemo project in release mode
+and also compresses the .js and .wasm files into Brotli compressed files (requires ThirdParty brotli tool).
 
 
-## Starting web server
+### Starting web server
 
-In the `Program.cs` we create a web server that serves from two locations:
-- Static files from the wwwroot folder (index.html, sharp-engine.js, webassembly-demo.js and favicon). 
-- WebAssembly files from the output folder of the Ab4d.SharpEngine.Samples.WebAssemblyDemo project.
+The web server is configured and started in the `Program.cs` file.
 
-To see how to use a very simple **Html Web Page** project to serve as a web server, see the [Ab4d.SharpEngine.Samples.HtmlWebPage project](../Ab4d.SharpEngine.Samples.HtmlWebPage/README.md).
+Before this is done, the code checks if the required files are available in the `wwwroot/_framework` folder. If not, then the code tries to copy the files from the 
+Ab4d.SharpEngine.Samples.HtmlWebPage or Ab4d.SharpEngine.Samples.WebAssemblyDemo projects.
 
-The following sections are the same as for the "Html Web Page" project.
-
+The web server is also configured to serve Brotli compressed files (.br) when they are available.
+Brotli compressed files are much smaller and therefore the web page loads faster 
+(for example, serving only 2.2 MB when Brotli compressed instead of 9.3 MB of uncompressed data).
 
 ## Create 3D scene with Ab4d.SharpEngine library
 

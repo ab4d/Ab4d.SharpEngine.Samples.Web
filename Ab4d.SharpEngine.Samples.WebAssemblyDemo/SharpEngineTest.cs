@@ -102,7 +102,7 @@ public class SharpEngineTest
             {
                 Heading = 30,
                 Attitude = -25,
-                Distance = 500,
+                Distance = 400,
                 ShowCameraLight = ShowCameraLightType.Always
             };
 
@@ -115,7 +115,7 @@ public class SharpEngineTest
                 RotateCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed,
                 MoveCameraConditions = PointerAndKeyboardConditions.LeftPointerButtonPressed | PointerAndKeyboardConditions.ControlKey,
                 ZoomMode = CameraZoomMode.PointerPosition,
-                RotateAroundPointerPosition = true,
+                RotateAroundPointerPosition = false,
                 IsPinchZoomEnabled = true, // zoom with touch pinch gesture
                 IsPinchMoveEnabled = true  // move camera with two fingers
             };
