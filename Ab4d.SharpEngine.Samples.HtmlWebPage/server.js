@@ -1,6 +1,15 @@
-const express = require('express');
 const path = require('path');
 const fs = require('fs');
+
+try {
+    require('express')
+} catch {
+    console.log("Cannot start web sever because express package is missing. Install it by 'npm i express'")
+    process.exit(1)
+}
+
+const express = require('express');
+
 
 const app = express();
 const PORT = 8000;
