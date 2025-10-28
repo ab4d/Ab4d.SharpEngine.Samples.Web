@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)==''">
-    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9431-beta2" />
+    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9432-beta2" />
   </ItemGroup>
 
   <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
