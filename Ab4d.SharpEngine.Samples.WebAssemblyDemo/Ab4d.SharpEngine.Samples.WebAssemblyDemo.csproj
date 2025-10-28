@@ -38,12 +38,12 @@
     <NativeFileReference Include="Native/libEGL.c" ScanForPInvokes="true" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)==''">
     <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9431-beta2" />
   </ItemGroup>
 
-<!--<ItemGroup>
-  <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
-</ItemGroup>-->
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
+    <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+  </ItemGroup>
 
 </Project>

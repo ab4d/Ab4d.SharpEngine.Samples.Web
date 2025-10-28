@@ -25,8 +25,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.9" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\My\Ab4d\SharpEngine\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)==''">
+    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9431-beta2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
+    <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
