@@ -256,3 +256,8 @@ paket-files/
 !*.obj
 
 .DS_STORE
+
+# Prevent commiting files that are copied from compiled _framework folder
+Ab4d.SharpEngine.Samples.AspNetCoreApp/wwwroot/_framework/
+Ab4d.SharpEngine.Samples.HtmlWebPage/_framework/
+Ab4d.SharpEngine.Samples.HtmlWebPage/wwwroot/
