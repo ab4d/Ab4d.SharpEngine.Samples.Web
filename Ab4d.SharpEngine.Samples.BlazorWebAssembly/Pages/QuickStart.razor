@@ -36,7 +36,7 @@
 <button class="btn-primary" style="margin-top: 3pt" @onclick="ChangeMaterial">Change material</button>
 <button class="btn-primary" style="margin-top: 3pt" @onclick="AddManyObjects">Add many objects</button>
 <button class="btn-primary" style="margin-top: 3pt" @onclick="RemoveAddedObjects">Remove added objects</button>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button>
+@* <button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button> *@
 
 <br />
 
@@ -673,20 +673,20 @@
         }
     }
 
-    private async Task CaptureNextFrame()
-    {
-        bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
+    // private async Task CaptureNextFrame()
+    // {
+    //     bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
 
-        if (!success)
-        {
-            ShowInfoMessage("Cannot start Spector capture.");
-            return;
-        }
+    //     if (!success)
+    //     {
+    //         ShowInfoMessage("Cannot start Spector capture.");
+    //         return;
+    //     }
 
-        sharpEngineSceneView.SceneView.Render(forceRender: true);
+    //     sharpEngineSceneView.SceneView.Render(forceRender: true);
 
-        sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
-    }
+    //     sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
+    // }
 
     public void Dispose()
     {
