@@ -35,7 +35,7 @@ This project provides two options to start a local web server that serves the we
    Express is much faster than the simple Python web server. What is more, the specified script also supports serving Brotli compressed files if they are available
    (when `compile_publish_version.bat` is called and Brotil compression utility is available).
    Brotli compressed files are much smaller and therefore the web page loads faster
-1. (for example, serving only 2.2 MB when Brotli compressed instead of 9.3 MB of uncompressed data).
+   (for example, serving only 2.2 MB when Brotli compressed instead of 9.3 MB of uncompressed data).
 
 To see how to use **Asp.Net Core** project to serve as a web server, see the [Ab4d.SharpEngine.Samples.AspNetCoreApp project](../Ab4d.SharpEngine.Samples.AspNetCoreApp/README.md).
 
