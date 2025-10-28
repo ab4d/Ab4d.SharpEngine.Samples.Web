@@ -163,19 +163,25 @@ Drop obj or mtl file here or click to open file picker</div>
         scene.RootNode.Add(wireGridNode);
 
 
-        string objUrl = "/models/Teapot-with-material.obj";
+        string objUrl = "models/Teapot-with-material.obj";
 
-        var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
+        try
+        {
+            var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
 
-        var importedNode = await objImporter.ImportAsync(objUrl);
+            var importedNode = await objImporter.ImportAsync(objUrl);
 
-        Utilities.ModelUtils.PositionAndScaleSceneNode(importedNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
+            Utilities.ModelUtils.PositionAndScaleSceneNode(importedNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
 
-        sharpEngineSceneView.Scene.RootNode.Add(importedNode);
-        _importedSceneNode = importedNode;
+            sharpEngineSceneView.Scene.RootNode.Add(importedNode);
+            _importedSceneNode = importedNode;
 
-        ShowInfoMessage("Default Teapot-with-material.obj file loaded");
-
+            ShowInfoMessage("Default Teapot-with-material.obj file loaded");
+        }
+        catch (Exception ex)
+        {
+            ShowInfoMessage($"Error importing {objUrl} file: " + ex.Message);
+        }
 
         // Initialize javascript attachFileImportHandler so it can call back blazor (ObjFileImportedJS and MtlFileImportedJS)
         _thisJSReference = DotNetObjectReference.Create(this);

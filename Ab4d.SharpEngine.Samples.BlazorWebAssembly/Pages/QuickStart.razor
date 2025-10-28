@@ -244,9 +244,18 @@
         }
 
 
-        //string objUrl = "/models/Teapot.obj";
-        //string objUrl = "/models/house-with-trees.obj";
-        string objUrl = "/models/Teapot-with-material.obj";
+        // Load an obj model with its material
+
+        // When loading obj and mtl files, check that the webserver supports serving those two file types
+        // For asp.net you may need to add the following to the web.config file:
+        // <system.webServer>
+        //   <staticContent>
+        //     <mimeMap fileExtension=".obj" mimeType="text/plain" />
+        //     <mimeMap fileExtension=".mtl" mimeType="text/plain" />
+        //   </staticContent>
+        // </system.webServer> 
+
+        string objUrl = "models/Teapot-with-material.obj";
 
         var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
 
@@ -440,19 +449,34 @@
         // to see how to create a custom bitmap font.
         // There are also Arial, Arial Black, Roboto Black and Arial Black with outline bitmap fonts in the Resources\BitmapFonts folder.
 
-        var bitmapFont = await BitmapFont.CreateAsync("/fonts/roboto_64.fnt", gpuDevice);
-        _bitmapTextCreator = await BitmapTextCreator.CreateAsync(sharpEngineSceneView.Scene, bitmapFont);
+        // When loading bitmap fonts, check that the webserver supports serving fnt files.
+        // For asp.net you may need to add the following to the web.config file:
+        // <system.webServer>
+        //   <staticContent>
+        //     <mimeMap fileExtension=".fnt" mimeType="text/plain" />
+        //   </staticContent>
+        // </system.webServer> 
 
-        var bitmapTextNode = _bitmapTextCreator.CreateTextNode("Bitmap font", 
-                                                               position: new Vector3(0, 0, 85), 
-                                                               positionType: PositionTypes.Center, 
-                                                               textDirection: new Vector3(1, 0, 0), 
-                                                               upDirection: new Vector3(0, 0, -1), 
-                                                               fontSize: 20, 
-                                                               textColor: Colors.Black, 
-                                                               isSolidColorMaterial: true);
+        try
+        {
+            var bitmapFont = await BitmapFont.CreateAsync("fonts/roboto_64.fnt", gpuDevice);
+            _bitmapTextCreator = await BitmapTextCreator.CreateAsync(sharpEngineSceneView.Scene, bitmapFont);
 
-        sharpEngineSceneView.Scene.RootNode.Add(bitmapTextNode);
+            var bitmapTextNode = _bitmapTextCreator.CreateTextNode("Bitmap font", 
+                                                                   position: new Vector3(0, 0, 85), 
+                                                                   positionType: PositionTypes.Center, 
+                                                                   textDirection: new Vector3(1, 0, 0), 
+                                                                   upDirection: new Vector3(0, 0, -1), 
+                                                                   fontSize: 20, 
+                                                                   textColor: Colors.Black, 
+                                                                   isSolidColorMaterial: true);
+
+            sharpEngineSceneView.Scene.RootNode.Add(bitmapTextNode);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading BitmapFont: " + ex);
+        }
     }
 
     private async Task AddVectorFont()
@@ -462,7 +486,7 @@
         // You can also check if font is loaded by calling:
         // bool isLoaded = TrueTypeFontLoader.Instance.IsFontLoaded(fontName);
 
-        var fontFile = "/fonts/Roboto-Regular.ttf";
+        var fontFile = "fonts/Roboto-Regular.ttf";
         var fontName = "RobotoRegular";
 
         try
@@ -474,7 +498,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error loading font: " + ex.Message);
+            Console.WriteLine("Error loading ttf font file: " + ex.Message);
             return;
         }
 
