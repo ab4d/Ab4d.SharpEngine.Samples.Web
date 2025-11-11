@@ -262,3 +262,5 @@ paket-files/
 Ab4d.SharpEngine.Samples.AspNetCoreApp/wwwroot/_framework/
 Ab4d.SharpEngine.Samples.HtmlWebPage/_framework/
 Ab4d.SharpEngine.Samples.HtmlWebPage/wwwroot/
+
+.private.csproj
