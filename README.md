@@ -109,3 +109,72 @@ By default (in Ab4d.SharpEngine.Web beta version) the `Log.LogLevel` is set to `
 Note that I am not an expert in Blazor and therefore some things may not be created optimally. Please create a PR or add a new issue if you know of any improvements.
 
 Please report the problems or improvement ideas by creating a new [Issue on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web/issues). You can also use the [Feedback form](https://www.ab4d.com/Feedback.aspx) or [Ab4d.SharpEngine Forum](https://forum.ab4d.com/forumdisplay.php?fid=12).
+
+
+### How to share the code with Ab4d.SharpEngine
+
+This section describes how to **share source code** that can be used **for the browser** (requires Ab4d.SharpEngine.Web) and **for the desktop and mobile devices** (requires Ab4d.SharpEngine).
+
+Because both Ab4d.SharpEngine and Ab4d.SharpEngine.Web define the same namespaces and class names, it is not possible to add references to both libraries. 
+
+Maybe in the future (not in the near future) there will be a common library (Ab4d.SharpEngine.Core or something similar) and a NuGet package that will load different assemblies based on the current platform. 
+
+However, to use shared code now, I recommend using **two projects with linked files**.
+
+In this case, you create two class library projects. One that references Ab4d.SharpEngine and the other that references Ab4d.SharpEngine.Web. You define the classes and files in the first project and use linked files in the second (to add the same files as defined in the first project). You can add linked files by using an IDE or by editing the csproj file. The latter is useful when you want to add multiple files. 
+
+For example, the following code from csproj file add links to all cs files in `..\SharedGraphicsLib\Shared` folder and a single `..\SharedGraphicsLib\Custom\CusomFile.cs` file.
+```
+<ItemGroup>
+    <Compile Include="..\SharedGraphicsLib\Shared\*.cs" LinkBase="Shared\"  />
+    <Compile Include="..\SharedGraphicsLib\Custom\CusomFile.cs" Link="CusomFile.cs" />
+</ItemGroup>
+```
+
+I also recommend that in the project with Ab4d.SharpEngine you define the `VULKAN` compiler constant. In the other project (with Ab4d.SharpEngine.Web) you define the `WEB_GL` compiler constant.
+This can be defined by the adding `VULKAN` or `WEB_GL` to `DefineConstants` element in csproj file. For example, add the following to the root `PropertyGroup`:
+```
+<DefineConstants>VULKAN</DefineConstants>
+```
+
+Be careful that this value is not overwritten later in the csproj file. For example, this may occur when special DefineConstants are used for Debug and Release builds. To solve that, add the following in the later DefineConstants declaration:
+```
+<DefineConstants>$(DefineConstants);TRACE;DEBUG;</DefineConstants>
+```
+
+After you have the `VULKAN` and `WEB_GL` compiler constants defined, you can exclude some parts of the shared code by using `#if`, `#else`, `#elif` and `#endif`. For example, the following code defines the `CreateSomeLowLevelObject` method with a different method body:
+```
+public void CreateSomeLowLevelObject()
+{
+#if VULKAN
+    // Vulkan specific code
+#elif WEB_GL
+    // Browser specific code
+#endif
+}
+```
+
+Larger classes can be divided into multiple partial classes: one shared, one for Vulkan and one for the browser. For example, you can have:
+- ComplexGeometry3D.shared.cs
+- ComplexGeometry3D.vulkan.cs // This file starts with "#if VULKAN"
+- ComplexGeometry3D.webgl.cs  // This file starts with "#if WEB_GL"
+
+
+If you need to use **VulkanDevice** and **WebGLDevice** in the same file, you can define a common alias for both classes. For example, in the file header you can use:
+
+```
+#if VULKAN
+using Ab4d.Vulkan;
+using Ab4d.SharpEngine.Vulkan;
+using GpuDevice = Ab4d.SharpEngine.Vulkan.VulkanDevice;
+#endif
+#if WEB_GL
+using Ab4d.SharpEngine.WebGL;
+using GpuDevice = Ab4d.SharpEngine.WebGL.WebGLDevice;
+#endif
+```
+
+Then you can use the `GpuDevice` type. When compiling, that will be replaced by the `VulkanDevice` or `WebGLDevice`. For example,
+```
+private void RecreateIndexBuffer(GpuDevice gpuDevice)
+```
