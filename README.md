@@ -89,7 +89,7 @@ Other not implemented features:
 
 ### Roadmap 
 
-**v1.0** is planned for release before the end of 2025.
+**v1.0** is planned for January 2026.
 
  
  ### Tips and tricks
