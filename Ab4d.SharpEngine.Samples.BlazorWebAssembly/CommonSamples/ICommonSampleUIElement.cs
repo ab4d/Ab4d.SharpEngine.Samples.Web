@@ -1,30 +1,30 @@
-﻿using Ab4d.SharpEngine.Common;
+﻿//using Ab4d.SharpEngine.Common;
 
-namespace Ab4d.SharpEngine.Samples.Common;
+//namespace Ab4d.SharpEngine.Samples.Common;
 
-public interface ICommonSampleUIElement
-{
-    bool GetIsVisible();
-    ICommonSampleUIElement SetIsVisible(bool isVisible);
+//public interface ICommonSampleUIElement
+//{
+//    bool GetIsVisible();
+//    ICommonSampleUIElement SetIsVisible(bool isVisible);
 
-    string? GetText();
-    ICommonSampleUIElement SetText(string? text);
+//    string? GetText();
+//    ICommonSampleUIElement SetText(string? text);
 
-    ICommonSampleUIElement SetColor(Color3 color);
+//    ICommonSampleUIElement SetColor(Color3 color);
 
-    string? GetStyle();
-    ICommonSampleUIElement SetStyle(string style);
+//    string? GetStyle();
+//    ICommonSampleUIElement SetStyle(string style);
 
-    string? GetToolTip();
-    ICommonSampleUIElement SetToolTip(string tooltip);
+//    string? GetToolTip();
+//    ICommonSampleUIElement SetToolTip(string tooltip);
 
-    (double left, double top, double right, double bottom) GetMargin();
-    ICommonSampleUIElement SetMargin(double left, double top, double right, double bottom);
+//    (double left, double top, double right, double bottom) GetMargin();
+//    ICommonSampleUIElement SetMargin(double left, double top, double right, double bottom);
 
-    void SetProperty(string propertyName, string propertyValue);
-    string? GetPropertyValue(string propertyName);
+//    void SetProperty(string propertyName, string propertyValue);
+//    string? GetPropertyValue(string propertyName);
 
-    void UpdateValue();
+//    void UpdateValue();
 
-    void SetValue(object newValue);
-}
+//    void SetValue(object newValue);
+//}
