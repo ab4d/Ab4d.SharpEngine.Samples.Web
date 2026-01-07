@@ -12,22 +12,24 @@
 
 <PageTitle>Ab4d.SharpEngine.Web - OBJ and STL file viewer</PageTitle>
 
-<h1>Ab4d.SharpEngine.Web - OBJ and STL file viewer</h1>
+<div style="padding: 1.5rem">
+    <h1>Ab4d.SharpEngine.Web - OBJ and STL file viewer</h1>
 
-<p>This example shows how to load user obj, mtl and stl (text and binary) files with Ab4d.SharpEngine.</p>
-<p><strong>To load a custom file, drag and drop it to the area under the 3D scene.</strong></p>
-<p>Note that loading texture from user selected files is not supported in this sample. 
-    But when obj files are part of the blazor project, 
-    then textures can be also imported as shown by the initially loaded teapot.</p>
+    <p>This example shows how to load user obj, mtl and stl (text and binary) files with Ab4d.SharpEngine.</p>
+    <p><strong>To load a custom file, drag and drop it to the area under the 3D scene.</strong></p>
+    <p>Note that loading texture from user selected files is not supported in this sample. 
+        But when obj files are part of the blazor project, 
+        then textures can be also imported as shown by the initially loaded teapot.</p>
 
-<SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
 
-<br />
-<p>@_infoText</p>
+    <br />
+    <p>@_infoText</p>
 
-<div id="dropZone" style="width: 70%; min-width: 400px; height: 150px; border: 2px dashed #0078d4; border-radius: 10px; text-align: center; line-height: 150px; color: #555; font-family: sans-serif; cursor: pointer;">
-Drop obj, mtl or stl file here or click to open file picker</div>
-<input type="file" id="fileInput" accept=".obj,.mtl,.stl" style="display: none;" />
+    <div id="dropZone" style="width: 70%; min-width: 400px; height: 150px; border: 2px dashed #0078d4; border-radius: 10px; text-align: center; line-height: 150px; color: #555; font-family: sans-serif; cursor: pointer;">
+        Drop obj, mtl or stl file here or click to open file picker</div>
+    <input type="file" id="fileInput" accept=".obj,.mtl,.stl" style="display: none;" />
+</div>
 
 <script>
 
