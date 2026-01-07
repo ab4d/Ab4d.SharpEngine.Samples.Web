@@ -1,4 +1,5 @@
 ﻿@page "/commonSamples"
+@page "/commonSamples/{SampleId}"
 @using Ab4d.SharpEngine.Browser
 @using Ab4d.SharpEngine.Samples.Common
 @using Ab4d.SharpEngine.Samples.Blazor.UIProvider
@@ -12,6 +13,16 @@
     <div style="position: absolute; margin: 10px; left: 0; top: 0;">
         <h3>@sample_title</h3>
         <span style="white-space: pre-wrap;">@sample_subtitle</span>
+        
+        <br/>
+        @if (string.IsNullOrEmpty(SampleId))
+        {
+            <p>No sample selected.</p>
+        }
+        else
+        {
+            <p>Showing sample: @SampleId</p>
+        }
     </div>
 
     @if (_uiProvider != null)
@@ -24,6 +35,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
     private SharpEngineSceneView sharpEngineSceneView = null!;
     private string sample_title = "";
     private string sample_subtitle = "";
@@ -43,6 +57,14 @@
             _currentCommonSample = value;
             InitializeCommonSample();
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        // This is called BOTH:
+        // - when navigating to the page
+        // - AND when the parameter changes while staying on the same page
+        Console.WriteLine($"Sample changed to: {SampleId}");
     }
 
     protected override void OnInitialized()
