@@ -175,17 +175,26 @@ public abstract class CommonSample
 
     public static object? CreateSampleObject(string uiFramework, string sampleLocation, object commonSamplesContext, Action<string>? showErrorAction)
     {
-        sampleLocation = sampleLocation.Replace("{uiFramework}", uiFramework);
+        Type? sampleType;
 
-        string assemblyName = uiFramework;
-        if (assemblyName == "Avalonia")
-            assemblyName += "UI"; // Assembly name has AvaloniaUI and not just Avalonia
+        if (uiFramework == "Blazor")
+        {
+            sampleType = Type.GetType($"Ab4d.SharpEngine.Samples.Common.{sampleLocation}, Ab4d.SharpEngine.Samples.Common.Blazor", throwOnError: false);
+        }
+        else
+        {
+            sampleLocation = sampleLocation.Replace("{uiFramework}", uiFramework);
 
-        // Try to create common sample type from page attribute
-        var sampleType = Type.GetType($"Ab4d.SharpEngine.Samples.{assemblyName}.{sampleLocation}, Ab4d.SharpEngine.Samples.{assemblyName}", throwOnError: false);
+            string assemblyName = uiFramework;
+            if (assemblyName == "Avalonia")
+                assemblyName += "UI"; // Assembly name has AvaloniaUI and not just Avalonia
 
-        if (sampleType == null)
-            sampleType = Type.GetType($"Ab4d.SharpEngine.Samples.Common.{sampleLocation}, Ab4d.SharpEngine.Samples.Common", throwOnError: false);
+            // Try to create common sample type from page attribute
+            sampleType = Type.GetType($"Ab4d.SharpEngine.Samples.{assemblyName}.{sampleLocation}, Ab4d.SharpEngine.Samples.{assemblyName}", throwOnError: false);
+
+            if (sampleType == null)
+                sampleType = Type.GetType($"Ab4d.SharpEngine.Samples.Common.{sampleLocation}, Ab4d.SharpEngine.Samples.Common", throwOnError: false);
+        }
 
         if (sampleType == null)
         {

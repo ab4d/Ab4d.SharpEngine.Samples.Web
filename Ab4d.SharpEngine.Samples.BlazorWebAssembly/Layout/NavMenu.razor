@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Ab4d.SharpEngine.Samples.Common
+@inject HttpClient Http
+
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Ab4d.SharpEngine</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -29,38 +33,41 @@
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> UIProviderDemo
             </NavLink>
         </div>
-@*         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="commonSamples">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Common samples
-            </NavLink>
-        </div> *@
         
-        <!-- Collapsible parent item -->
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="commonSamples" @onclick="ToggleManualInit">
-            @* <button class="nav-link btn btn-toggle w-100 text-start" @onclick="ToggleManualInit"> *@
-                @* <span class="bi bi-plus-square-fill-nav-menu"></span> *@
+        @foreach (var group in Groups)
+        {
+            <div class="nav-item">
 
-                <span class="bi @(isManualInitOpen ? "bi-minus-square-fill-nav-menu" : "bi-plus-square-fill-nav-menu")"></span>
-                Common samples
-            @* </button> *@
-            </NavLink>
+                <!-- Top-level collapsible item -->
+                <a class="nav-link nav-item" @onclick="() => ToggleGroup(group)" href="@("/commonSamples/" + group.Location)">
+                    <span class="bi @(IsOpen(group) ? "bi-minus-square-fill-nav-menu" : "bi-plus-square-fill-nav-menu")"></span>
+                    @group.Title
+                </a>
 
-            @if (isManualInitOpen)
-            {
-                <div class="submenu ms-2">
-                    <button class="nav-link nav-submenu-link" href="commonSamples/step1">
-                        Step 1
-                    </button>
-                    <NavLink class="nav-link nav-submenu-link" href="commonSamples/step2">
-                        Step 2
-                    </NavLink>
-                    <NavLink class="nav-link nav-submenu-link" href="commonSamples/advanced">
-                        Advanced Options
-                    </NavLink>
-                </div>
-            }
-        </div>
+                @if (IsOpen(group))
+                {
+                    <div class="submenu ms-2">
+                        @foreach (var item in group.Items)
+                        {
+                            @* <div class="submenu-item @(item.IsSeparator ? "submenu-separator" : "")"> *@
+                            <a class="nav-link nav-item nav-submenu-link @(item.IsSeparator ? "nav-submenu-separator" : "")" href="@("/commonSamples/" + item.Location)">
+                                @item.Title
+                                @if (item.IsNew)
+                                {
+                                    <img src="images/new_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" />
+                                }
+                                @if (item.IsUpdated)
+                                {
+                                    <img src="images/updated_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" title="@item.UpdateInfo" />
+                                }
+                            </a>
+                     @*        </div> *@
+                        }
+                    </div>
+                }
+            </div>
+        }        
+
     </nav>
 </div>
 
@@ -71,6 +78,21 @@
 
     private bool isManualInitOpen = false;
 
+    //private List<SamplesListReader.SampleGroup> Groups = SamplesListReader.LoadSampleGroups("Samples.xml");
+    private List<SamplesXmlReader.SampleGroup> Groups = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        string xmlContent = await Http.GetStringAsync("Samples.xml");
+
+        var items = SamplesXmlReader.ParseXml(xmlContent);
+
+        Groups = SamplesXmlReader.BuildGroups(items);
+    }
+
+
+
     private void ToggleManualInit()
     {
         isManualInitOpen = !isManualInitOpen;
@@ -80,4 +102,21 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+
+    private SamplesXmlReader.SampleGroup? openedGroup;
+
+    private void ToggleGroup(SamplesXmlReader.SampleGroup group)
+    {
+        openedGroup = openedGroup == group ? null : group;
+    }
+
+    private bool IsOpen(SamplesXmlReader.SampleGroup group) => openedGroup == group;
+
+    // public void GenerateSamplesMenuItems(List<SamplesListReader.SampleGroup> samplesGroups)
+    // {
+    //     Groups = samplesGroups;
+    //     StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
+    // }
+
 }

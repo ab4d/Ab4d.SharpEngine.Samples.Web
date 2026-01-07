@@ -117,5 +117,9 @@ code {
 
 .nav-submenu-link {
     height: 1.7rem !important;
-    line-height: 1.7rem !important;
+    /*line-height: 1.7rem !important;*/
+}
+
+.nav-submenu-separator {
+    margin-top: 0.5rem;
 }

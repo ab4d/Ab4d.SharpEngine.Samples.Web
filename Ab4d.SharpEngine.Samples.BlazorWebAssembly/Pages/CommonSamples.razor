@@ -65,6 +65,12 @@
         // - when navigating to the page
         // - AND when the parameter changes while staying on the same page
         Console.WriteLine($"Sample changed to: {SampleId}");
+
+        if (SampleId == "Cameras.FreeCameraSample")
+        {
+            var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", SampleId, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));
+            CurrentCommonSample = createdSample;
+        }
     }
 
     protected override void OnInitialized()

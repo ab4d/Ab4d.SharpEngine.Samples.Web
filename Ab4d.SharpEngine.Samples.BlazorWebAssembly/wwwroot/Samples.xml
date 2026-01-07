@@ -5,9 +5,9 @@
   <!--<Sample Location="Common.MarkdownTestPage" IsTitle="True" Title="Markdown Test"/>-->
   <Sample IsSeparator="True" />
 
-  <Sample Location="Titles.QuickStartTitle.md" IsTitle="True" Title="Quick Start" />
+  <!--<Sample Location="Titles.QuickStartTitle.md" IsTitle="True" Title="Quick Start" />
   <Sample Location="QuickStart.SharpEngineSceneViewInCode" Title="SharpEngineSceneView in code" />
-  <Sample Location="QuickStart.SharpEngineSceneViewInXaml" Title="SharpEngineSceneView in XAML" Condition="IsNotWinForms"/>
+  <Sample Location="QuickStart.SharpEngineSceneViewInXaml" Title="SharpEngineSceneView in XAML" Condition="IsNotWinForms"/>-->
   
   <Sample Location="Titles.CamerasTitle.md" IsTitle="True" Title="Cameras"/>
   <Sample Location="Cameras.TargetPositionCameraSample" Title="TargetPositionCamera"/>
@@ -15,7 +15,7 @@
   <Sample Location="Cameras.FirstPersonCameraSample" Title="FirstPersonCamera"/>
   <Sample Location="Cameras.FitIntoViewSample" Title="FitIntoView"/>
   <Sample Location="Cameras.{uiFramework}Point3DTo2DSample" Title="Point3DTo2D"/>
-  <Sample Location="Cameras.CameraAxisPanelSample" Title="CameraAxisPanel"/>
+  <!--<Sample Location="Cameras.CameraAxisPanelSample" Title="CameraAxisPanel"/>-->
   <Sample Location="Cameras.CustomCoordinateSystemSample" Title="Custom coordinate system"/>
   <Sample Location="Cameras.OffCenterCameraSample" Title="Off-center scene rendering" IsNew="True"/>
   <Sample Location="Cameras.TwoDimensionalCameraSample" Title="TwoDimensionalCamera"/>
@@ -24,7 +24,7 @@
   <Sample Location="CameraControllers.PointerCameraControllerSample" Title="PointerCameraController"/>
   <Sample Location="CameraControllers.RotateAroundCustomPointSample" Title="Rotate around custom point"/>
   <Sample Location="CameraControllers.ZoomToCustomPointSample" Title="Zoom to a custom point"/>
-
+  <!--
   <Sample Location="Titles.StandardModelsTitle.md" IsTitle="True" Title="Standard 3D models"/>
   <Sample Location="StandardModels.MeshModelNodeSample" Title="MeshModelNode"/>
   <Sample IsSeparator="True" />
@@ -154,5 +154,5 @@
   <Sample Location="Advanced.DepthPrePassSample" Title="Depth pre-pass rendering" />
   <Sample Location="Advanced.RenderingLayerCustomCameraSample" Title="CustomCamera in RenderingLayer" />
   <Sample Location="Advanced.AvaloniaMultiTouchSample" Title="Avalonia Multi-touch camera controller" Condition="IsAvalonia" />
-
+-->
 </Samples>
