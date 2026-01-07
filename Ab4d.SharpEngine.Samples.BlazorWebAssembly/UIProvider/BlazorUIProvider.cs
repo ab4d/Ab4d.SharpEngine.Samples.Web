@@ -225,7 +225,7 @@ public class BlazorUIProvider : ICommonSampleUIProvider
 
         _stateChangedCallback?.Invoke();
     }
-
+    
     private void UpdateAllValues(BlazorUIPanel blazorUiPanel)
     {
         var childrenCount = blazorUiPanel.ChildrenCount;
@@ -435,5 +435,27 @@ public class BlazorUIProvider : ICommonSampleUIProvider
     public void NotifyStateChanged()
     {
         _stateChangedCallback?.Invoke();
+    }
+
+
+    // The following methods are not supported in the browser
+    public ICommonSampleUIElement CreateMarkdownText(string markdownText, float fontSize = 0)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool RegisterKeyDown(Func<string, bool>? keyDownFunc)
+    {
+        return false; // notify caller that this is not supported
+    }
+
+    public bool RegisterPointerMoved(Action<Vector2> pointerMovedAction)
+    {
+        return false; // notify caller that this is not supported
+    }
+
+    public bool RegisterFileDropped(string? filePattern, Action<string> fileDroppedAction)
+    {
+        return false; // notify caller that this is not supported
     }
 }
