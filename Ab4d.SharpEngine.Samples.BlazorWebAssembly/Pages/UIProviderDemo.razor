@@ -1,0 +1,132 @@
+﻿@page "/uiProviderDemo"
+@using System.Diagnostics
+@using System.Numerics
+@using Ab4d.SharpEngine.Cameras
+@using Ab4d.SharpEngine.Common
+@using Ab4d.SharpEngine.Materials
+@using Ab4d.SharpEngine.SceneNodes
+@using Ab4d.SharpEngine.Browser
+@using Ab4d.SharpEngine.Lights
+@using Ab4d.SharpEngine.Meshes
+@using Ab4d.SharpEngine.Samples.Common
+@using Ab4d.SharpEngine.Samples.Blazor.UIProvider
+@using Ab4d.SharpEngine.Utilities
+
+<PageTitle>Ab4d.SharpEngine.Web - Common samples</PageTitle>
+
+<div style="padding: 1.5rem">
+    <h1>Ab4d.SharpEngine.Web</h1>
+
+    @* <div class="ui-container" style="width: 70%; min-width: 400px; max-width: 1000px; height: 400px; margin-top: 10pt; border: solid black 1px"> *@
+    <div class="ui-container" style="border: solid black 1px; width: 1000px;">
+        <img src="https://www.ab4d.com/images/SharpEngine-samples/SharpEngine-PolyLines-with-miter-limit.png" style="width: 100%" />
+        
+        @if (_uiProvider != null)
+        {
+            foreach (var rootElement in _uiProvider.GetRootUIElements())
+            {
+                @rootElement.BlazorElement
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private BlazorUIProvider? _uiProvider;
+    private bool _isAnimatingArrows = true;
+    private bool _useOptimizedCode = true;
+    private int _selectedArrowsCount = 100;
+    private float _sliderValue = 10;
+
+    private string? _totalPositionText = "100";
+    private string? _performanceText = "200%";
+
+    private ICommonSampleUIElement _totalPositionLabel;
+    private ICommonSampleUIElement _performanceLabel;
+    private ICommonSampleUIElement _textBox;
+
+    private void SelectedArrowNumberChanged(string? selectedText)
+    {
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // Create the UI provider with a callback to trigger re-rendering
+        _uiProvider = new BlazorUIProvider(() => StateHasChanged());
+
+        // Call CreateUI to build the UI elements
+        CreateUI(_uiProvider);
+    }
+
+    private void ChangeCamera()
+    {
+    }
+
+    protected void CreateUI(ICommonSampleUIProvider ui)
+    {
+        ui.CreateStackPanel(PositionTypes.Bottom | PositionTypes.Right);
+
+        ui.CreateCheckBox("Animate arrows (?): tooltip text\nin two lines", _isAnimatingArrows, isChecked => _isAnimatingArrows = isChecked);
+        ui.CreateCheckBox("Use optimized code", _useOptimizedCode, isChecked => _useOptimizedCode = isChecked);
+
+        ui.AddSeparator();
+
+        ui.CreateLabel("Number of arrows: (?): tooltip text\nin two lines");
+        var arrowNumberOptions = new string[]
+        {
+            "10 x 10 (100)",
+            "100 x 100 (10.000)",
+            "300 x 300 (90.000)",
+            "1000 x 1000 (1.000.000)",
+        };
+        ui.CreateComboBox(arrowNumberOptions, (selectedIndex, selectedText) => SelectedArrowNumberChanged(selectedText), selectedItemIndex: 1);
+
+        ui.AddSeparator();
+
+        // In your CreateUI method:
+        ui.CreateSlider(
+            minValue: 0f,
+            maxValue: 100f,
+            getValueFunc: () => _sliderValue,
+            setValueAction: value => _sliderValue = value,
+            width: 140,
+            showTicks: false,
+            keyText: "Volume: (?): tooltip text\nin two lines",
+            keyTextWidth: 80,
+            formatShownValueFunc: value => $"{value:F1}%",
+            shownValueWidth: 50
+        );
+
+        ui.AddSeparator();
+
+        ui.CreateLabel("Camera type:", isHeader: true);
+        ui.CreateRadioButtons(new string[] { "TargetPositionCamera (?): tooltip text\nin two lines", "FreeCamera" }, (itemIndex, itemText) =>
+        {
+            Console.WriteLine("Camera type:" + itemText);
+        }, selectedItemIndex: 0);
+
+        ui.CreateLabel("TextBox:");
+        _textBox = ui.CreateTextBox(200, initialText: "1000");
+
+        ui.AddSeparator();
+
+        _totalPositionLabel = ui.CreateKeyValueLabel("TextBox text: ", () => _textBox.GetText() ?? "");
+
+        _performanceLabel = ui.CreateKeyValueLabel("Performance: (?): tooltip text\nin two lines", () => _performanceText ?? "");
+
+        ui.AddSeparator();
+
+        ui.CreateButton("Change values (?): tooltip text\nin two lines", () =>
+        {
+            _performanceText = "1" + _performanceText;
+            _totalPositionLabel.UpdateValue();
+            _performanceLabel.UpdateValue();
+
+        }, width: 200);
+
+        ui.CreateLabel("Test multiline label\nNew line\nAnd one very long line djsfjldf dfjkd sahdsd jsd jsal jdlsjd lsjd sajd lad END.", 
+            maxWidth: 200).SetStyle("italic");
+    }
+}
