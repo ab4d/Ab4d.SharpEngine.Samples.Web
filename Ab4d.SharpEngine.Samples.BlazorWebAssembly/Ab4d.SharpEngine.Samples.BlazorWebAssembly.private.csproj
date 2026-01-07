@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+    <ProjectReference Include="..\Ab4d.SharpEngine.Samples.Common.Blazor\Ab4d.SharpEngine.Samples.Common.Blazor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

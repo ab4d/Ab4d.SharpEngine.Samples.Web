@@ -24,6 +24,43 @@ public static class TestScenes
         "dragon_vrip_res3.obj"
     };
 
+    public static async Task<GroupNode> GetTestSceneAsync(Scene scene, StandardTestScenes testScene)
+    {
+        var testSceneFileName = _standardTestScenesFileNames[(int)testScene];
+
+        string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources\\Models", testSceneFileName);
+
+        var objImporter = new ObjImporter(scene);
+        var readGroupNode = await objImporter.ImportAsync(fileName);
+
+        return readGroupNode;
+    }
+    
+    public static async Task<GroupNode> GetTestSceneAsync(Scene scene, StandardTestScenes testScene, Vector3 finalSize)
+    {
+        return await GetTestSceneAsync(scene, testScene, Vector3.Zero, PositionTypes.Center, finalSize);
+    }
+    
+    public static async Task<GroupNode> GetTestSceneAsync(Scene scene, 
+                                                          StandardTestScenes testScene,
+                                                          Vector3 position,
+                                                          PositionTypes positionType,
+                                                          Vector3 finalSize,
+                                                          bool preserveAspectRatio = true,
+                                                          bool preserveCurrentTransformation = true)
+    {
+        var readGroupNode = await GetTestSceneAsync(scene, testScene);
+
+        ModelUtils.PositionAndScaleSceneNode(readGroupNode,
+                                             position,
+                                             positionType,
+                                             finalSize,
+                                             preserveAspectRatio,
+                                             preserveCurrentTransformation);
+
+        return readGroupNode;
+    }
+
     public static GroupNode GetTestScene(StandardTestScenes testScene)
     {
         var testSceneFileName = _standardTestScenesFileNames[(int)testScene];

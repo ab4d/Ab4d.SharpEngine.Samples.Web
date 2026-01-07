@@ -255,6 +255,10 @@ public abstract class CommonSample
 
         OnCreateScene(scene);
         OnCreateLights(scene);
+
+        var task = OnCreateSceneAsync(scene); // call async method from sync context
+        if (task.IsFaulted)
+            throw task.Exception;
     }
     
     public void InitializeSceneView(SceneView sceneView)
@@ -310,7 +314,14 @@ public abstract class CommonSample
     {
     }
 
-    protected abstract void OnCreateScene(Scene scene);
+    protected virtual void OnCreateScene(Scene scene)
+    {
+    }
+
+    protected virtual Task OnCreateSceneAsync(Scene scene)
+    {
+        return Task.CompletedTask; // Nothing to do if not overridden
+    }
 
     /// <summary>
     /// OnInputEventsManagerInitialized can be overridden to initialize the InputEventsManager.
