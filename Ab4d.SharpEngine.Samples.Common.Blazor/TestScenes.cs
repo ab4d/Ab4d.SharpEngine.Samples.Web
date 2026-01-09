@@ -60,6 +60,53 @@ public static class TestScenes
 
         return readGroupNode;
     }
+    
+    public static void GetTestScene(Scene scene, StandardTestScenes testScene, Action<GroupNode> sceneCreatedCallback)
+    {
+        var testSceneFileName = _standardTestScenesFileNames[(int)testScene];
+
+        string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources\\Models", testSceneFileName);
+
+        var objImporter = new ObjImporter(scene);
+        objImporter.Import(fileName, sceneCreatedCallback);
+    }
+    
+    public static void GetTestScene(Scene scene, StandardTestScenes testScene, Vector3 finalSize, Action<GroupNode> sceneCreatedCallback)
+    {
+        GetTestScene(scene, testScene, Vector3.Zero, PositionTypes.Center, finalSize, preserveAspectRatio: true, preserveCurrentTransformation: true, sceneCreatedCallback);
+    }
+
+    public static void GetTestScene(Scene scene,
+        StandardTestScenes testScene,
+        Vector3 position,
+        PositionTypes positionType,
+        Vector3 finalSize,
+        Action<GroupNode> sceneCreatedCallback)
+    {
+        GetTestScene(scene, testScene, position, positionType, finalSize, preserveAspectRatio: true, preserveCurrentTransformation: true, sceneCreatedCallback);
+    }
+
+    public static void GetTestScene(Scene scene, 
+                                    StandardTestScenes testScene,
+                                    Vector3 position,
+                                    PositionTypes positionType,
+                                    Vector3 finalSize,
+                                    bool preserveAspectRatio,
+                                    bool preserveCurrentTransformation, 
+                                    Action<GroupNode> sceneCreatedCallback)
+    {
+        GetTestScene(scene, testScene, (groupNode) =>
+        {
+            ModelUtils.PositionAndScaleSceneNode(groupNode,
+                                                 position,
+                                                 positionType,
+                                                 finalSize,
+                                                 preserveAspectRatio,
+                                                 preserveCurrentTransformation);
+
+            sceneCreatedCallback(groupNode);
+        });
+    }
 
     public static GroupNode GetTestScene(StandardTestScenes testScene)
     {
@@ -136,5 +183,58 @@ public static class TestScenes
         }
 
         throw new Exception("Cannot get single mesh from " + testScene.ToString());
+    }
+
+
+    public static void GetTestMesh(Scene scene,
+                                   StandardTestScenes testScene,
+                                   Vector3 finalSize,
+                                   Action<StandardMesh> meshCreatedCallback)
+    {
+        GetTestMesh(scene, testScene, Vector3.Zero, PositionTypes.Center, finalSize, preserveAspectRatio: true, preserveCurrentTransformation: true, meshCreatedCallback);
+    }
+    
+    public static void GetTestMesh(Scene scene,
+                                   StandardTestScenes testScene,
+                                   Vector3 position,
+                                   PositionTypes positionType,
+                                   Vector3 finalSize,
+                                   Action<StandardMesh> meshCreatedCallback)
+    {
+        GetTestMesh(scene, testScene, position, positionType, finalSize, preserveAspectRatio: true, preserveCurrentTransformation: true, meshCreatedCallback);
+    }
+
+    public static void GetTestMesh(Scene scene,
+                                   StandardTestScenes testScene,
+                                   Vector3 position,
+                                   PositionTypes positionType,
+                                   Vector3 finalSize,
+                                   bool preserveAspectRatio,
+                                   bool preserveCurrentTransformation,
+                                   Action<StandardMesh> meshCreatedCallback)
+    {
+        GetTestScene(scene, testScene, position, positionType, finalSize, preserveAspectRatio, preserveCurrentTransformation, (readGroupNode) =>
+        {
+            if (readGroupNode.Count > 0 && readGroupNode[0] is MeshModelNode singeMeshModelNode)
+            {
+                if (singeMeshModelNode.Mesh is StandardMesh standardMesh)
+                {
+                    ModelUtils.PositionAndScaleSceneNode(singeMeshModelNode,
+                                                         position,
+                                                         positionType,
+                                                         finalSize,
+                                                         preserveAspectRatio,
+                                                         preserveCurrentTransformation);
+
+                    Ab4d.SharpEngine.Utilities.ModelUtils.PositionAndScaleSceneNode(singeMeshModelNode, position, positionType, finalSize);
+                    var mesh = Ab4d.SharpEngine.Utilities.MeshUtils.TransformMesh(standardMesh, singeMeshModelNode.Transform);
+
+                    meshCreatedCallback(mesh);
+                    return;
+                }
+            }
+
+            throw new Exception("Cannot get single mesh from " + testScene.ToString());
+        });
     }
 }

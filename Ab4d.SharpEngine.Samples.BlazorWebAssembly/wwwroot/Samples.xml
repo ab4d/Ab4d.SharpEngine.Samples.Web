@@ -40,12 +40,12 @@
   <Sample Location="StandardModels.ArrowModelNodeSample" Title="ArrowModelNode"/>
   <Sample IsSeparator="True" />
   <Sample Location="StandardModels.TransformationsSample" Title="Transformations"/>
-  <Sample Location="StandardModels.PositionAndScaleSample" Title="Position and scale"/>
+  <Sample Location="StandardModels.PositionAndScaleSample" Title="Position and scale"/>-->
 
   <Sample Location="Titles.AdvancedModelsTitle.md" IsTitle="True" Title="Advanced 3D models"/>
   <Sample Location="AdvancedModels.InstancedMeshNodeSample" Title="Mesh instancing"/>
   <Sample Location="AdvancedModels.InstancedArrowsSample" Title="Instanced arrows"/>
-  <Sample Location="AdvancedModels.SimpleHeightMapSample" Title="Simple HeightMap" IsUpdated="True" UpdateInfo="Using new HeightMapWireframeNode constructor that improved initialization time"/>
+  <!--<Sample Location="AdvancedModels.SimpleHeightMapSample" Title="Simple HeightMap" IsUpdated="True" UpdateInfo="Using new HeightMapWireframeNode constructor that improved initialization time"/>
   <Sample Location="AdvancedModels.AdvancedHeightMapSample" Title="Advanced HeightMap" IsUpdated="True" UpdateInfo="Using new HeightMapContoursNode and HeightMapWireframeNode constructors that improved initialization time"/>
   <Sample Location="AdvancedModels.MultiMaterialModelNodeSample" Title="MultiMaterialModelNode"/>
   <Sample Location="AdvancedModels.TubesSample" Title="3D Tubes"/>

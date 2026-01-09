@@ -1,6 +1,7 @@
 ﻿@page "/commonSamples"
 @page "/commonSamples/{SampleId}"
 @using Ab4d.SharpEngine.Browser
+@using Ab4d.SharpEngine.Common
 @using Ab4d.SharpEngine.Samples.Common
 @using Ab4d.SharpEngine.Samples.Blazor.UIProvider
 @using Ab4d.SharpEngine.Samples.Common.Cameras
@@ -38,6 +39,10 @@
     [Parameter]
     public string? SampleId { get; set; }
 
+    private const string? StartupSample = "AdvancedModels.InstancedMeshNodeSample";
+
+    private const bool ShowCaptureInSpector = true;
+
     private SharpEngineSceneView sharpEngineSceneView = null!;
     private string sample_title = "";
     private string sample_subtitle = "";
@@ -66,7 +71,7 @@
         // - AND when the parameter changes while staying on the same page
         Console.WriteLine($"Sample changed to: {SampleId}");
 
-        if (SampleId != null && SampleId.StartsWith("Cameras", StringComparison.Ordinal))
+        if (SampleId != null && !SampleId.EndsWith(".md", StringComparison.Ordinal))
         {
             if (CurrentCommonSample != null)
             {
@@ -96,7 +101,10 @@
 
     private void LoadFirstSample()
     {
-        CurrentCommonSample = new TargetPositionCameraSample(BlazorSamplesContext.Current);
+        sharpEngineSceneView.SceneView.BackgroundColor = Colors.LightSkyBlue;
+
+        SampleId = StartupSample;
+        //CurrentCommonSample = new TargetPositionCameraSample(BlazorSamplesContext.Current);
     }
 
     private void ResetSample()
@@ -119,7 +127,7 @@
             // Note that we must not dispose the RootNode without disposing the Scene.
             MainSceneView.Scene.RootNode.DisposeAllChildren(disposeMeshes: true, disposeMaterials: true, disposeTextures: true, runSceneCleanup: true);
         }
-        
+
         _lastInitializedSample = null;
     }
 
@@ -137,7 +145,15 @@
         //_currentCommonSample.InitializeInputEventsManager(_inputEventsManager);
 
         if (_uiProvider != null)
+        {
             _currentCommonSample.CreateUI(_uiProvider);
+
+            if (ShowCaptureInSpector)
+            {
+                _uiProvider.AddSeparator();
+                _uiProvider.CreateButton("Capture frame in Spector", () => _ = CaptureNextFrame());
+            }
+        }
 
         // Set Title and Subtitle after initializing UI, because they can be changed there
         sample_title = _currentCommonSample.Title;
@@ -158,5 +174,20 @@
         }
 
         _lastInitializedSample = _currentCommonSample;
+    }
+
+    private async Task CaptureNextFrame()
+    {
+        bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
+
+        if (!success)
+        {
+            Console.WriteLine("Cannot start Spector capture.");
+            return;
+        }
+
+        sharpEngineSceneView.SceneView.Render(forceRender: true);
+
+        sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
     }
 }

@@ -487,6 +487,22 @@ public abstract class CommonSample
 #endif
     }
 
+    public void GetCommonTextureAsync(string textureName, Scene? scene, Action<GpuImage> textureCreatedCallback, Action<Exception>? textureCreationFailedCallback = null)
+    {
+        ArgumentNullException.ThrowIfNull(scene);
+        
+        string fileName = GetCommonTexturePath(textureName);
+        TextureLoader.CreateTextureAsync(fileName, scene, textureCreatedCallback, textureCreationFailedCallback);
+    }
+    
+    public void GetCommonTextureAsync(string textureName, GpuDevice? gpuDevice, Action<GpuImage> textureCreatedCallback, Action<Exception>? textureCreationFailedCallback = null)
+    {
+        ArgumentNullException.ThrowIfNull(gpuDevice);
+        
+        string fileName = GetCommonTexturePath(textureName);
+        TextureLoader.CreateTextureAsync(fileName, gpuDevice, textureCreatedCallback, textureCreationFailedCallback);
+    }
+
     protected void ShowErrorMessage(string errorMessage)
     {
         ShowErrorMessage(errorMessage, showTimeMs: 0);
