@@ -20,6 +20,8 @@
     <p>Instead of using the SharpEngineSceneView component, here we create a canvas DOM element and then connect to it
         by using CanvasInterop. After that we can create the WebGLDevice, Scene and SceneView objects.
     </p>
+    
+    <span style="white-space: pre-wrap;">@_deviceInfo</span>
 
 
     <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
@@ -28,6 +30,8 @@
 @code
 {
     private CanvasInterop? _canvasInterop;
+
+    private string _deviceInfo = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,6 +117,11 @@
             IsPinchZoomEnabled = true, // zoom with touch pinch gesture
             IsPinchMoveEnabled = true  // move camera with two fingers
         };
+
+
+        // In this sample we also display the device info:
+        _deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}\nGLSL version: {gpuDevice.OpenGLShadingLanguageVersion}";
+        StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
     }
 
     public void Dispose()
