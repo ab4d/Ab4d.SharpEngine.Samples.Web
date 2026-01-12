@@ -135,26 +135,6 @@ public class InstancedMeshNodeSample : CommonSample
                     _totalPositionsLabel?.UpdateValue();
                 });
             }
-            //if (_teapotMesh == null)
-            //{
-            //    var teapotFileName = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources/Models/Teapot.obj");
-
-            //    var objImporter = new ObjImporter();
-            //    var teapotNode = objImporter.Import(teapotFileName);
-
-            //    if (teapotNode.Count > 0 && teapotNode[0] is MeshModelNode teapotMeshModelNode)
-            //    {
-            //        if (teapotMeshModelNode.Mesh is StandardMesh teapotMesh)
-            //        {
-            //            Ab4d.SharpEngine.Utilities.ModelUtils.PositionAndScaleSceneNode(teapotMeshModelNode, position: new Vector3(0, 0, 0), positionType: PositionTypes.Center, finalSize: new Vector3(20, 20, 20));
-            //            teapotMesh = Ab4d.SharpEngine.Utilities.MeshUtils.TransformMesh(teapotMesh, teapotMeshModelNode.Transform);
-
-            //            _teapotMesh = teapotMesh;
-            //        }
-            //    }
-            //}
-
-            //_instancedMeshNode.Mesh = _teapotMesh;
         }
         else if (selectedIndex == 3)
         {
