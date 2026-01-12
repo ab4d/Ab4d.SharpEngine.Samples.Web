@@ -70,7 +70,7 @@ public class InstancedArrowsSample : CommonSample
         _arrowsLength = 30;
 
         _sphereStartPosition = new Vector3(0, 200, 0);
-
+        _spherePosition = _sphereStartPosition;
 
         // Min and max distance will be used to get the color from the current arrow distance
         _minDistance = _sphereStartPosition.Y;
@@ -630,6 +630,8 @@ public class InstancedArrowsSample : CommonSample
         ui.AddSeparator();
 
         ui.CreateLabel("Number of arrows:");
+
+#if VULKAN
         var arrowNumberOptions = new string[]
         {
             "10 x 10 (100)",
@@ -637,6 +639,16 @@ public class InstancedArrowsSample : CommonSample
             "300 x 300 (90.000)",
             "1000 x 1000 (1.000.000)",
         };
+#elif WEB_GL
+        // Limit number of instances because Blazor WASM does not support multi-threading
+        var arrowNumberOptions = new string[]
+        {
+            "10 x 10 (100)",
+            "50 x 50 (2.500)",
+            "100 x 100 (10.000)",
+            "200 x 200 (40.000)",
+        };
+#endif
         ui.CreateComboBox(arrowNumberOptions, (selectedIndex, selectedText) => SelectedArrowNumberChanged(selectedText), selectedItemIndex: 1);
 
         ui.AddSeparator();
