@@ -49,7 +49,8 @@ public class LabelUIElement : BlazorUIElement
         {
             builder.OpenElement(0, "span");
 
-            var style = GetMarginStyle() + GetVisibilityStyle();
+            // Add "white-space: pre-wrap;" - preserves new lines ('\n') in text
+            var style = "white-space: pre-wrap;" + GetMarginStyle() + GetVisibilityStyle();
 
             if (_width > 0)
                 style += $"width: {_width}px;";

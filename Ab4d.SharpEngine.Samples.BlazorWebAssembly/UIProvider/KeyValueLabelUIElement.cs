@@ -47,7 +47,9 @@ public class KeyValueLabelUIElement : BlazorUIElement
             if (_keyTextWidth > 0)
             {
                 builder.OpenElement(0, "div");
-                builder.AddAttribute(1, "style", "display: flex;" + GetMarginStyle() + GetVisibilityStyle());
+
+                // Add "white-space: pre-wrap;" - preserves new lines ('\n') in text
+                builder.AddAttribute(1, "style", "display: flex; white-space: pre-wrap;" + GetMarginStyle() + GetVisibilityStyle());
 
                 builder.OpenElement(2, "span");
                 var keyStyle = $"width: {_keyTextWidth}px; margin-right: 3px;";
@@ -73,7 +75,7 @@ public class KeyValueLabelUIElement : BlazorUIElement
                 builder.CloseElement();
 
                 builder.OpenElement(6, "span");
-                var valueStyle = string.Empty;
+                var valueStyle = "white-space: pre-wrap;"; // Add "white-space: pre-wrap;" - preserves new lines ('\n') in text
 
                 if (blazorUIProvider.FontSize > 0)
                     valueStyle += $"font-size: {blazorUIProvider.FontSize}px;";
@@ -102,7 +104,8 @@ public class KeyValueLabelUIElement : BlazorUIElement
             {
                 builder.OpenElement(0, "span");
 
-                var style = GetMarginStyle() + GetVisibilityStyle();
+                // Add "white-space: pre-wrap;" - preserves new lines ('\n') in text
+                var style = "white-space: pre-wrap;" + GetMarginStyle() + GetVisibilityStyle();
 
                 if (blazorUIProvider.FontSize > 0)
                     style += $"font-size: {blazorUIProvider.FontSize}px;";
