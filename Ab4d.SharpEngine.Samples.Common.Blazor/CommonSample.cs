@@ -490,7 +490,12 @@ public abstract class CommonSample
     public void GetCommonTextureAsync(string textureName, Scene? scene, Action<GpuImage> textureCreatedCallback, Action<Exception>? textureCreationFailedCallback = null)
     {
         ArgumentNullException.ThrowIfNull(scene);
-        
+
+#if WEB_GL
+        if (textureCreationFailedCallback == null)
+            textureCreationFailedCallback = ex => Console.WriteLine($"Error reading common texture '{textureName}': {ex.Message}");
+#endif
+
         string fileName = GetCommonTexturePath(textureName);
         TextureLoader.CreateTextureAsync(fileName, scene, textureCreatedCallback, textureCreationFailedCallback);
     }
