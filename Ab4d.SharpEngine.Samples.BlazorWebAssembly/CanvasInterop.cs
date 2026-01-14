@@ -2,6 +2,7 @@
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
@@ -412,7 +413,12 @@ public partial class CanvasInterop : ICanvasInterop
         
         SetCursorStyleJs(this.CanvasId, cursorStyle);
     }
-    
+
+    public void ShowRawBitmap(string canvasId, int width, int height, byte[] pixelData)
+    {
+        ShowRawBitmapJs(canvasId, width, height, pixelData);
+    }
+
     public void SubscribePointerEvents()
     {
         CheckIsInitialized();
@@ -852,6 +858,9 @@ public partial class CanvasInterop : ICanvasInterop
         
     [JSImport("disconnectWebGLCanvas", "sharp-engine.js")]
     public static partial bool DisconnectWebGLCanvasJs(string canvasId);
+    
+    [JSImport("showRawBitmap", "sharp-engine.js")]
+    public static partial bool ShowRawBitmapJs(string canvasId, int width, int height, byte[] pixelData);
     #endregion    
 }
 

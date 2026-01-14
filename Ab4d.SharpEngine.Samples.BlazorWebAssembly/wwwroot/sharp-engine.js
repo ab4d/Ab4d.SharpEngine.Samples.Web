@@ -373,6 +373,26 @@ export function disconnectWebGLCanvas(canvasId) {
     }
 }
 
+export function showRawBitmap(canvasId, width, height, pixelData) {
+    log("showRawBitmap canvasId:" + canvasId);
+
+    const canvas = document.getElementById(canvasId);
+
+    if (canvas) {
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+
+        // Create ImageData from your array
+        const byteArray = new Uint8ClampedArray(pixelData.buffer);
+        const img = new ImageData(byteArray, width, height);
+
+        // Draw it
+        ctx.putImageData(img, 0, 0);
+    }
+}
+
 
 function onFrameUpdate()
 {
