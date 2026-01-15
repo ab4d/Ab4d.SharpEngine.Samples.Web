@@ -55,7 +55,8 @@
         // Try to connect to the canvas and get the WebGL context.
         // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
         // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        _canvasInterop.InitWebGL();
+        // By default, we enable multisample anti-aliasing and disable preserveDrawingBuffer (this can be set to true when we are rendering the scene to bitmap a lot)
+        _canvasInterop.InitWebGL(useMultisampleAntiAliasing: true, preserveDrawingBuffer: false);
 
         if (!_canvasInterop.IsWebGLInitialized)
             return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method

@@ -28,7 +28,7 @@ export async function initInteropAsync() {
     log(".Net interop with CanvasInterop initialized");
 }
 
-export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscribeRequestAnimationFrame, enableJavaScriptLogging) {
+export function initWebGLCanvas(canvasId, useMSAA, preserveDrawingBuffer, subscribeMouseEvents, subscribeRequestAnimationFrame, enableJavaScriptLogging) {
     if (enableJavaScriptLogging)
         isLogging = true; // if enableJavaScriptLogging is false, then do not override if isLogging is set to true here
 
@@ -40,13 +40,13 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
     {
         let webglVersion;
 
-        var context = canvas.getContext('webgl2', { antialias: useMSAA });
+        var context = canvas.getContext('webgl2', { antialias: useMSAA, preserveDrawingBuffer: preserveDrawingBuffer });
         
         if (context) {
             webglVersion = "2";
         }
         else {
-            context = canvas.getContext('webgl', { antialias: useMSAA });
+            context = canvas.getContext('webgl', { antialias: useMSAA, preserveDrawingBuffer: preserveDrawingBuffer });
 
             if (context) {
                 logWarn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")

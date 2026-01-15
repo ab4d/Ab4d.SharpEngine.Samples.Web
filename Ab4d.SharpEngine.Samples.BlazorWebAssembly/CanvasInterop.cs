@@ -80,6 +80,11 @@ public partial class CanvasInterop : ICanvasInterop
     /// MSAA is can be disabled when the <see cref="InitWebGL"/> is called and the useMultisampleAntiAliasing parameters is set to false.
     /// </summary>
     public bool IsUsingMultisampleAntiAliasing { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the drawing buffer is preserved after rendering operations. This is set by setting the <see cref="EngineCreateOptions.PreserveDrawingBuffer"/> to true before the engine is initialized.
+    /// </summary>
+    public bool IsPreservingDrawingBuffer { get; private set; }
     
     /// <summary>
     /// Returns true when pointer (mouse, pointer and touch) events are subscribed in javascript.
@@ -232,11 +237,11 @@ public partial class CanvasInterop : ICanvasInterop
     }
     #endregion
 
-    public void InitWebGL(bool useMultisampleAntiAliasing = true)
+    public void InitWebGL(bool useMultisampleAntiAliasing = true, bool preserveDrawingBuffer = false)
     {
         CheckIsInitialized(checkIfConnectedToCanvas: false);
 
-        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, IsLoggingJavaScript);
+        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, preserveDrawingBuffer, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, IsLoggingJavaScript);
 
         if (string.IsNullOrEmpty(result) || !result.StartsWith("OK:"))
         {
@@ -253,6 +258,7 @@ public partial class CanvasInterop : ICanvasInterop
         this.Height   = int.Parse(dataParts[2]);
         this.DpiScale = float.Parse(dataParts[3], CultureInfo.InvariantCulture);
         this.IsUsingMultisampleAntiAliasing = useMultisampleAntiAliasing;
+        this.IsPreservingDrawingBuffer = preserveDrawingBuffer;
         
         // Set static instances of CanvasInterop so that the static callback functions from javascript can find the target CanvasInterop
         if (_initialInterop == null)
@@ -821,7 +827,7 @@ public partial class CanvasInterop : ICanvasInterop
     // It is not possible (at least in .Net 9) to pass an objects from JS to .Net
     // It was possible to encode width and height into an int, but we also need dpiScale, so we need to pass it as a string.
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
-    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool enableJavaScriptLogging);
+    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool preserveDrawingBuffer, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool enableJavaScriptLogging);
 
     [JSImport("loadTextFile", "sharp-engine.js")]
     private static partial void LoadTextFileJs(string canvasId, string url);
