@@ -4,6 +4,7 @@
 @using Ab4d.SharpEngine.WebGL
 @implements IDisposable
 @implements Ab4d.SharpEngine.Common.ISharpEngineSceneView
+@inject IJSRuntime JS
 
 <!-- Define the initial width and height in style. If this is not done, then under some cases, the onResize in sharp-engine.js can start increasing the size in an infinite loop -->
 <canvas id="@_canvasId" style="width: 300px; height: 150px" @attributes="AdditionalAttributes"></canvas>
@@ -146,7 +147,7 @@
 
         // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
         // Because Blazor uses Single Page Applications style, this needs to be executed only once
-        await CanvasInterop.InitializeInterop();
+        await CanvasInterop.InitializeInterop(JS);
     }
 
     /// <summary>

@@ -39,6 +39,11 @@ public partial class CanvasInterop : ICanvasInterop
     /// </summary>
     public static bool IsInteropInitialized { get; private set; }
 
+    /// <summary>
+    /// Gets the IJSRuntime that is used for javascript interop. This is set when the <see cref="InitializeInterop"/> method is called.
+    /// </summary>
+    public static Microsoft.JSInterop.IJSRuntime? JS { get; private set; }
+
     
     /// <summary>
     /// Gets the id of the canvas element that is defined in the browser DOM (html or razor file).
@@ -132,12 +137,14 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     #region static Initialize method and GetCanvasInterop
-    public static async Task InitializeInterop(string? sharpEngineJsFileUrl = null)
+    public static async Task InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
     {
         if (_isInitializeCalled)
             return;
 
         _isInitializeCalled = true;
+
+        JS = jsRuntime;
 
         if (!OperatingSystem.IsBrowser())
             throw new SharpEngineException("Ab4d.SharpEngine.Web can be used only in Blazor WebAssembly.");
@@ -484,7 +491,88 @@ public partial class CanvasInterop : ICanvasInterop
             _isSpectorCaptureStarted = false;
         }
     }
-    
+
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// </summary>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous invocation operation.</returns>
+    public async ValueTask InvokeVoidAsync(string identifier, params object?[]? args)
+    {
+        await InvokeAsync<Microsoft.JSInterop.Infrastructure.IJSVoidResult>(identifier, args);
+    }
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// <para>
+    /// <see cref="Microsoft.JSInterop.JSRuntime"/> will apply timeouts to this operation based on the value configured in <see cref="Microsoft.JSInterop.JSRuntime.DefaultAsyncTimeout"/>. To dispatch a call with a different timeout, or no timeout,
+    /// consider using <see cref="InvokeAsync{TValue}(string, CancellationToken, object[])" />.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The JSON-serializable return type.</typeparam>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
+    public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+    {
+        if (JS == null)
+            throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
+
+        return await JS.InvokeAsync<TValue>(identifier, args);
+    }
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// </summary>
+    /// <typeparam name="TValue">The JSON-serializable return type.</typeparam>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="cancellationToken">
+    /// A cancellation token to signal the cancellation of the operation. Specifying this parameter will override any default cancellations such as due to timeouts
+    /// (<see cref="Microsoft.JSInterop.JSRuntime.DefaultAsyncTimeout"/>) from being applied.
+    /// </param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
+    public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+    {
+        if (JS == null)
+            throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
+
+        return await JS.InvokeAsync<TValue>(identifier, cancellationToken, args);
+    }
+
+    /// <summary>
+    /// Logs the specified message to the browser console.
+    /// When useIJSRuntime is false (by default), then Console.WriteLine is used to log the message. This writes multiline message as multiple log messages.
+    /// When useIJSRuntime is true, then the message is logged using JavaScript interop to write the message. In this case the multiline message is logged as a single log message. 
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
+    public void LogMessage(string message, bool useIJSRuntime = false)
+    {
+        if (useIJSRuntime)
+            _ = InvokeVoidAsync("console.log", message);
+        else
+            Console.WriteLine(message);
+    }
+
+    /// <summary>
+    /// Logs the specified error message to the browser console.
+    /// When useIJSRuntime is false (by default), then Console.Error.WriteLine is used to log the message. This writes multiline message as multiple log messages.
+    /// When useIJSRuntime is true, then the error message is logged using JavaScript interop to write the message. In this case the multiline message is logged as a single log message. 
+    /// </summary>
+    /// <param name="errorMessage">The error message to log.</param>
+    /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
+    public void LogError(string errorMessage, bool useIJSRuntime = false)
+    {
+        if (useIJSRuntime)
+            _ = InvokeVoidAsync("console.error", errorMessage);
+        else
+            Console.Error.WriteLine(errorMessage);
+    }
+
+
     public void Dispose()
     { 
         if (IsDisposed)
@@ -493,6 +581,8 @@ public partial class CanvasInterop : ICanvasInterop
         Disposing?.Invoke(this, EventArgs.Empty);
 
         DisconnectWebGLCanvasJs(CanvasId);
+        JS = null;
+
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
 
