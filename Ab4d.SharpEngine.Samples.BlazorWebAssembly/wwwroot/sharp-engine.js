@@ -379,6 +379,15 @@ export function showRawBitmap(canvasId, width, height, pixelData) {
     const canvas = document.getElementById(canvasId);
 
     if (canvas) {
+        var dpi = window.devicePixelRatio || 1.0;
+        var pxWidth = width / dpi;
+        var pxHeight = height / dpi;
+
+        // CSS size
+        canvas.style.width = pxWidth + "px";
+        canvas.style.height = pxHeight + "px";
+
+        // Backing buffer size (actual pixel buffer)
         canvas.width = width;
         canvas.height = height;
 
