@@ -525,7 +525,7 @@
     {
         var statistics = sharpEngineSceneView.SceneView.Statistics;
         if (_showRenderTimes && statistics != null)
-            Console.WriteLine($"RenderTime: {statistics.TotalRenderTimeMs:F2} ms");
+            Console.WriteLine($"Frame {sharpEngineSceneView.SceneView.FrameNumber} rendered in {statistics.TotalRenderTimeMs:F2} ms");
     }
 
     private void SelectSceneNode(SceneNode? sceneNode)
@@ -575,7 +575,7 @@
 
         _addedObjectsCount++;
 
-        Console.WriteLine($"Adding {objectsCount} in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
+        Console.WriteLine($"Adding {objectsCount} BoxModelNodes in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
 
         _addedObjects.Add(groupNode);
 
