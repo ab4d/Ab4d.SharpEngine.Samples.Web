@@ -137,7 +137,7 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     #region static Initialize method and GetCanvasInterop
-    public static async Task InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
+    public static async ValueTask InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
     {
         if (_isInitializeCalled)
             return;
