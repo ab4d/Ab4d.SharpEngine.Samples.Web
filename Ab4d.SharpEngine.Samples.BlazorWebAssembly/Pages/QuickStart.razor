@@ -67,6 +67,8 @@
     private ModelNode? _lastSelectedModelNode;
     private Material? _lastSelectedModelNodeMaterial;
 
+    private Random? _rnd;
+
     private List<GroupNode> _addedObjects = new List<GroupNode>();
     private int _addedObjectsCount;
 
@@ -613,8 +615,10 @@
     {
         if (_hashMaterial == null)
             return;
-        
-        _hashMaterial.DiffuseColor = Color3.FromHsl(Random.Shared.NextDouble() * 360); 
+
+        _rnd ??= new Random(1234); // use fixed seed so the same results are always the same for automatic tests have
+
+        _hashMaterial.DiffuseColor = Color3.FromHsl(_rnd.NextDouble() * 360);
     }
 
     private void OnStartStopCameraRotationButtonClicked()
