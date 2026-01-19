@@ -17,7 +17,7 @@ public class InstancedArrowsSample : CommonSample
     
     private bool _isAnimatingArrows = true;
     private bool _useOptimizedCode = true;
-    private int _selectedArrowsCount = 100;
+    private int _selectedArrowsCount = 50;
 
     private WorldColorInstanceData[]? _instanceData;
     private InstancedMeshNode? _instancedMeshNode;
@@ -53,6 +53,8 @@ public class InstancedArrowsSample : CommonSample
     private SceneView? _subscribedSceneView;
 
     private string? _totalPositionText;
+    private string _performanceWarningText;
+
     private string? _performanceText;
     private StandardMesh? _arrowMesh;
     private ICommonSampleUIElement? _totalPositionLabel;
@@ -125,6 +127,8 @@ public class InstancedArrowsSample : CommonSample
             targetPositionCamera.Attitude = -20;
             targetPositionCamera.Distance = 2500;
         }
+
+        UpdatePerformanceWarningText();
     }
 
     protected override void OnSceneViewInitialized(SceneView sceneView)
@@ -160,7 +164,7 @@ public class InstancedArrowsSample : CommonSample
             double averageUpdateTime = _updateDataSamplesCount > 0 ? _totalUpdateDataTime / (double) _updateDataSamplesCount : 0;
             double averageRenderTime = _renderingTimeSamplesCount > 0 ? _totalRenderingTime / (double)_renderingTimeSamplesCount : 0;
 
-            _performanceText = $"Performance:\nUpdate InstanceData: {averageUpdateTime:#,##0.00} ms\nRender time: {averageRenderTime:#,##0.00} ms";
+            _performanceText = $"Performance:\nUpdate InstanceData: {averageUpdateTime:#,##0.00} ms\nRender time: {averageRenderTime:#,##0.00} ms{_performanceWarningText}";
 
             _performanceLabel?.UpdateValue();
 
@@ -612,6 +616,32 @@ public class InstancedArrowsSample : CommonSample
         }
     }
     
+    private void UpdatePerformanceWarningText()
+    {
+        var isDebuggerAttached = System.Diagnostics.Debugger.IsAttached;
+        
+#if DEBUG
+        var isDebugBuild = true;
+#else
+        var isDebugBuild = false;
+#endif
+
+        if (isDebuggerAttached || isDebugBuild)
+        {
+            _performanceWarningText = "\n\nPerformance warning(s):";
+
+            if (isDebugBuild)
+                _performanceWarningText += "\n- Debug build";
+
+            if (isDebuggerAttached)
+                _performanceWarningText += "\n- Debugger attached";
+        }
+        else
+        {
+            _performanceWarningText = "";
+        }
+    }
+
     protected override void OnDisposed()
     {
         if (_subscribedSceneView != null)
