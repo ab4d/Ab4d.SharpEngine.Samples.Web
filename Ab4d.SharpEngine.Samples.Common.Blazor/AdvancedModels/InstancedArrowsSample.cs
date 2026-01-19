@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Materials;
 using Ab4d.SharpEngine.Meshes;
@@ -269,6 +270,7 @@ public class InstancedArrowsSample : CommonSample
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void UpdateInstanceData_Optimized()
     {
         var instancedData = _instanceData;
@@ -413,6 +415,7 @@ public class InstancedArrowsSample : CommonSample
     }
 
     #region Unoptimized version
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void UpdateInstanceData_Unoptimized()
     {
         var instancedData = _instanceData;
