@@ -47,7 +47,7 @@
     <br />
     <p>@_infoText</p>
     <br/>
-    <canvas id="renderedBitmapCanvas"></canvas>
+    <canvas id="renderedBitmapCanvas" style="display: none"></canvas>
 </div>
 
 @code {
@@ -606,9 +606,7 @@
     private void OnRenderToBitmapClicked()
     {
         var rawImageData = sharpEngineSceneView.SceneView.RenderToRawImageData();
-        //ShowInfoMessage($"RenderedToBitmap; first bytes: {string.Join(' ', rawImageData.Data.Take(10).Select(a => a.ToString("X2")))}");
-
-        sharpEngineSceneView.CanvasInterop.ShowRawBitmap("renderedBitmapCanvas", rawImageData.Width, rawImageData.Height, rawImageData.Data);
+        sharpEngineSceneView.CanvasInterop.ShowRawBitmap("renderedBitmapCanvas", rawImageData.Width, rawImageData.Height, rawImageData.Data, displayStyle: "block");
     }
 
     private void ChangeMaterial()

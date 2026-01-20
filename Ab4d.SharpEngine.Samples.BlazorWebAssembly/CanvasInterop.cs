@@ -427,9 +427,9 @@ public partial class CanvasInterop : ICanvasInterop
         SetCursorStyleJs(this.CanvasId, cursorStyle);
     }
 
-    public void ShowRawBitmap(string canvasId, int width, int height, byte[] pixelData)
+    public void ShowRawBitmap(string canvasId, int width, int height, byte[] pixelData, string? displayStyle)
     {
-        ShowRawBitmapJs(canvasId, width, height, pixelData);
+        ShowRawBitmapJs(canvasId, width, height, pixelData, displayStyle);
     }
 
     public void SubscribePointerEvents()
@@ -956,7 +956,7 @@ public partial class CanvasInterop : ICanvasInterop
     public static partial bool DisconnectWebGLCanvasJs(string canvasId);
     
     [JSImport("showRawBitmap", "sharp-engine.js")]
-    public static partial bool ShowRawBitmapJs(string canvasId, int width, int height, byte[] pixelData);
+    public static partial bool ShowRawBitmapJs(string canvasId, int width, int height, byte[] pixelData, string? displayStyle);
     #endregion    
 }
 

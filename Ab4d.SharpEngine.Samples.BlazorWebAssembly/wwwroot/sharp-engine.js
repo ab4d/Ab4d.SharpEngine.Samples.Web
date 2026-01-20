@@ -373,7 +373,7 @@ export function disconnectWebGLCanvas(canvasId) {
     }
 }
 
-export function showRawBitmap(canvasId, width, height, pixelData) {
+export function showRawBitmap(canvasId, width, height, pixelData, displayStyle) {
     log("showRawBitmap canvasId:" + canvasId);
 
     const canvas = document.getElementById(canvasId);
@@ -388,6 +388,9 @@ export function showRawBitmap(canvasId, width, height, pixelData) {
         // Backing buffer size (actual pixel buffer)
         canvas.width = width;
         canvas.height = height;
+
+        if (displayStyle)
+            canvas.style.display = displayStyle;
 
         const ctx = canvas.getContext("2d");
 
