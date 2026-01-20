@@ -2,66 +2,47 @@
 @inject HttpClient Http
 
 
-<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Ab4d.SharpEngine</a>
+        <a class="navbar-brand" href="">Ab4d.SharpEngine by</a><br/>
+        <img src="ab4d-logo.png"/>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass nav-scrollable">
     <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="quickStart">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Quick Start
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="manualInitialization">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Manual Initialization
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="objStlFileViewer">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> OBJ & STL file viewer
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="uiProviderDemo">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> UIProviderDemo
-            </NavLink>
-        </div>
-        
-        @foreach (var group in Groups)
+        @foreach (var group in _groups)
         {
             <div class="nav-item">
 
                 <!-- Top-level collapsible item -->
-                <a class="nav-link nav-item" @onclick="() => ToggleGroup(group)" href="@("/commonSamples/" + group.Location)">
-                    <span class="bi @(IsOpen(group) ? "bi-minus-square-fill-nav-menu" : "bi-plus-square-fill-nav-menu")"></span>
+                <a class="nav-title nav-link nav-item @(IsSelected(group.Location) ? "nav-item-selected" : "")" href="@("/commonSamples/" + group.Location)" 
+                   @onclick="() => SelectGroup(group.Location)">
                     @group.Title
                 </a>
-
-                @if (IsOpen(group))
+                
+                @if (IsGroupOpened(group.Location))
                 {
                     <div class="submenu ms-2">
                         @foreach (var item in group.Items)
                         {
                             @* <div class="submenu-item @(item.IsSeparator ? "submenu-separator" : "")"> *@
-                            <a class="nav-link nav-item nav-submenu-link @(item.IsSeparator ? "nav-submenu-separator" : "")" href="@("/commonSamples/" + item.Location)">
+                            <a class="nav-link nav-item nav-submenu-link @(IsSelected(item.Location) ? "nav-item-selected" : "") @(item.IsSeparator ? "nav-submenu-separator" : "")"
+                               href="@("/commonSamples/" + item.Location)" @onclick="() => SelectItem(item.Location)">
                                 @item.Title
                                 @if (item.IsNew)
                                 {
-                                    <img src="images/new_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" />
+                                    <img src="images/new_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;"/>
                                 }
                                 @if (item.IsUpdated)
                                 {
-                                    <img src="images/updated_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" title="@item.UpdateInfo" />
+                                    <img src="images/updated_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" title="@item.UpdateInfo"/>
                                 }
                             </a>
-                     @*        </div> *@
+                            @*        </div> *@
                         }
                     </div>
                 }
@@ -72,15 +53,14 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => _isNavMenuOpened ? null : "collapse";
+    private List<SamplesXmlReader.SampleGroup> _groups = new ();
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private bool _isNavMenuOpened;
 
-    private bool isManualInitOpen = false;
-
-    //private List<SamplesListReader.SampleGroup> Groups = SamplesListReader.LoadSampleGroups("Samples.xml");
-    private List<SamplesXmlReader.SampleGroup> Groups = new();
-
+    private List<string>? _openedGroups;
+    
+    private string? _selectedLocation;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,35 +68,35 @@
 
         var items = SamplesXmlReader.ParseXml(xmlContent);
 
-        Groups = SamplesXmlReader.BuildGroups(items);
+        _groups = SamplesXmlReader.BuildGroups(items);
+        _openedGroups = new();
     }
 
+    private bool IsSelected(string itemLocation) => _selectedLocation == itemLocation;
 
-
-    private void ToggleManualInit()
-    {
-        isManualInitOpen = !isManualInitOpen;
-    }
+    private bool IsGroupOpened(string groupLocation) => !_isNavMenuOpened ||  // When we have wide screen the NavMenu is not shown and show all the menu items on the left
+                                                        _openedGroups == null || _openedGroups.Contains(groupLocation);
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _isNavMenuOpened = !_isNavMenuOpened;
     }
 
-
-    private SamplesXmlReader.SampleGroup? openedGroup;
-
-    private void ToggleGroup(SamplesXmlReader.SampleGroup group)
+    private void SelectItem(string itemLocation)
     {
-        openedGroup = openedGroup == group ? null : group;
+        _selectedLocation = itemLocation;
+        
+        if (_isNavMenuOpened)
+            ToggleNavMenu();
     }
 
-    private bool IsOpen(SamplesXmlReader.SampleGroup group) => openedGroup == group;
+    private void SelectGroup(string groupLocation)
+    {
+        _selectedLocation = groupLocation;
 
-    // public void GenerateSamplesMenuItems(List<SamplesListReader.SampleGroup> samplesGroups)
-    // {
-    //     Groups = samplesGroups;
-    //     StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
-    // }
-
+        if (_openedGroups.Contains(groupLocation))
+            _openedGroups.Remove(groupLocation);
+        else
+            _openedGroups.Add(groupLocation);
+    }
 }

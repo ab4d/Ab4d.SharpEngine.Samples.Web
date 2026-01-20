@@ -2,13 +2,9 @@
 <Samples>
 
   <Sample Location="Titles.IntroductionPage" IsTitle="True" Title="Ab4d.SharpEngine Introduction"/>
-  <!--<Sample Location="Common.MarkdownTestPage" IsTitle="True" Title="Markdown Test"/>-->
-  <Sample IsSeparator="True" />
+  <Sample Location="quickStart.razor" IsTitle="True" Title="QuickStart" />
+  <Sample Location="manualInitialization.razor" IsTitle="True" Title="Manual Initialization" />
 
-  <!--<Sample Location="Titles.QuickStartTitle.md" IsTitle="True" Title="Quick Start" />
-  <Sample Location="QuickStart.SharpEngineSceneViewInCode" Title="SharpEngineSceneView in code" />
-  <Sample Location="QuickStart.SharpEngineSceneViewInXaml" Title="SharpEngineSceneView in XAML" Condition="IsNotWinForms"/>-->
-  
   <Sample Location="Titles.CamerasTitle.md" IsTitle="True" Title="Cameras"/>
   <Sample Location="Cameras.TargetPositionCameraSample" Title="TargetPositionCamera"/>
   <Sample Location="Cameras.FreeCameraSample" Title="FreeCamera"/>

@@ -5,6 +5,7 @@
 @using Ab4d.SharpEngine.Samples.Common
 @using Ab4d.SharpEngine.Samples.Blazor.UIProvider
 @using Ab4d.SharpEngine.Samples.Common.Cameras
+@inject NavigationManager Navigation
 
 <PageTitle>Ab4d.SharpEngine.Web - Common samples</PageTitle>
 
@@ -77,6 +78,12 @@
             {
                 CurrentCommonSample.Dispose();
                 CurrentCommonSample = null;
+            }
+
+            if (SampleId.EndsWith(".razor"))
+            {
+                Navigation.NavigateTo(SampleId[..^6]); // remove ending ".razor"
+                return;
             }
 
             var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", SampleId, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));

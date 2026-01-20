@@ -22,7 +22,7 @@
     </p>
     
     <span style="white-space: pre-wrap;">@_deviceInfo</span>
-
+    <br/>
 
     <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
 </div>
@@ -121,7 +121,9 @@
 
 
         // In this sample we also display the device info:
-        _deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}\nGLSL version: {gpuDevice.OpenGLShadingLanguageVersion}";
+        //_deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}\nGLSL version: {gpuDevice.OpenGLShadingLanguageVersion}";
+        _deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}";
+
         StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
     }
 
