@@ -9,12 +9,12 @@ IF EXIST wwwroot\_framework\ (
 )
 
 cd ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo
-dotnet publish -c Release
+dotnet publish Ab4d.SharpEngine.Samples.WebAssemblyDemo.csproj -c Release
 
 cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
 
 xcopy ..\Ab4d.SharpEngine.Samples.AspNetCoreApp\wwwroot\*.* wwwroot\ /Y
-xcopy ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\bin\Release\net9.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
+xcopy ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\bin\Release\net10.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
 
 IF EXIST "..\ThirdParty\brotli\brotli.exe" (
   for %%f in (wwwroot\_framework\*.wasm) do (
