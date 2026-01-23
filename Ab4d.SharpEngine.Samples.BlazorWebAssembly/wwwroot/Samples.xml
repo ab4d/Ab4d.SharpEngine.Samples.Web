@@ -14,14 +14,14 @@
   <!--<Sample Location="Cameras.{uiFramework}Point3DTo2DSample" Title="Point3DTo2D"/>-->
   <!--<Sample Location="Cameras.CameraAxisPanelSample" Title="CameraAxisPanel"/>-->
   <Sample Location="Cameras.CustomCoordinateSystemSample" Title="Custom coordinate system"/>
-  <Sample Location="Cameras.OffCenterCameraSample" Title="Off-center scene rendering" IsNew="True"/>
+  <Sample Location="Cameras.OffCenterCameraSample" Title="Off-center scene rendering"/>
   <!--<Sample Location="Cameras.TwoDimensionalCameraSample" Title="TwoDimensionalCamera"/>-->
 
   <Sample Location="Titles.PointerCameraControllerTitle.md" IsTitle="True" Title="PointerCameraController"/>
   <Sample Location="CameraControllers.PointerCameraControllerSample" Title="PointerCameraController"/>
   <Sample Location="CameraControllers.RotateAroundCustomPointSample" Title="Rotate around custom point"/>
   <Sample Location="CameraControllers.ZoomToCustomPointSample" Title="Zoom to a custom point"/>
-  <!--
+  
   <Sample Location="Titles.StandardModelsTitle.md" IsTitle="True" Title="Standard 3D models"/>
   <Sample Location="StandardModels.MeshModelNodeSample" Title="MeshModelNode"/>
   <Sample IsSeparator="True" />
@@ -37,8 +37,8 @@
   <Sample Location="StandardModels.ArrowModelNodeSample" Title="ArrowModelNode"/>
   <Sample IsSeparator="True" />
   <Sample Location="StandardModels.TransformationsSample" Title="Transformations"/>
-  <Sample Location="StandardModels.PositionAndScaleSample" Title="Position and scale"/>-->
-
+  <Sample Location="StandardModels.PositionAndScaleSample" Title="Position and scale"/>
+  
   <Sample Location="Titles.AdvancedModelsTitle.md" IsTitle="True" Title="Advanced 3D models"/>
   <Sample Location="AdvancedModels.InstancedMeshNodeSample" Title="Mesh instancing"/>
   <Sample Location="AdvancedModels.InstancedArrowsSample" Title="Instanced arrows"/>

@@ -100,79 +100,6 @@ public abstract class CommonSample
         this.context = context;
     }
 
-    public static List<System.Xml.XmlNode> LoadSamples(string samplesXmlFilePath, string uiFramework, Action<string>? showErrorAction)
-    {
-        var filteredXmlNodeList = new List<System.Xml.XmlNode>();
-
-        var xmlDcoument = new System.Xml.XmlDocument();
-        xmlDcoument.Load(samplesXmlFilePath);
-
-        if (xmlDcoument.DocumentElement == null)
-        {
-            showErrorAction?.Invoke("Cannot load Samples.xml");
-            return filteredXmlNodeList;
-        }
-
-
-        var xmlNodeList = xmlDcoument.DocumentElement.SelectNodes("/Samples/Sample");
-
-        if (xmlNodeList == null || xmlNodeList.Count == 0)
-        {
-            showErrorAction?.Invoke("No samples in Samples.xml");
-            return filteredXmlNodeList;
-        }
-        
-
-        foreach (System.Xml.XmlNode xmlNode in xmlNodeList)
-        {
-            if (xmlNode.Attributes != null)
-            {
-                var conditionAttribute = xmlNode.Attributes["Condition"];
-
-                if (conditionAttribute != null)
-                {
-                    var AllConditionsText = conditionAttribute.Value;
-
-                    var allConditions = AllConditionsText.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-                    bool isIncluded = false;
-                    bool isSkipped = false;
-
-                    foreach (var oneCondition in allConditions)
-                    {
-                        if (!oneCondition.StartsWith("Is", StringComparison.OrdinalIgnoreCase))
-                            throw new Exception("Invalid Condition in Samples.xml: " + oneCondition);
-
-                        bool negateCondition = oneCondition.Contains("Not", StringComparison.OrdinalIgnoreCase);
-                        int uiFrameworkPosition = negateCondition ? 5 : 2; // Skip "IsNot" or "Is"
-
-                        string uiFrameworkInCondition = oneCondition.Substring(uiFrameworkPosition);
-
-                        if (negateCondition)
-                        {
-                            if (uiFramework == uiFrameworkInCondition)
-                                isSkipped = true; // for example, skip Wpf if condition is IsNotWpf
-                            else
-                                isIncluded = true; // for example, when IsNotWinForms then include that sample for Wpf
-                        }
-                        else
-                        {
-                            if (uiFramework == uiFrameworkInCondition)
-                                isIncluded = true; // for example, only include this sample when condition IsWpf and uiFramework is Wpf
-                        }
-                    }
-
-                    if (isSkipped || !isIncluded)
-                        continue;
-                }
-            }
-
-            filteredXmlNodeList.Add(xmlNode);
-        }
-
-        return filteredXmlNodeList;
-    }
-
     public static object? CreateSampleObject(string uiFramework, string sampleLocation, object commonSamplesContext, Action<string>? showErrorAction)
     {
         Type? sampleType;
@@ -497,7 +424,7 @@ public abstract class CommonSample
 #endif
 
         string fileName = GetCommonTexturePath(textureName);
-        TextureLoader.CreateTextureAsync(fileName, scene, textureCreatedCallback, textureCreationFailedCallback);
+        TextureLoader.CreateTextureAsync(fileName, scene, generateMipMaps: true, useSceneCache: true, textureCreatedCallback, textureCreationFailedCallback);
     }
     
     public void GetCommonTextureAsync(string textureName, GpuDevice? gpuDevice, Action<GpuImage> textureCreatedCallback, Action<Exception>? textureCreationFailedCallback = null)
@@ -505,7 +432,31 @@ public abstract class CommonSample
         ArgumentNullException.ThrowIfNull(gpuDevice);
         
         string fileName = GetCommonTexturePath(textureName);
-        TextureLoader.CreateTextureAsync(fileName, gpuDevice, textureCreatedCallback, textureCreationFailedCallback);
+        TextureLoader.CreateTextureAsync(fileName, gpuDevice, generateMipMaps: true, useGpuDeviceCache: true, textureCreatedCallback, textureCreationFailedCallback);
+    }
+    
+    public async Task<GpuImage?> GetCommonTextureAsync(string textureName, Scene? scene)
+    {
+        var tcs = new TaskCompletionSource<GpuImage>();
+
+        GetCommonTextureAsync(
+            textureName, scene, 
+            textureCreatedCallback: rawImageData => tcs.SetResult(rawImageData),
+            textureCreationFailedCallback: exception => tcs.SetException(exception));
+
+        return await tcs.Task;
+    }
+    
+    public async Task<GpuImage?> GetCommonTextureAsync(string textureName, GpuDevice? gpuDevice)
+    {
+        var tcs = new TaskCompletionSource<GpuImage>();
+
+        GetCommonTextureAsync(
+            textureName, gpuDevice, 
+            textureCreatedCallback: rawImageData => tcs.SetResult(rawImageData),
+            textureCreationFailedCallback: exception => tcs.SetException(exception));
+
+        return await tcs.Task;
     }
 
     protected void ShowErrorMessage(string errorMessage)

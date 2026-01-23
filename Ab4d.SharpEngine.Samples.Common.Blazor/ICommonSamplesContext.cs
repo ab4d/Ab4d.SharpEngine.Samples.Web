@@ -19,8 +19,7 @@ public interface ICommonSamplesContext
 
     ISharpEngineSceneView? CurrentSharpEngineSceneView { get; }
 
-#if VULKAN
     // Returns null when CurrentSharpEngineSceneView is null
     TextBlockFactory GetTextBlockFactory();
-#endif
+    Task<TextBlockFactory> GetTextBlockFactoryAsync();
 }

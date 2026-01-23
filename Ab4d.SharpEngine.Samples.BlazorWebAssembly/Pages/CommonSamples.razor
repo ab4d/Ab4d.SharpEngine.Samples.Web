@@ -16,7 +16,7 @@
         <h3>@sample_title</h3>
         <span style="white-space: pre-wrap;">@sample_subtitle</span>
         
-        <br/>
+@*         <br/>
         @if (string.IsNullOrEmpty(SampleId))
         {
             <p>No sample selected.</p>
@@ -24,7 +24,7 @@
         else
         {
             <p>Showing sample: @SampleId</p>
-        }
+        } *@
     </div>
 
     @if (_uiProvider != null)
@@ -70,7 +70,7 @@
         // This is called BOTH:
         // - when navigating to the page
         // - AND when the parameter changes while staying on the same page
-        Console.WriteLine($"Sample changed to: {SampleId}");
+        //Console.WriteLine($"Sample changed to: {SampleId}");
 
         if (SampleId != null && !SampleId.EndsWith(".md", StringComparison.Ordinal))
         {
@@ -103,15 +103,24 @@
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-            sharpEngineSceneView.SceneViewInitialized += (sender, args) => LoadFirstSample();
+        {
+            BlazorSamplesContext.Current.RegisterCurrentSharpEngineSceneView(sharpEngineSceneView);
+            
+            sharpEngineSceneView.SceneView.BackgroundColor = Colors.LightSkyBlue;
+
+            if (sharpEngineSceneView.IsInitialized)
+                LoadSample();
+            else
+                sharpEngineSceneView.SceneViewInitialized += (sender, args) => LoadSample(); // Wait until the sharpEngineSceneView is created
+        }
     }
 
-    private void LoadFirstSample()
+    private void LoadSample()
     {
-        sharpEngineSceneView.SceneView.BackgroundColor = Colors.LightSkyBlue;
-
-        SampleId = StartupSample;
-        //CurrentCommonSample = new TargetPositionCameraSample(BlazorSamplesContext.Current);
+        if (_currentCommonSample != null)
+            InitializeCommonSample(); // Sample was already created - we just need to show it after the sharpEngineSceneView is created
+        else
+            SampleId = StartupSample; // Setting SampleId will load the StartupSample
     }
 
     private void ResetSample()
@@ -157,6 +166,9 @@
 
             if (ShowCaptureInSpector)
             {
+                if (_uiProvider.CurrentPanel == null)
+                    _uiProvider.CreateStackPanel(PositionTypes.Bottom | PositionTypes.Right);
+
                 _uiProvider.AddSeparator();
                 _uiProvider.CreateButton("Capture frame in Spector", () => _ = CaptureNextFrame());
             }
