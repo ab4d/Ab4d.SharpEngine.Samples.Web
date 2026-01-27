@@ -351,8 +351,8 @@
         if (gpuDevice == null)
             return;
 
-        // The CreateTextureAsync can take textureCreatedCallback and textureCreationFailedCallback callback actions:
-        TextureLoader.CreateTextureAsync(
+        // The CreateTexture can take textureCreatedCallback and textureCreationFailedCallback callback actions:
+        TextureLoader.CreateTexture(
             "ab4d-logo-256.png", gpuDevice, 
             textureCreatedCallback: gpuImage =>
             {
@@ -364,10 +364,10 @@
                 };
 
                 var planeModelNode2 = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
-                                                        size: new Vector2(60, 60), 
-                                                        normal: new Vector3(0, 0, 1), 
-                                                        heightDirection: new Vector3(0, 1, 0), 
-                                                        name: "Texture2Plane")
+                                                         size: new Vector2(60, 60), 
+                                                         normal: new Vector3(0, 0, 1), 
+                                                         heightDirection: new Vector3(0, 1, 0), 
+                                                         name: "Texture2Plane")
                 {
                     IsHitTestVisible = false,
                     Material = textureMaterial2,
@@ -382,7 +382,7 @@
             });
 
 
-        // Instead of calling CreateTextureAsync that takes a callback, we can also use an overload with await.
+        // Instead of calling CreateTexture that takes a callback, we can also use an awaitable CreateTextureAsync.
         // To use await, then override the OnAfterRenderAsync method instead of OnAfterRender.
 
         // var gpuImage = await TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
