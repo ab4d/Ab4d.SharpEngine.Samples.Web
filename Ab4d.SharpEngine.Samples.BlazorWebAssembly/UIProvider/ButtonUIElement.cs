@@ -40,8 +40,7 @@ public class ButtonUIElement : BlazorUIElement
             if (_width > 0)
                 style += $"width: {_width}px;";
 
-            if (_alignLeft)
-                style += "text-align: left;";
+            style += "text-align: " + (_alignLeft ? "left;" : "center;");
 
             if (blazorUIProvider.FontSize > 0)
                 style += $"font-size: {blazorUIProvider.FontSize}px;";
