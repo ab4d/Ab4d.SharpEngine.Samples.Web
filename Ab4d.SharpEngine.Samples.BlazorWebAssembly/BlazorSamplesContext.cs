@@ -1,51 +1,28 @@
-﻿using Ab4d.SharpEngine.Common;
-using Ab4d.SharpEngine.Materials;
-using System.Numerics;
+﻿using System.Numerics;
 using Ab4d.SharpEngine.Samples.BlazorWebAssembly;
 using Ab4d.SharpEngine.Utilities;
-using Ab4d.SharpEngine.WebGL;
 
 namespace Ab4d.SharpEngine.Samples.Common;
 
-public class BlazorSamplesContext : ICommonSamplesContext
+public class BlazorSamplesContext : CommonSamplesContext
 {
     public static readonly BlazorSamplesContext Current = new BlazorSamplesContext();
-
-    public WebGLDevice? GpuDevice => CurrentSharpEngineSceneView?.GpuDevice ?? null;
-
-    private BrowserBitmapIO _bitmapIO;
+    
     private BitmapTextCreator? _bitmapTextCreator;
-    public IBitmapIO BitmapIO => _bitmapIO;
-
     private TextBlockFactory? _textBlockFactory;
     private Task<TextBlockFactory>? _textBlockFactoryLoadingTask;
 
-    public ISharpEngineSceneView? CurrentSharpEngineSceneView { get; private set; }
-
-    public event EventHandler? CurrentSharpEngineSceneViewChanged;
-
+    private BlazorSamplesContext()
+        : base(applicationName: "SharpEngine Blazor Samples", bitmapIO: null)
+    {
+    }
 
     public void RegisterCurrentSharpEngineSceneView(SharpEngineSceneView? sharpEngineSceneView)
     {
-        if (ReferenceEquals(CurrentSharpEngineSceneView, sharpEngineSceneView))
-            return;
-
-        CurrentSharpEngineSceneView = sharpEngineSceneView;
-
-        OnCurrentSharpEngineSceneViewChanged();
+        SetCurrentSharpEngineSceneView(sharpEngineSceneView);
     }
 
-    protected void OnCurrentSharpEngineSceneViewChanged()
-    {
-        CurrentSharpEngineSceneViewChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    public TextBlockFactory GetTextBlockFactory()
-    {
-        throw new NotSupportedException("Synchronous GetTextBlockFactory is not supported in Web samples. Use GetTextBlockFactoryAsync.");
-    }
-
-    public Task<TextBlockFactory> GetTextBlockFactoryAsync()
+    public override Task<TextBlockFactory> GetTextBlockFactoryAsync()
     {
         // If already loaded, return synchronously
         if (_textBlockFactory != null)
@@ -86,14 +63,7 @@ public class BlazorSamplesContext : ICommonSamplesContext
         else
         {
             // Reset existing TextBlockFactory to default values:
-            _textBlockFactory.TextColor = Color4.Black;
-            _textBlockFactory.FontSize = 14;
-            _textBlockFactory.BackgroundHorizontalPadding = 8;
-            _textBlockFactory.BackgroundVerticalPadding = 4;
-            _textBlockFactory.BackgroundColor = Color4.Transparent;
-            _textBlockFactory.BorderThickness = 0;
-            _textBlockFactory.BorderColor = Color4.Black;
-            _textBlockFactory.BackMaterialColor = Color4.Black;
+            ResetTextBlockFactory();
         }
 
         return _textBlockFactory;
