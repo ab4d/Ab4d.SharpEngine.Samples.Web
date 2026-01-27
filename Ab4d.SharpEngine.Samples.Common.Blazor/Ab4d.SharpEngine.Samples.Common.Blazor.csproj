@@ -7,8 +7,39 @@
     <DefineConstants>WEB_GL</DefineConstants>
   </PropertyGroup>
 
+  <!--<ItemGroup>
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\StandardModels\ArrowModelNodeSample.cs" Link="StandardModels\ArrowModelNodeSample.cs" />
+  </ItemGroup>-->
+
   <ItemGroup>
     <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AdvancedModels\" />
+    <Folder Include="Cameras\" />
+    <Folder Include="StandardModels\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\StandardModels\*" LinkBase="StandardModels\" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\*" LinkBase="Cameras\" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\CameraAxisPanelSample.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\TwoDimensionalCamera.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\TwoDimensionalCameraSample.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\InstancedArrowsSample.cs" Link="AdvancedModels\InstancedArrowsSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\InstancedMeshNodeSample.cs" Link="AdvancedModels\InstancedMeshNodeSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\CommonSample.cs" Link="CommonSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\CommonSamplesContext.cs" Link="CommonSamplesContext.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\ICommonSamplesContext.cs" Link="ICommonSamplesContext.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\ICommonSampleUIElement.cs" Link="ICommonSampleUIElement.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\ICommonSampleUIPanel.cs" Link="ICommonSampleUIPanel.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\ICommonSampleUIProvider.cs" Link="ICommonSampleUIProvider.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\SamplesXmlReader.cs" Link="SamplesXmlReader.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\TestScenes.cs" Link="TestScenes.cs" />
   </ItemGroup>
 
   <!--<ItemGroup>
