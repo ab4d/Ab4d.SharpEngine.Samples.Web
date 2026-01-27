@@ -12,16 +12,18 @@ public class StackPanelUIElement : BlazorUIPanel
     private PositionTypes _alignment;
     private bool _addBorder;
     private bool _isSemiTransparent;
+    private bool _isChildPanel;
 
     public override bool IsVertical => _isVertical;
 
-    public StackPanelUIElement(BlazorUIProvider blazorUIProvider, PositionTypes alignment, bool isVertical, bool addBorder, bool isSemiTransparent)
+    public StackPanelUIElement(BlazorUIProvider blazorUIProvider, PositionTypes alignment, bool isVertical, bool addBorder, bool isSemiTransparent, bool isChildPanel)
         : base(blazorUIProvider)
     {
         _isVertical = isVertical;
         _alignment = alignment;
         _addBorder = addBorder;
         _isSemiTransparent = isSemiTransparent;
+        _isChildPanel = isChildPanel;
 
         SetMargin(5, 5, 5, 5);
 
@@ -38,7 +40,7 @@ public class StackPanelUIElement : BlazorUIPanel
         BlazorElement = builder =>
         {
             builder.OpenElement(0, "div");
-            var style = $"position: absolute; padding: 5px 10px; ";
+            var style = _isChildPanel ? "" : "position: absolute; padding: 5px 10px; ";
 
             style += GetMarginStyle() + GetVisibilityStyle();
 
