@@ -32,6 +32,7 @@
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\*" LinkBase="AdvancedModels\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\AdvancedHeightMapSample.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\BooleanMeshSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\SimpleHeightMapSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\MultiMaterialModelNodeSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\PixelOptionsSample.cs" />
