@@ -61,7 +61,7 @@ public class StackPanelUIElement : BlazorUIPanel
 
             var verticalAlign = _alignment.HasFlag(PositionTypes.Top) ? $"top: 0; " :
                                 _alignment.HasFlag(PositionTypes.Bottom) ? $"bottom: 0; " :
-                                "top: 0; bottom: 0; height: fit-content; margin-inline: auto; "; // center
+                                "top: 50%; bottom: 50%; height: fit-content; margin-inline: auto; "; // center
 
             style += horizontalAlign + verticalAlign;
 
