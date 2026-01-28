@@ -22,20 +22,20 @@ public class BlazorSamplesContext : CommonSamplesContext
         SetCurrentSharpEngineSceneView(sharpEngineSceneView);
     }
 
-    public override Task<TextBlockFactory> GetTextBlockFactoryAsync()
+    public override async Task<TextBlockFactory> GetTextBlockFactoryAsync()
     {
         // If already loaded, return synchronously
         if (_textBlockFactory != null)
-            return Task.FromResult(_textBlockFactory);
+            return _textBlockFactory;
         
         // If loading already started, return the same task
         if (_textBlockFactoryLoadingTask != null)
-            return _textBlockFactoryLoadingTask;
+            return _textBlockFactoryLoadingTask.Result;
 
         // Start loading and store the task
         _textBlockFactoryLoadingTask = GetTextBlockFactoryIntAsync();
 
-        return _textBlockFactoryLoadingTask;
+        return await _textBlockFactoryLoadingTask;
     }
     
     private async Task<TextBlockFactory> GetTextBlockFactoryIntAsync()
