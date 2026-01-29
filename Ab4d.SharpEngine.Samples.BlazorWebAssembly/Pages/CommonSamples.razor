@@ -283,7 +283,10 @@
 
             // If the current sample was not yet changed, then show the markdown content
             if (sampleId == this.SampleId)
+            {
                 _markdownHtmlContent = markdownHtmlContent;
+                StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
+            }
         }
     }
 
