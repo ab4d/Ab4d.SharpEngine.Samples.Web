@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0-browser</TargetFramework>
@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9432-beta2" />
+    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9525-beta2" />
   </ItemGroup>
 
 </Project>
