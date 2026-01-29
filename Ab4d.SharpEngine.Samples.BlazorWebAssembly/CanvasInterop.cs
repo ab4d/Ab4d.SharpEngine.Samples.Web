@@ -581,7 +581,6 @@ public partial class CanvasInterop : ICanvasInterop
         Disposing?.Invoke(this, EventArgs.Empty);
 
         DisconnectWebGLCanvasJs(CanvasId);
-        JS = null;
 
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
