@@ -81,6 +81,8 @@
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
+        // Utilities.Log.LogLevel = LogLevels.Trace;
+
         if (firstRender)
         {
             BlazorSamplesContext.Current.RegisterCurrentSharpEngineSceneView(sharpEngineSceneView);
