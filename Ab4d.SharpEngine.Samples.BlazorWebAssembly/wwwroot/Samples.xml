@@ -61,13 +61,14 @@
   <!--<Sample Location="AdvancedModels.SkyboxSample" Title="Skybox"/>
   <Sample Location="AdvancedModels.SpritesSample" Title="Sprites" IsUpdated="True" UpdateInfo="Added NotifyTextureChange method to SpriteBatch that can be used\nto render a new frame without recreating the command buffers."/>
   <Sample Location="AdvancedModels.VolumeRenderingSample" Title="Volume rendering" IsNew="True"/>
-
+-->
   <Sample Location="Titles.TextTitle.md" IsTitle="True" Title="3D text"/>
   <Sample Location="Text.VectorTextSample" Title="Vector text from TrueType font"/>
   <Sample Location="Text.BitmapTextSample" Title="Bitmap text"/>
   <Sample Location="Text.InstancedTextNodePerformanceSample" Title="Instanced text performance"/>
   <Sample Location="Text.InstancedTextNodeSample" Title="Instanced text"/>
 
+  <!--  
   <Sample Location="Titles.ImportersTitle.md" IsTitle="True" Title="3D model importers"/>
   <Sample Location="Importers.ObjImporterExporterSample" Title="Obj Importer and Exporter"/>
   <Sample Location="Importers.StlImporterExporterSample" Title="Stl Importer and Exporter"/>
@@ -89,15 +90,16 @@
   <Sample Location="Lines.SpecialLineRenderingSample" Title="Special line rendering"/>  
   <Sample Location="Lines.LinesPerformanceSample" Title="Lines Performance"/>
   <Sample Location="QuickStart.AntiAliasingSample" Title="Anti-aliasing (MSAA + SSAA)" Condition="IsWpf, IsAvalonia" />
-
+-->
   <Sample Location="Titles.LightsTitle.md" IsTitle="True" Title="Lights"/>
   <Sample Location="Lights.LightsSample" Title="Lights"/>
 
+  <!--  
   <Sample Location="Titles.GraphsTitle.md" IsTitle="True" Title="Graphs"/>
   <Sample Location="Graphs.MultipleAxesDemo" Title="Multiple axes demo" IsNew="True"/>
   <Sample Location="Graphs.AxisWithLabelsSamples" Title="AxisWithLabels" IsNew="True"/>
   <Sample Location="Graphs.AxesBoxNodeSample" Title="AxesBoxNode" IsNew="True"/>
-  
+  -->
   <Sample Location="Titles.MaterialsTitle.md" IsTitle="True" Title="Materials"/>
   <Sample Location="Materials.MaterialsSample" Title="Materials" IsUpdated="True" UpdateInfo="Added IsSolidColor, DiffuseColor, Opacity and IsTwoSided property to VertexColorMaterial"/>
   <Sample Location="Materials.SpecularMaterialSample" Title="Specular material"/>
@@ -151,5 +153,5 @@
   <Sample Location="Advanced.DepthPrePassSample" Title="Depth pre-pass rendering" />
   <Sample Location="Advanced.RenderingLayerCustomCameraSample" Title="CustomCamera in RenderingLayer" />
   <Sample Location="Advanced.AvaloniaMultiTouchSample" Title="Avalonia Multi-touch camera controller" Condition="IsAvalonia" />
--->
+
 </Samples>
