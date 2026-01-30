@@ -5,33 +5,22 @@
 @using Ab4d.SharpEngine.Samples.Common
 @using Ab4d.SharpEngine.Samples.Blazor.UIProvider
 @inject NavigationManager Navigation
-@inject HttpClient Http
-@inject IJSRuntime JSRuntime
 
 <PageTitle>Ab4d.SharpEngine.Web - Common samples</PageTitle>
 
 <div class="ui-container">
-    @if (_markdownHtmlContent != null)
-    {
-        <div style="position: absolute; margin: 10px; left: 10px; top: 10px; right: 10px; background: white; padding: 20px; border-radius: 5px; overflow-y: auto; max-height: 90%;">
-            @((MarkupString)_markdownHtmlContent)
-        </div>
-    }
-    else
-    {
-        <SharpEngineSceneView @ref="sharpEngineSceneView" style="display: block; width: 100%; height: 100%;"></SharpEngineSceneView>
-        
-        <div style="position: absolute; margin: 10px; left: 0; top: 0;">
-            <h3>@sample_title</h3>
-            <span style="white-space: pre-wrap;">@sample_subtitle</span>
-        </div>
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="display: block; width: 100%; height: 100%;"></SharpEngineSceneView>
+    
+    <div style="position: absolute; margin: 10px; left: 0; top: 0;">
+        <h3>@sample_title</h3>
+        <span style="white-space: pre-wrap;">@sample_subtitle</span>
+    </div>
 
-        @if (_uiProvider != null)
+    @if (_uiProvider != null)
+    {
+        foreach (var rootElement in _uiProvider.GetRootUIElements())
         {
-            foreach (var rootElement in _uiProvider.GetRootUIElements())
-            {
-                @rootElement.BlazorElement
-            }
+            @rootElement.BlazorElement
         }
     }
 </div>
@@ -48,9 +37,6 @@
     private SharpEngineSceneView sharpEngineSceneView = null!;
     private string sample_title = "";
     private string sample_subtitle = "";
-
-    private IJSObjectReference? _markedJSModule;
-    private string? _markdownHtmlContent;
 
     public SharpEngineSceneView? MainSceneView => sharpEngineSceneView;
 
@@ -108,36 +94,29 @@
 
     private void LoadSample(string? sampleId)
     {
-        // Reset markdown content
-        _markdownHtmlContent = null;
-
         if (sampleId == null)
             return;
 
+        if (CurrentCommonSample != null)
+        {
+            CurrentCommonSample.Dispose();
+            CurrentCommonSample = null;
+        }
+
         if (sampleId.EndsWith(".md", StringComparison.Ordinal))
         {
-            _ = ShowMarkdown(sampleId); // Do not wait for ShowMarkdown to finish
+            Navigation.NavigateTo("sampleTitle/" + sampleId); // remove ending ".razor"
+            return;
         }
-        else
+
+        if (sampleId.EndsWith(".razor"))
         {
-            if (CurrentCommonSample != null)
-            {
-                CurrentCommonSample.Dispose();
-                CurrentCommonSample = null;
-            }
-
-            if (sampleId.EndsWith(".razor"))
-            {
-                Navigation.NavigateTo(sampleId[..^6]); // remove ending ".razor"
-                return;
-            }
-
-            var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", sampleId, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));
-            CurrentCommonSample = createdSample;
-
-            if (createdSample == null)
-                _markdownHtmlContent = $"Cannot create a CommonSample from sampleId: {sampleId}. See console log for detailed error message.";
+            Navigation.NavigateTo(sampleId[..^6]); // remove ending ".razor"
+            return;
         }
+
+        var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", sampleId, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));
+        CurrentCommonSample = createdSample;
     }
 
     private void LoadCurrentSample()
@@ -234,72 +213,5 @@
         sharpEngineSceneView.SceneView.Render(forceRender: true);
 
         sharpEngineSceneView.CanvasInterop.StopSpectorCapture();
-    }
-
-    private async Task ShowMarkdown(string sampleId)
-    {
-        // Handle markdown files
-        IJSObjectReference? markedModule;
-        try
-        {
-            // Ensure marked.js is loaded
-            markedModule = await EnsureMarkedJsLoaded();
-        }
-        catch (Exception ex)
-        {
-            markedModule = null;
-            _markdownHtmlContent = $"<p>Error loading marked.js: {ex.Message}</p>";
-        }
-
-        if (markedModule == null)
-            return;
-
-
-        string? markdownContent;
-        try
-        {
-            var mdFileName = sampleId.Replace("Titles.", "Titles/");
-            markdownContent = await Http.GetStringAsync(mdFileName);
-        }
-        catch (Exception ex)
-        {
-            _markdownHtmlContent = $"<p>Error loading markdown file for '{sampleId}': {ex.Message}</p>";
-            markdownContent = null;
-        }
-
-        if (markdownContent != null)
-        {
-
-            string markdownHtmlContent;
-
-            try
-            {
-                //_markdownHtmlContent = ParseMarked(markdownContent);
-                markdownHtmlContent = await markedModule.InvokeAsync<string>("parse", markdownContent);
-                //_markdownHtmlContent = await JSRuntime.InvokeAsync<string>("marked.parse", markdownContent);
-            }
-            catch (Exception ex)
-            {
-                markdownHtmlContent = $"<p>Error parsing markdown file '{sampleId}': {ex.Message}</p>";
-            }
-
-            // If the current sample was not yet changed, then show the markdown content
-            if (sampleId == this.SampleId)
-            {
-                _markdownHtmlContent = markdownHtmlContent;
-                StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
-            }
-        }
-    }
-
-    private async Task<IJSObjectReference> EnsureMarkedJsLoaded()
-    {
-        if (_markedJSModule != null)
-            return _markedJSModule; 
-
-        // ImportAsync does not return IJSObjectReference in .Net 10
-        //var markedModule = await System.Runtime.InteropServices.JavaScript.JSHost.ImportAsync(moduleName: "marked.js", moduleUrl: "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js");
-        _markedJSModule = await JSRuntime.InvokeAsync<IJSObjectReference>( "import", "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js");
-        return _markedJSModule;
     }
 }
