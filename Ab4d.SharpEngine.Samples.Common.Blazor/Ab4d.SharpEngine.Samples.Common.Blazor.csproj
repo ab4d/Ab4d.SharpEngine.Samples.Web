@@ -20,6 +20,12 @@
     <Folder Include="Cameras\" />
     <Folder Include="Utils\" />
     <Folder Include="StandardModels\" />
+    <Folder Include="Lights\" />
+    <Folder Include="Materials\" />
+    <Folder Include="Text\" />
+    <Folder Include="HitTesting\" />
+    <Folder Include="Animations\" />
+    <Folder Include="Advanced\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +46,8 @@
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\SkyboxSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\SpritesSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\VolumeRenderingSample.cs" />
+
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lights\*" LinkBase="Lights\" />
   </ItemGroup>
 
   <ItemGroup>
