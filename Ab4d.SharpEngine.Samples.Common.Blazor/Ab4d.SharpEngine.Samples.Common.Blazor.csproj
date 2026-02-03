@@ -51,7 +51,13 @@
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\*" LinkBase="Materials\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\AnimatedTexturesSample.cs" />
-    <!--<Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\HeatmapRenderingSample.cs" />-->
+
+    <!--<Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\*" LinkBase="Animations\" />-->
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\TransformationAnimationSample.cs" Link="Animations\TransformationAnimationSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\TransformationAnimationSample2.cs" Link="Animations\TransformationAnimationSample2.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\GlobalAnimationPropertiesSample.cs" Link="Animations\GlobalAnimationPropertiesSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\AnimationEasingSample.cs" Link="Animations\AnimationEasingSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\MaterialAnimationSample.cs" Link="Animations\MaterialAnimationSample.cs" />
   </ItemGroup>
 
   <ItemGroup>
