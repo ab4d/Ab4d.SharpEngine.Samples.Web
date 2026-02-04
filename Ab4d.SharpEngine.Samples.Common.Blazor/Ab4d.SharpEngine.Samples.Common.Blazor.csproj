@@ -58,6 +58,9 @@
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\GlobalAnimationPropertiesSample.cs" Link="Animations\GlobalAnimationPropertiesSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\AnimationEasingSample.cs" Link="Animations\AnimationEasingSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\MaterialAnimationSample.cs" Link="Animations\MaterialAnimationSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\CameraAnimationSample.cs" Link="Animations\CameraAnimationSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\SceneNodeAnimationSample.cs" Link="Animations\SceneNodeAnimationSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\CustomAnimationSample.cs" Link="Animations\CustomAnimationSample.cs" />
   </ItemGroup>
 
   <ItemGroup>
