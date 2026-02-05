@@ -103,19 +103,27 @@
             CurrentCommonSample = null;
         }
 
-        if (sampleId.EndsWith(".md", StringComparison.Ordinal))
+        // NOTE:
+        // The UpdateSampleLocationForBlazor method in NavMenu.razor updates the location from Samples.xml
+        // to work with Blazor - it replaces '/' => '-' and removes ".razor" ending.
+        // If we want to accept SampleId with '/' we need to use set page in the second line of this file to "/commonSamples/{*SampleId}"
+        // The * prefix makes it a catch-all route parameter that will capture everything after /
+
+        if (sampleId.StartsWith("Titles", StringComparison.Ordinal))
         {
-            Navigation.NavigateTo("sampleTitle/" + sampleId); // remove ending ".razor"
+            Navigation.NavigateTo("sampleTitle/" + sampleId);
             return;
         }
 
-        if (sampleId.EndsWith(".razor"))
+        if (!sampleId.Contains('-')) // When no slash is in the sampleId, then we have a direct razor page
         {
-            Navigation.NavigateTo(sampleId[..^6]); // remove ending ".razor"
+            Navigation.NavigateTo(sampleId);
             return;
         }
 
-        var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", sampleId, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));
+        var typeName = sampleId.Replace('-', '.'); 
+
+        var createdSample = (CommonSample?)CommonSample.CreateSampleObject(uiFramework: "Blazor", typeName, BlazorSamplesContext.Current, errorMessage => Console.WriteLine(errorMessage));
         CurrentCommonSample = createdSample;
     }
 

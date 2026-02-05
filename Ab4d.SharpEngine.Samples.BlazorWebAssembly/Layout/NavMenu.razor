@@ -59,7 +59,7 @@
     private bool _isNavMenuOpened;
 
     private List<string>? _openedGroups;
-    
+
     private string? _selectedLocation;
 
     protected override async Task OnInitializedAsync()
@@ -67,6 +67,9 @@
         string xmlContent = await Http.GetStringAsync("Samples.xml");
 
         var items = SamplesXmlReader.ParseXml(xmlContent);
+
+        // Update location values to work with Blazor - see comments in UpdateSampleLocationForBlazor
+        UpdateSampleLocationForBlazor(items);
 
         _groups = SamplesXmlReader.BuildGroups(items);
         _openedGroups = new();
@@ -85,18 +88,47 @@
     private void SelectItem(string itemLocation)
     {
         _selectedLocation = itemLocation;
-        
+
         if (_isNavMenuOpened)
             ToggleNavMenu();
     }
 
     private void SelectGroup(string groupLocation)
     {
+        if (_openedGroups == null)
+            return;
+
         _selectedLocation = groupLocation;
 
         if (_openedGroups.Contains(groupLocation))
             _openedGroups.Remove(groupLocation);
         else
             _openedGroups.Add(groupLocation);
+    }
+
+    // IMPORTANT:
+    // Because web server that serves Blazor WebAssembly interprets each url that has dot as a static file
+    // (for example: https://localhost:7032/commonSamples/StandardModels.BoxModelNodeSample or https://localhost:7032/sampleTitle/Titles.CamerasTitle.md)
+    // we would get a 404 error when trying to paste that into url.
+    // Only urls without dot are passed to the Blazor.
+    // 
+    // To preserve the dot in the Location attribute in Samples.xml, 
+    // we need to update that for Blazor:
+    // - replace dot '/' => '-'
+    // - remove ".razor" ending
+    // - remove ".md" ending
+    private void UpdateSampleLocationForBlazor(List<SamplesXmlReader.SampleItem> samplesList)
+    {
+        foreach (var sampleItem in samplesList)
+        {
+            var oneLocation = sampleItem.Location;
+
+            if (oneLocation.EndsWith(".razor"))
+                oneLocation = oneLocation[..^6]; // stip off ".razor"
+            else if (oneLocation.EndsWith(".md"))
+                oneLocation = oneLocation[..^3]; // stip off ".md"
+                
+            sampleItem.Location = oneLocation.Replace('.', '-');
+        }
     }
 }
