@@ -54,7 +54,6 @@
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\BackgroundVectorTextCreationSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodePerformanceSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodeSample.cs" />
-    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\BitmapTextSample.cs" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\*" LinkBase="Animations\" />
   </ItemGroup>
