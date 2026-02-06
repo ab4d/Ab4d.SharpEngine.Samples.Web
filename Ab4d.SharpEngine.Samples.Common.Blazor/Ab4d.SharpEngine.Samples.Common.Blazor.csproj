@@ -50,6 +50,12 @@
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\*" LinkBase="Materials\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\AnimatedTexturesSample.cs" />
 
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\*" LinkBase="Text\" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\BackgroundVectorTextCreationSample.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodePerformanceSample.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodeSample.cs" />
+    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\BitmapTextSample.cs" />
+
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\*" LinkBase="Animations\" />
   </ItemGroup>
 

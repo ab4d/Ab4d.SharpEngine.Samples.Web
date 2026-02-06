@@ -64,9 +64,9 @@
 -->
   <Sample Location="Titles.TextTitle.md" IsTitle="True" Title="3D text"/>
   <Sample Location="Text.VectorTextSample" Title="Vector text from TrueType font"/>
-  <Sample Location="Text.BitmapTextSample" Title="Bitmap text"/>
+  <!--<Sample Location="Text.BitmapTextSample" Title="Bitmap text"/>
   <Sample Location="Text.InstancedTextNodePerformanceSample" Title="Instanced text performance"/>
-  <Sample Location="Text.InstancedTextNodeSample" Title="Instanced text"/>
+  <Sample Location="Text.InstancedTextNodeSample" Title="Instanced text"/>-->
 
   <!--  
   <Sample Location="Titles.ImportersTitle.md" IsTitle="True" Title="3D model importers"/>
