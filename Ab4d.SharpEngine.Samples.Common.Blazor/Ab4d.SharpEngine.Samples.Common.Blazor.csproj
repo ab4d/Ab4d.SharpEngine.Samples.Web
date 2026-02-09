@@ -25,7 +25,6 @@
     <Folder Include="Text\" />
     <Folder Include="HitTesting\" />
     <Folder Include="Animations\" />
-    <Folder Include="Advanced\" />
   </ItemGroup>
 
   <ItemGroup>
