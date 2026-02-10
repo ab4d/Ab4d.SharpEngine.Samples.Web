@@ -188,7 +188,30 @@ export async function loadImageBytes(canvasId, url) {
 
     try {
         const blob = await response.blob();
+        await loadImageBytesFromBlob(blob, canvasId, url);
+    }
+    catch (ex) {
+        let message = `loadImageBytes: error decoding image '${url}': ${ex.message}`;
+        log(message);
 
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, message);
+    }
+}
+
+// imageBytes should be Uint8Array
+// mimeType should be: 'image/png' or 'image/jpeg' or other supported image type
+export async function createImageFromBytes(canvasId, imageBytes, mimeType, imageName) {
+    log("createImageFromBytes: start creating " + imageName);
+
+    // 1. Create a Blob from the array
+    const blob = new Blob([imageBytes], { type: mimeType }); 
+
+    await loadImageBytesFromBlob(blob, canvasId, imageName);
+}
+
+async function loadImageBytesFromBlob(blob, canvasId, url) {
+    try {
         const bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
 
         const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);

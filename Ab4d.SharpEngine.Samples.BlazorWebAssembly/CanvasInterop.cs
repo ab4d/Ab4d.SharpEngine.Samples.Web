@@ -420,6 +420,48 @@ public partial class CanvasInterop : ICanvasInterop
         return await tcs.Task;
     }
     
+    public void CreateImageFromBytes(byte[] imageBytes, string mimeType, string imageName, Action<RawImageData> onTextureLoadedCallback, Action<string>? onLoadErrorCallback)
+    {
+        ArgumentNullException.ThrowIfNull(imageName);
+
+
+        if (!IsInteropInitialized)
+        {
+            WebGLInitialized += (sender, args) => CreateImageFromBytes(imageBytes, mimeType, imageName, onTextureLoadedCallback, onLoadErrorCallback);
+            return;
+        }
+
+        // We need to handle multiple requests for the same image file
+        // Therefore we store a list of callbacks for each file name
+        _imageBytesLoadedCallbacks ??= new Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>>();
+
+        if (_imageBytesLoadedCallbacks.TryGetValue(imageName, out var callbacks))
+        {
+            // Request to load this texture was already issued - just add another callback action
+            callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+            return;
+        }
+
+        // This is the first request to load this file
+        callbacks = new List<(Action<RawImageData>, Action<string>?)>();
+        callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+
+        _imageBytesLoadedCallbacks.Add(imageName, callbacks);
+
+        CreateImageFromBytesJS(this.CanvasId, imageBytes, mimeType, imageName);
+    }
+
+    public async Task<RawImageData> CreateImageFromBytesAsync(byte[] imageBytes, string mimeType, string imageName)
+    {
+        var tcs = new TaskCompletionSource<RawImageData>();
+
+        CreateImageFromBytes(imageBytes, mimeType, imageName, 
+            onTextureLoadedCallback: rawImageData => tcs.SetResult(rawImageData),
+            onLoadErrorCallback: errorText => tcs.SetException(new Exception(errorText)));
+
+        return await tcs.Task;
+    }
+    
     public void SetCursorStyle(string cursorStyle)
     {
         CheckIsInitialized();
@@ -926,6 +968,9 @@ public partial class CanvasInterop : ICanvasInterop
     
     [JSImport("loadImageBytes", "sharp-engine.js")]
     private static partial void LoadImageBytesJs(string canvasId, string imageUrl);
+    
+    [JSImport("createImageFromBytes", "sharp-engine.js")]
+    private static partial void CreateImageFromBytesJS(string canvasId, byte[] imageBytes, string mimeType, string imageName);
     
     [JSImport("subscribeBrowserEvents", "sharp-engine.js")]
     private static partial void SubscribeBrowserEventsJs(string canvasId, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
