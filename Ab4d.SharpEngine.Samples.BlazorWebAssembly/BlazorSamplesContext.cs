@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Ab4d.SharpEngine.Samples.BlazorWebAssembly;
+﻿using Ab4d.SharpEngine.Samples.BlazorWebAssembly;
 using Ab4d.SharpEngine.Utilities;
 
 namespace Ab4d.SharpEngine.Samples.Common;
@@ -59,11 +58,6 @@ public class BlazorSamplesContext : CommonSamplesContext
 
             // Create TextBlockFactory that will use the default BitmapTextCreator (get by BitmapTextCreator.GetDefaultBitmapTextCreator).
             _textBlockFactory = new TextBlockFactory(_bitmapTextCreator);
-        }
-        else
-        {
-            // Reset existing TextBlockFactory to default values:
-            ResetTextBlockFactory();
         }
 
         return _textBlockFactory;
