@@ -593,7 +593,7 @@ const pointerDown = (e) => {
     if (isPinchZooming)
         return;
 
-    interop.OnPointerDownJsCallback(e.currentTarget.id, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
+    interop.OnPointerDownJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
 }
 
 const pointerUp = (e) => {
@@ -605,7 +605,7 @@ const pointerUp = (e) => {
     if (isPinchZooming)
         return;
 
-    interop.OnPointerUpJsCallback(e.currentTarget.id, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
 }
 
 const mouseWheel = (e) => {

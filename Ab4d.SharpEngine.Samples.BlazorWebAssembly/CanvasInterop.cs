@@ -674,16 +674,16 @@ public partial class CanvasInterop : ICanvasInterop
     }
 
     #region OnPointerButtonPressed and other On... methods
-    protected void OnPointerButtonPressed(int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    protected void OnPointerButtonPressed(float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (PointerDown != null)
-            PointerDown(this, new MouseButtonEventArgs((MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
+            PointerDown(this, new MouseButtonEventArgs(x, y, (MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
     }
     
-    protected void OnPointerButtonReleased(int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    protected void OnPointerButtonReleased(float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (PointerUp != null)
-            PointerUp(this, new MouseButtonEventArgs((MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
+            PointerUp(this, new MouseButtonEventArgs(x, y, (MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
     }
     
     protected void OnPointerMoved(float x, float y, int buttons, int keyboardModifiers)
@@ -859,23 +859,23 @@ public partial class CanvasInterop : ICanvasInterop
     }
 
     [JSExport]
-    private static void OnPointerDownJsCallback(string? canvasId, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    private static void OnPointerDownJsCallback(string? canvasId, float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerDown button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonPressed(x, y, changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
-    private static void OnPointerUpJsCallback(string? canvasId, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    private static void OnPointerUpJsCallback(string? canvasId, float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerUp button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonReleased(x, y, changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
