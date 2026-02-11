@@ -50,6 +50,7 @@
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lights\*" LinkBase="Lights\" />
     
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\HitTestingSample.cs" Link="HitTesting\HitTestingSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\ManualInputEventsSample.cs" Link="HitTesting\ManualInputEventsSample.cs" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\*" LinkBase="Materials\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\AnimatedTexturesSample.cs" />
