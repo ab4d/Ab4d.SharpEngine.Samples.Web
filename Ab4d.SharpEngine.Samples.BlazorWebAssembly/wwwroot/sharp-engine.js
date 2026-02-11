@@ -28,7 +28,7 @@ export async function initInteropAsync() {
     log(".Net interop with CanvasInterop initialized");
 }
 
-export function initWebGLCanvas(canvasId, useMSAA, preserveDrawingBuffer, subscribeMouseEvents, subscribeRequestAnimationFrame, enableJavaScriptLogging) {
+export function initWebGLCanvas(canvasId, useMSAA, preserveDrawingBuffer, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu, enableJavaScriptLogging) {
     if (enableJavaScriptLogging)
         isLogging = true; // if enableJavaScriptLogging is false, then do not override if isLogging is set to true here
 
@@ -97,7 +97,7 @@ export function initWebGLCanvas(canvasId, useMSAA, preserveDrawingBuffer, subscr
 
         canvasToDisplaySizeMap.set(canvas, [displayWidth, displayHeight]); // Set initial size
 
-        subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame);
+        subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu);
 
         // Return the size as a string in format: "OK:width;height;dpiScale"
         // It is not possible (at least in .Net 9) to pass an objects for JS to .Net
@@ -492,7 +492,7 @@ function onResize(entries) {
     }
 }
 
-function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame) {
+function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu) {
     if (subscribeMouseEvents && canvas) {
         canvas.addEventListener("pointermove", pointerMove, false);
         canvas.addEventListener("pointerdown", pointerDown, false);
@@ -501,6 +501,9 @@ function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeReques
         canvas.addEventListener("touchmove", touchMove, false);
         canvas.addEventListener("touchend", touchEnd, false);
         canvas.addEventListener("wheel", mouseWheel, false);
+
+        if (preventShowingContextMenu)
+            canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); }, false);
 
         log("mouse events subscribed");
     }

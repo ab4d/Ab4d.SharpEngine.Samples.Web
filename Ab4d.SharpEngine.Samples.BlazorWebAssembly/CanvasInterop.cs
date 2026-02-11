@@ -244,11 +244,11 @@ public partial class CanvasInterop : ICanvasInterop
     }
     #endregion
 
-    public void InitWebGL(bool useMultisampleAntiAliasing = true, bool preserveDrawingBuffer = false)
+    public void InitWebGL(bool useMultisampleAntiAliasing = true, bool preserveDrawingBuffer = false, bool preventShowingContextMenu = true)
     {
         CheckIsInitialized(checkIfConnectedToCanvas: false);
 
-        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, preserveDrawingBuffer, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, IsLoggingJavaScript);
+        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, preserveDrawingBuffer, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, preventShowingContextMenu: preventShowingContextMenu, IsLoggingJavaScript);
 
         if (string.IsNullOrEmpty(result) || !result.StartsWith("OK:"))
         {
@@ -958,7 +958,7 @@ public partial class CanvasInterop : ICanvasInterop
     // It is not possible (at least in .Net 9) to pass an objects from JS to .Net
     // It was possible to encode width and height into an int, but we also need dpiScale, so we need to pass it as a string.
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
-    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool preserveDrawingBuffer, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool enableJavaScriptLogging);
+    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool preserveDrawingBuffer, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool preventShowingContextMenu, bool enableJavaScriptLogging);
 
     [JSImport("loadTextFile", "sharp-engine.js")]
     private static partial void LoadTextFileJs(string canvasId, string url);

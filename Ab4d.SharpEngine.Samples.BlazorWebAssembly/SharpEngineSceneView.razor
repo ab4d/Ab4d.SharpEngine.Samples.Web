@@ -228,7 +228,10 @@
         // Try to connect to the canvas and get the WebGL context.
         // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
         // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        CanvasInterop.InitWebGL(useMultisampleAntiAliasing: CreateOptions.UseMultisampleAntiAliasing, preserveDrawingBuffer: CreateOptions.PreserveDrawingBuffer);
+        // By setting preventShowingContextMenu to true (by default), we disable showing browser's context menu when right-clicking on the canvas.
+        CanvasInterop.InitWebGL(useMultisampleAntiAliasing: CreateOptions.UseMultisampleAntiAliasing, 
+                                preserveDrawingBuffer: CreateOptions.PreserveDrawingBuffer,
+                                preventShowingContextMenu: CreateOptions.PreventBrowserContextMenu);
 
         if (!CanvasInterop.IsWebGLInitialized)
         {
