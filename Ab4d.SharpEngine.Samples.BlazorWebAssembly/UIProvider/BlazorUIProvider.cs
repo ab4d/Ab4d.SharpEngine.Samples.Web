@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Numerics;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Rendering;
+﻿using Ab4d.SharpEngine.Browser;
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Samples.Common;
+using System.Globalization;
+using System.Numerics;
 
 namespace Ab4d.SharpEngine.Samples.Blazor.UIProvider;
 
@@ -42,6 +38,10 @@ public class BlazorUIProvider : ICommonSampleUIProvider
 
     private double GetDefaultHeaderTopMargin() => StandardMargin * 2;
     private double GetDefaultHeaderBottomMarin() => StandardMargin * 1.3;
+    
+    public ICanvasInterop? CanvasInterop { get; set; }
+    private ICanvasInterop? _subscribedCanvasInterop;
+    private Action<Vector2>? _pointerMovedAction;
 
     public BlazorUIProvider(Action? stateChangedCallback = null)
     {
@@ -61,6 +61,12 @@ public class BlazorUIProvider : ICommonSampleUIProvider
         SetSettingFloat(HeaderTopMarginSettingsKey, (float)GetDefaultHeaderTopMargin());
         SetSettingFloat(HeaderBottomMarinSettingsKey, (float)GetDefaultHeaderBottomMarin());
         SetSettingFloat(FontSizeSettingsKey, 14);
+
+        if (_subscribedCanvasInterop != null)
+        {
+            _subscribedCanvasInterop.PointerMoved -= OnPointerMoved;
+            _subscribedCanvasInterop = null;
+        }
     }
 
     private void AddToCurrentPanel(BlazorUIElement blazorUiElement)
@@ -451,7 +457,20 @@ public class BlazorUIProvider : ICommonSampleUIProvider
 
     public bool RegisterPointerMoved(Action<Vector2> pointerMovedAction)
     {
-        return false; // notify caller that this is not supported
+        if (CanvasInterop == null)
+            return false; // notify caller that this is not supported
+
+        CanvasInterop.PointerMoved += OnPointerMoved;
+        _subscribedCanvasInterop = CanvasInterop;
+        _pointerMovedAction = pointerMovedAction;
+
+        return true;
+    }
+
+    private void OnPointerMoved(object? sender, MouseMoveEventArgs e)
+    {
+        var pointerPosition = new Vector2(e.MouseX, e.MouseY);
+        _pointerMovedAction?.Invoke(pointerPosition);
     }
 
     public bool RegisterFileDropped(string? filePattern, Action<string> fileDroppedAction)

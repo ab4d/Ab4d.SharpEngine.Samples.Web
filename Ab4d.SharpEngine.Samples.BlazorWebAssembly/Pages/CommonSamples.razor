@@ -55,7 +55,6 @@
         }
     }
 
-
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -129,6 +128,9 @@
 
     private void LoadCurrentSample()
     {
+        if (_uiProvider != null && sharpEngineSceneView.Scene.GpuDevice != null)
+            _uiProvider.CanvasInterop = sharpEngineSceneView.Scene.GpuDevice.CanvasInterop;
+
         if (_currentCommonSample != null)
         {
             // Sample was already created - we just need to show it after the sharpEngineSceneView is created
