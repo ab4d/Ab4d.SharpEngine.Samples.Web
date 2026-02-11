@@ -20,6 +20,7 @@
     <Folder Include="Cameras\" />
     <Folder Include="Utils\" />
     <Folder Include="StandardModels\" />
+    <Folder Include="CameraControllers\" />
     <Folder Include="Lights\" />
     <Folder Include="Materials\" />
     <Folder Include="Text\" />
@@ -34,6 +35,8 @@
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\CameraAxisPanelSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\TwoDimensionalCamera.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Cameras\TwoDimensionalCameraSample.cs" />
+
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\CameraControllers\*" LinkBase="CameraControllers\" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\*" LinkBase="AdvancedModels\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\AdvancedModels\BooleanMeshSample.cs" />
