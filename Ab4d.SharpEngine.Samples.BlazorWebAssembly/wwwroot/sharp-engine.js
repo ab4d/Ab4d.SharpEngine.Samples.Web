@@ -357,7 +357,9 @@ export function setPointerCapture(canvasId, pointerId) {
         try {
             canvas.setPointerCapture(pointerId);
         }
-        catch { } // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        catch (ex) {
+            // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        } 
     }
 }
 
@@ -370,7 +372,9 @@ export function releasePointerCapture(canvasId, pointerId) {
         try {
             canvas.releasePointerCapture(pointerId);
         }
-        catch { } // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        catch (ex) {
+            // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        } 
     }
 }
 
