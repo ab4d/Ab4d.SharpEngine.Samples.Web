@@ -1,11 +1,11 @@
 ﻿@inherits LayoutComponentBase
-<div class="page" style="background: #333; height: 100%;">
+<div class="page" style="background: #333;">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main style="padding: 0.5rem !important; height: 100%;">
-        <article style="background: white; height: 100%;">
+    <main style="min-height: 100%; height: auto;">
+        <article style="background: white; min-height: 100%; height: auto; display: flex;">
             @Body
         </article>
     </main>

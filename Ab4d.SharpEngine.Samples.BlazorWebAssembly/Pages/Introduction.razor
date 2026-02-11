@@ -5,15 +5,12 @@
 
 <PageTitle>Ab4d.SharpEngine.Web - Quick start</PageTitle>
 
-<div style="position: relative; height: 100%">
-    <SharpEngineSceneView @ref="sharpEngineSceneView" style="display: block; width: 100%; height: 100%; padding-bottom: 5rem;"></SharpEngineSceneView>
+<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 100%; flex-grow: 1; height: auto; min-height: 0;"></SharpEngineSceneView>
     
-@*     @if (_showInfoText)
-    { *@
-        <div style="position: absolute; margin: 10px; left: 0; right: 0; width: fit-content; margin-inline: auto; bottom: 0; text-align: center; font-size: 1.3rem; height: 5rem">
-            <p>@((MarkupString)_infoText)</p>
-        </div>
-    @* } *@
+    <div style="text-align: center; font-size: 1.3rem; height: 5rem; flex-grow: 1;">
+        <p>@((MarkupString)_infoText)</p>
+    </div>
     
     @if (_showPlayButton)
     {
@@ -23,7 +20,6 @@
 
 @code {
     // BOUND FIELDS:
-    private bool _showInfoText;
     private bool _showPlayButton;
     private string _infoText = "";
     private string _playButtonContent = "Play again";
@@ -90,7 +86,6 @@
         {
             // Usually here we would save the current state of the 3D scene so that can be recreated when the page is reloaded by the used
             _infoText = "ERROR: WebGL context lost! Please reload the web page...";
-            _showInfoText = true;
             StateHasChanged(); // Forces UI refresh
         };
     }
@@ -99,7 +94,6 @@
     {
         // Avalonia does not have Visibility with Hidden, so we need to first show two empty lines of text and then set the actual text
         _infoText = "Ab4d.SharpEngine is an easy to use general purpose<br/>3D rendering engine for desktop, mobile and browser apps.";
-        _showInfoText = true;
         StateHasChanged(); // Forces UI refresh
     }
 
@@ -107,7 +101,6 @@
     {
         // Avalonia does not have Visibility with Hidden, so to hide the text we only set it to two empty lines
         _infoText = "";
-        _showInfoText = false;
         StateHasChanged(); // Forces UI refresh
     }
 

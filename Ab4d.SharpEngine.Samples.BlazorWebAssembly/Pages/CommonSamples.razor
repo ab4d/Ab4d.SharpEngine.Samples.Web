@@ -9,10 +9,10 @@
 <PageTitle>Ab4d.SharpEngine.Web - Common samples</PageTitle>
 
 <div class="ui-container">
-    <SharpEngineSceneView @ref="sharpEngineSceneView" style="display: block; width: 100%; height: 100%;"></SharpEngineSceneView>
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="display: block; width: 100%; height: 100vh; overflow: hidden;"></SharpEngineSceneView>
     
-    <div style="position: absolute; margin: 10px; left: 0; top: 0;">
-        <h3>@sample_title</h3>
+    <div style="position: absolute; margin: 1.5rem; left: 0; top: 0;">
+        <h1>@sample_title</h1>
         <span style="white-space: pre-wrap;">@sample_subtitle</span>
     </div>
 
@@ -32,7 +32,7 @@
 
     //private const string? StartupSample = "Lights.LightsSample"; // StartupSample is not used anymore. Set NavigateTo in the Pages/Index.razor instead.
 
-    private const bool ShowCaptureInSpector = true;
+    private const bool ShowCaptureInSpector = false;
 
     private SharpEngineSceneView sharpEngineSceneView = null!;
     private string sample_title = "";
