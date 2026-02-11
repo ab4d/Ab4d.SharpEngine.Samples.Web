@@ -4,7 +4,6 @@
   <Sample Location="introduction.razor" IsTitle="True" Title="Ab4d.SharpEngine Introduction"/>
   <Sample Location="quickStart.razor" IsTitle="True" Title="QuickStart" />
   <Sample Location="manualInitialization.razor" IsTitle="True" Title="Manual Initialization" />
-  <Sample Location="objStlFileViewer.razor" IsTitle="True" Title="OBJ &amp; STL file viewer" />
 
   <Sample Location="Titles.CamerasTitle.md" IsTitle="True" Title="Cameras"/>
   <Sample Location="Cameras.TargetPositionCameraSample" Title="TargetPositionCamera"/>
@@ -62,6 +61,12 @@
   <Sample Location="AdvancedModels.SpritesSample" Title="Sprites" IsUpdated="True" UpdateInfo="Added NotifyTextureChange method to SpriteBatch that can be used\nto render a new frame without recreating the command buffers."/>
   <Sample Location="AdvancedModels.VolumeRenderingSample" Title="Volume rendering" IsNew="True"/>
 -->
+
+  <Sample Location="Titles.ImportersTitle.md" IsTitle="True" Title="3D model importers" />
+  <Sample Location="objFileViewer.razor" Title="OBJ file viewer" />
+  <Sample Location="StlFileViewer.razor" Title="STL file viewer" />
+  <Sample Location="gltfFileViewer.razor" Title="glTF file viewer" />
+
   <Sample Location="Titles.TextTitle.md" IsTitle="True" Title="3D text"/>
   <Sample Location="Text.VectorTextSample" Title="Vector text from TrueType font"/>
   <Sample Location="Text.BitmapTextSample" Title="Bitmap text"/>
