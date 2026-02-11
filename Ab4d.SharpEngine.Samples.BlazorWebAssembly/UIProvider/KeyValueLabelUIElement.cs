@@ -9,7 +9,7 @@ public class KeyValueLabelUIElement : BlazorUIElement
 {
     private string? _keyText;
     private Func<string> _getValueTextFunc;
-    private string _currentValueText;
+    private string _currentValueText = "";
     private double _keyTextWidth;
     private string? _styleString;
     private string? _color;
