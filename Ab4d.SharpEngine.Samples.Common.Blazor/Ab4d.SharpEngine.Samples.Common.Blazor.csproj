@@ -58,7 +58,6 @@
     <!--<Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\InputEventsManagerWithSurfaceSample.cs" Link="HitTesting\InputEventsManagerWithSurfaceSample.cs" />-->
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\*" LinkBase="Materials\" />
-    <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\AnimatedTexturesSample.cs" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\*" LinkBase="Text\" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\BackgroundVectorTextCreationSample.cs" />
