@@ -2,6 +2,7 @@
 using Ab4d.SharpEngine.Utilities;
 using System.Numerics;
 
+// ReSharper disable once CheckNamespace
 namespace Ab4d.SharpEngine.Samples.Common.CameraControllers;
 
 public class PointerCameraControllerSample : CommonSample
@@ -10,6 +11,18 @@ public class PointerCameraControllerSample : CommonSample
     public override string? Subtitle => "PointerCameraController enables rotating, moving and zooming the camera with the pointer or mouse.";
 
     private ManualPointerCameraController? _pointerCameraController;
+
+    private string _cameraControllerState = "";
+    private ICommonSampleUIElement? _controllerStateLabel;
+
+    private bool _isRotating;
+    private bool _isMoving;
+    private bool _isQuickZooming;
+
+    private float _initialHeading;
+    private float _initialAttitude;
+    private Vector3 _initialTargetPosition;
+    private float _initialDistance;
 
     public PointerCameraControllerSample(ICommonSamplesContext context) 
         : base(context)
@@ -24,9 +37,31 @@ public class PointerCameraControllerSample : CommonSample
             targetPositionCamera.Attitude = -30;
             targetPositionCamera.Distance = 500;
             targetPositionCamera.ViewWidth = 500;
+
+            targetPositionCamera.CameraChanged += OnTargetPositionCameraChanged;
         }
 
         await base.ShowCommonSceneAsync(scene, CommonScenes.HouseWithTrees);
+    }
+
+    protected override void OnDisposed()
+    {
+        if (targetPositionCamera != null)
+            targetPositionCamera.CameraChanged -= OnTargetPositionCameraChanged;
+
+        if (_pointerCameraController != null)
+        {
+            _pointerCameraController.CameraRotateStarted -= OnCameraControllerRotateStarted;
+            _pointerCameraController.CameraRotateEnded -= OnCameraControllerRotateEnded;
+            _pointerCameraController.CameraMoveStarted -= OnCameraControllerMoveStarted;
+            _pointerCameraController.CameraMoveEnded -= OnCameraControllerMoveEnded;
+            _pointerCameraController.CameraQuickZoomStarted -= OnCameraControllerQuickZoomStarted;
+            _pointerCameraController.CameraQuickZoomEnded -= OnCameraControllerQuickZoomEnded;
+
+            _pointerCameraController = null;
+        }
+
+        base.OnDisposed();
     }
 
     public override void InitializePointerCameraController(ManualPointerCameraController pointerCameraController)
@@ -49,8 +84,93 @@ public class PointerCameraControllerSample : CommonSample
         pointerCameraController.PointerMoveThreshold = 0f;                // Immediately start rotation or movement; when bigger than 0, then we need to move the mouse for that amount before starting event. This can be used to also support click on the same button.
         pointerCameraController.MaxCameraDistance = float.NaN;            // Unlimited
 
+        pointerCameraController.CameraRotateStarted += OnCameraControllerRotateStarted;
+        pointerCameraController.CameraRotateEnded += OnCameraControllerRotateEnded;
+        
+        pointerCameraController.CameraMoveStarted += OnCameraControllerMoveStarted;
+        pointerCameraController.CameraMoveEnded += OnCameraControllerMoveEnded;
+        
+        pointerCameraController.CameraQuickZoomStarted += OnCameraControllerQuickZoomStarted;
+        pointerCameraController.CameraQuickZoomEnded += OnCameraControllerQuickZoomEnded;
+
         // Prevent default PointerCameraController initialization
         //base.InitializePointerCameraController(pointerCameraController);
+    }
+
+    private void OnCameraControllerRotateStarted(object? sender, EventArgs e)
+    {
+        _isRotating = true;
+
+        if (targetPositionCamera != null)
+        {
+            _initialHeading = targetPositionCamera.Heading;
+            _initialAttitude = targetPositionCamera.Attitude;
+        }
+
+        UpdateControllerState(); 
+    }
+    
+    private void OnCameraControllerRotateEnded(object? sender, EventArgs e)
+    {
+        _isRotating = false;
+        UpdateControllerState();   
+    }
+    
+    private void OnCameraControllerMoveStarted(object? sender, EventArgs e)
+    {
+        _isMoving = true;
+
+        if (targetPositionCamera != null)
+            _initialTargetPosition = targetPositionCamera.TargetPosition;
+
+        UpdateControllerState(); 
+    }
+    
+    private void OnCameraControllerMoveEnded(object? sender, EventArgs e)
+    {
+        _isMoving = false;
+        UpdateControllerState();
+    }
+    
+    private void OnCameraControllerQuickZoomStarted(object? sender, EventArgs e)
+    {
+        _isQuickZooming = true;
+
+        if (targetPositionCamera != null)
+            _initialDistance = targetPositionCamera.Distance; // When using Orthographic projection, we need to save ViewWidth
+
+        UpdateControllerState(); 
+    }
+    
+    private void OnCameraControllerQuickZoomEnded(object? sender, EventArgs e)
+    {
+        _isQuickZooming = false;
+        UpdateControllerState();
+    }
+
+    private void OnTargetPositionCameraChanged(object? sender, EventArgs e)
+    {
+        UpdateControllerState();
+    }
+
+    private void UpdateControllerState()
+    {
+        if (targetPositionCamera == null)
+            return;
+
+        string message;
+
+        if (_isRotating)
+            message = $"Heading: {(targetPositionCamera.Heading - _initialHeading):+0;-0;0}; Attitude: {(targetPositionCamera.Attitude - _initialAttitude):+0;-0;0}";
+        else if (_isMoving)
+            message = $"TargetPosition X: {(targetPositionCamera.TargetPosition.X - _initialTargetPosition.X):+0;-0;0};  Y:{(targetPositionCamera.TargetPosition.Y - _initialTargetPosition.Y):+0;-0;0};  Z: {(targetPositionCamera.TargetPosition.Z - _initialTargetPosition.Z):+0;-0;0}";
+        else if (_isQuickZooming)
+            message = $"Distance: {(targetPositionCamera.Distance - _initialDistance):+0;-0;0}";
+        else
+            message = "";
+            
+        _cameraControllerState = "Status: " + message;
+        _controllerStateLabel?.UpdateValue();
     }
 
     protected override void OnCreateUI(ICommonSampleUIProvider ui)
@@ -149,5 +269,10 @@ public class PointerCameraControllerSample : CommonSample
             (selectedIndex, selectedText) => _pointerCameraController!.MaxCameraDistance = maxCameraDistances[selectedIndex],
             selectedItemIndex: 0,
             keyText: "MaxCameraDistance (?):When MaxCameraDistance is set to a value that is not float.NaN, than it specifies the maximum Distance of the camera or the maximum CameraWidth when OrthographicCamera is used.\nThis property can be set to a reasonable number to prevent float imprecision when the camera distance is very big. Default value is float.NaN.");
+
+        ui.AddSeparator();
+        _controllerStateLabel = ui.CreateKeyValueLabel(keyText: null, () => _cameraControllerState);
+
+        UpdateControllerState();
     }
 }
