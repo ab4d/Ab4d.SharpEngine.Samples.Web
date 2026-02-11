@@ -114,21 +114,11 @@
   <Sample Location="Titles.HitTesting.md" IsTitle="True" Title="Hit-testing and input processing"/>
   <Sample Location="HitTesting.HitTestingSample" Title="Hit-testing"/>
   <Sample Location="HitTesting.BlazorManualInputEventsSample" Title="Manual Input events"/>
-  <Sample Location="HitTesting.InputEventsManagerSample" Title="InputEventsManager"/>
-  <Sample Location="HitTesting.InputEventsManagerWithSurfaceSample" Title="InputEventsManager with drag"/>
+  <!--<Sample Location="HitTesting.InputEventsManagerSample" Title="InputEventsManager"/>
+  <Sample Location="HitTesting.InputEventsManagerWithSurfaceSample" Title="InputEventsManager with drag"/>-->
   <Sample Location="HitTesting.LineSelectionSample" Title="Line selection"/>
   <Sample Location="HitTesting.RayPlaneHitTestingSample" Title="Ray-plane hit testing"/>
-  <Sample IsSeparator="True" />
-  <Sample Location="HitTesting.HitTestingWithIdBitmapSample" Title="Hit-testing with ID bitmap" IsUpdated="True" UpdateInfo="Fixed GetObjectIdFromColor method" />
-  <Sample Location="HitTesting.{uiFramework}RectangularSelectionSample" Title="Rectangular selection" Condition="IsNotWinForms" IsUpdated="True" UpdateInfo="Fixed GetObjectIdFromColor method"/>
-  <Sample Location="HitTesting.TriangleHitTestingSample" Title="Triangle hit testing with ID bitmap" IsNew="True"/>
-  <Sample Location="HitTesting.PointCloudHitTestingSample" Title="Point-cloud hit testing" IsNew="True"/>
-  <Sample IsSeparator="True" />
-  <Sample Location="HitTesting.MeshOctreeSample" Title="Octree sample" IsNew="True"/>
-  <Sample IsSeparator="True" />
-  <Sample Location="HitTesting.ModelMoverSample" Title="ModelMover"/>
-  <Sample Location="HitTesting.ModelScalarSample" Title="ModelScalar"/>
-  <Sample Location="HitTesting.ModelRotatorSample" Title="ModelRotator"/>
+  <Sample Location="HitTesting.MeshOctreeSample" Title="Octree sample"/>
 
   <Sample Location="Titles.AnimationsTitle.md" IsTitle="True" Title="Animation"/>
   <Sample Location="Animations.TransformationAnimationSample" Title="Transformation animation 1"/>
