@@ -54,8 +54,8 @@
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\LineSelectionSample.cs" Link="HitTesting\LineSelectionSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\RayPlaneHitTestingSample.cs" Link="HitTesting\RayPlaneHitTestingSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\MeshOctreeSample.cs" Link="HitTesting\MeshOctreeSample.cs" />
-    <!--<Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\InputEventsManagerSample.cs" Link="HitTesting\InputEventsManagerSample.cs" />-->
-    <!--<Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\InputEventsManagerWithSurfaceSample.cs" Link="HitTesting\InputEventsManagerWithSurfaceSample.cs" />-->
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\InputEventsManagerSample.cs" Link="HitTesting\InputEventsManagerSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\HitTesting\InputEventsManagerWithSurfaceSample.cs" Link="HitTesting\InputEventsManagerWithSurfaceSample.cs" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Materials\*" LinkBase="Materials\" />
 

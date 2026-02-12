@@ -44,6 +44,7 @@
     private CommonSample? _lastInitializedSample;
     private PointerCameraController? _pointerCameraController;
     private BlazorUIProvider? _uiProvider;
+    private InputEventsManager? _inputEventsManager;
 
     public CommonSample? CurrentCommonSample
     {
@@ -172,8 +173,10 @@
         if (_currentCommonSample == null || MainSceneView == null)
             return;
 
+        _inputEventsManager ??= new InputEventsManager(MainSceneView);
+        
         _currentCommonSample.InitializeSharpEngineView(MainSceneView);
-        //_currentCommonSample.InitializeInputEventsManager(_inputEventsManager);
+        _currentCommonSample.InitializeInputEventsManager(_inputEventsManager);
 
         if (_uiProvider != null)
         {
