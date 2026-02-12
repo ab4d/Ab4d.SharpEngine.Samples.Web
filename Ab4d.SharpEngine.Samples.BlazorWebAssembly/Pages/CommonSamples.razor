@@ -210,7 +210,7 @@
         _lastInitializedSample = _currentCommonSample;
     }
 
-    private async ValueTask CaptureNextFrame()
+    private async Task CaptureNextFrame()
     {
         bool success = await sharpEngineSceneView.CanvasInterop.StartSpectorCapture();
 

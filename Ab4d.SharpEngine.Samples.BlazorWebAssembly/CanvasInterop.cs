@@ -137,7 +137,7 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     #region static Initialize method and GetCanvasInterop
-    public static async ValueTask InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
+    public static async Task InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
     {
         if (_isInitializeCalled)
             return;
@@ -540,8 +540,8 @@ public partial class CanvasInterop : ICanvasInterop
     /// </summary>
     /// <param name="identifier">An identifier for the function to invoke.</param>
     /// <param name="args">JSON-serializable arguments.</param>
-    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous invocation operation.</returns>
-    public async ValueTask InvokeVoidAsync(string identifier, params object?[]? args)
+    /// <returns>A <see cref="Task"/> that represents the asynchronous invocation operation.</returns>
+    public async Task InvokeVoidAsync(string identifier, params object?[]? args)
     {
         await InvokeAsync<Microsoft.JSInterop.Infrastructure.IJSVoidResult>(identifier, args);
     }
@@ -557,7 +557,7 @@ public partial class CanvasInterop : ICanvasInterop
     /// <param name="identifier">An identifier for the function to invoke.</param>
     /// <param name="args">JSON-serializable arguments.</param>
     /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
-    public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+    public async Task<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
     {
         if (JS == null)
             throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
@@ -576,7 +576,7 @@ public partial class CanvasInterop : ICanvasInterop
     /// </param>
     /// <param name="args">JSON-serializable arguments.</param>
     /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
-    public async ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+    public async Task<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
     {
         if (JS == null)
             throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
