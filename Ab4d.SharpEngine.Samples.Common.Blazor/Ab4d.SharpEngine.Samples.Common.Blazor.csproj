@@ -65,6 +65,10 @@
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodeSample.cs" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\*" LinkBase="Animations\" />
+
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\MeshOutlineSample.cs" Link="Advanced\MeshOutlineSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\FrustumCullingSample.cs" Link="Advanced\FrustumCullingSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\TrianglesSortingSample.cs" Link="Advanced\TrianglesSortingSample.cs" />
   </ItemGroup>
 
   <ItemGroup>

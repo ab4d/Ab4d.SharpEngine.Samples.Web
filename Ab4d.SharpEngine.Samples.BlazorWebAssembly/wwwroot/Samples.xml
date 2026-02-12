@@ -128,25 +128,11 @@
   <Sample Location="Animations.MaterialAnimationSample" Title="Material animation"/>
   <Sample Location="Animations.CameraAnimationSample" Title="Camera animation"/>
   <Sample Location="Animations.SceneNodeAnimationSample" Title="SceneNode animation"/>
-  <Sample Location="Animations.CustomAnimationSample" Title="Custom animation" IsNew="True"/>
+  <Sample Location="Animations.CustomAnimationSample" Title="Custom animation"/>
 
   <Sample Location="Titles.AdvancedTitle.md" IsTitle="True" Title="Advanced"/>
-  <Sample Location="Advanced.MultipleSceneViewsSample" Title="Multiple SceneViews" Condition="IsWpf, IsAvalonia"/>
-  <Sample Location="Advanced.ComplexSceneSample" Title="Complex scene sample" />
-  <Sample Location="Advanced.AsyncUploadSample" Title="Async upload" />
-  <Sample Location="Advanced.ModelOptimizerSample" Title="ModelOptimizer" />
   <Sample Location="Advanced.MeshOutlineSample" Title="Mesh outlines" />
-  <Sample Location="Advanced.BackgroundAndOverlayRenderingSample" Title="BG and Overlay rendering" />
   <Sample Location="Advanced.TrianglesSortingSample" Title="Triangles sorting" />
-  <Sample Location="Advanced.PostProcessingSample" Title="Post-processing" />
-  <Sample Location="Advanced.CustomPostProcessSample" Title="Custom Post-process" />
-  <Sample Location="Advanced.CustomFogEffectSample" Title="Custom Effect" />
-  <Sample Location="Advanced.CustomOverlayPanelSample" Title="Custom Overlay Panel" IsUpdated="True" UpdateInfo="Improved performance of rendering when only overlay texture is changed:\ncalling spriteBatch.NotifyTextureChange instead of spriteBatch.Begin / End." />
-  <Sample Location="Advanced.OutlinesOverObjectsSample" Title="Outlines over objects" />
-  <Sample Location="Advanced.OffScreenRenderingSample" Title="Off-screen rendering" IsNew="True" />
-  <Sample Location="Advanced.FrustumCullingSample" Title="Frustum culling" IsNew="True" />
-  <Sample Location="Advanced.DepthPrePassSample" Title="Depth pre-pass rendering" />
-  <Sample Location="Advanced.RenderingLayerCustomCameraSample" Title="CustomCamera in RenderingLayer" />
-  <Sample Location="Advanced.AvaloniaMultiTouchSample" Title="Avalonia Multi-touch camera controller" Condition="IsAvalonia" />
+  <Sample Location="Advanced.FrustumCullingSample" Title="Frustum culling"/>
 
 </Samples>
