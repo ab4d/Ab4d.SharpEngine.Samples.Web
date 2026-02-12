@@ -104,6 +104,8 @@ public partial class CanvasInterop : ICanvasInterop
     public event MouseButtonEventHandler? PointerDown;
     public event MouseButtonEventHandler? PointerUp;
     public event MouseMoveEventHandler? PointerMoved;
+    public event MouseMoveEventHandler? PointerEntered;
+    public event MouseMoveEventHandler? PointerExited;
     public event MouseWheelEventHandler? MouseWheelChanged;
     
     public event PinchZoomEventHandler? PinchZoomStarted;
@@ -692,10 +694,22 @@ public partial class CanvasInterop : ICanvasInterop
             PointerMoved(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
     }
     
-    protected void OnMouseWheelChanged(float deltaX, float deltaY, int keyboardModifiers)
+    protected void OnPointerEntered(float x, float y, int buttons, int keyboardModifiers)
+    {
+        if (PointerEntered != null)
+            PointerEntered(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
+    }
+    
+    protected void OnPointerExited(float x, float y, int buttons, int keyboardModifiers)
+    {
+        if (PointerExited != null)
+            PointerExited(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
+    }
+    
+    protected void OnMouseWheelChanged(float deltaX, float deltaY, float x, float y, int buttons, int keyboardModifiers)
     {
         if (MouseWheelChanged != null)
-            MouseWheelChanged(this, new MouseWheelEventArgs(deltaX, deltaY, (KeyboardModifiers)keyboardModifiers));
+            MouseWheelChanged(this, new MouseWheelEventArgs(deltaX, deltaY, x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
     }
     
     protected void OnPinchZoomStarted(float distance, float centerX, float centerY)
@@ -877,15 +891,35 @@ public partial class CanvasInterop : ICanvasInterop
         var canvasInterop = GetCanvasInterop(canvasId);
         canvasInterop?.OnPointerButtonReleased(x, y, changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
+    
+    [JSExport]
+    private static void OnPointerEnterJsCallback(string? canvasId, float x, float y, int pressedButtons, int keyboardModifiers)
+    {
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnPointerEnter at {x} {y}");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop?.OnPointerEntered(x, y, pressedButtons, keyboardModifiers);
+    }
+    
+    [JSExport]
+    private static void OnPointerLeaveJsCallback(string? canvasId, float x, float y, int pressedButtons, int keyboardModifiers)
+    {
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnPointerLeave at {x} {y}");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop?.OnPointerExited(x, y, pressedButtons, keyboardModifiers);
+    }
 
     [JSExport]
-    private static void OnMouseWheelJsCallback(string? canvasId, float deltaX, float deltaY, int keyboardModifiers)
+    private static void OnMouseWheelJsCallback(string? canvasId, float deltaX, float deltaY, float x, float y, int buttons, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnMouseWheel '{canvasId ?? ""}': {deltaX} {deltaY}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
+        canvasInterop?.OnMouseWheelChanged(deltaX, deltaY, x, y, buttons, keyboardModifiers);
     }
 
     [JSExport]

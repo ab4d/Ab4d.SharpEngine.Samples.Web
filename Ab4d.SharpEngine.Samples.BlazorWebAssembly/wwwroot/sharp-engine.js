@@ -497,6 +497,8 @@ function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeReques
         canvas.addEventListener("pointermove", pointerMove, false);
         canvas.addEventListener("pointerdown", pointerDown, false);
         canvas.addEventListener("pointerup", pointerUp, false);
+        canvas.addEventListener("pointerenter", pointerEnter, false);
+        canvas.addEventListener("pointerleave", pointerLeave, false);
         canvas.addEventListener("touchstart", touchStart, false);
         canvas.addEventListener("touchmove", touchMove, false);
         canvas.addEventListener("touchend", touchEnd, false);
@@ -615,13 +617,37 @@ const pointerUp = (e) => {
     interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
 }
 
+const pointerEnter = (e) => {
+    if (!interop)
+        return;
+
+    e.preventDefault(); // Prevent sending mouseUp
+
+    if (isPinchZooming)
+        return;
+
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
+}
+
+const pointerLeave = (e) => {
+    if (!interop)
+        return;
+
+    e.preventDefault(); // Prevent sending mouseUp
+
+    if (isPinchZooming)
+        return;
+
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
+}
+
 const mouseWheel = (e) => {
     if (!interop)
         return;
 
     e.preventDefault();
 
-    interop.OnMouseWheelJsCallback(e.currentTarget.id, e.deltaX, e.deltaY, getKeyboardModifiers(e));
+    interop.OnMouseWheelJsCallback(e.currentTarget.id, e.deltaX, e.deltaY, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
 }
 
 const touchStart = (e) => {
