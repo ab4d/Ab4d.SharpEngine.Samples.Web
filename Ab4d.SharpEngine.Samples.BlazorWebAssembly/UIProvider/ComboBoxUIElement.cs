@@ -159,5 +159,10 @@ public class ComboBoxUIElement : BlazorUIElement
         }
 
         BuildRenderFragment();
+
+        _itemChangedAction?.Invoke(_selectedIndex, _items[_selectedIndex]);
+
+        // Trigger a re-render of the parent component
+        blazorUIProvider.NotifyStateChanged();
     }
 }

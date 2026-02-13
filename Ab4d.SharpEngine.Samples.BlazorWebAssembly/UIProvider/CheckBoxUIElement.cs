@@ -84,5 +84,10 @@ public class CheckBoxUIElement : BlazorUIElement
 
         _isChecked = isChecked;
         BuildRenderFragment();
+
+        _checkedChangedAction?.Invoke(isChecked);
+
+        // Trigger a re-render of the parent component
+        blazorUIProvider.NotifyStateChanged();
     }
 }
