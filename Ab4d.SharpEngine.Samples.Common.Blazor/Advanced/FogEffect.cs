@@ -48,24 +48,6 @@ public class FogEffect : Effect, IEffectConstructor<FogEffect>
 
 
     /// <inheritdoc />
-    public override void InitializeMaterial(Material material)
-    {
-        
-    }
-
-    /// <inheritdoc />
-    public override void UpdateMaterial(Material material)
-    {
-        
-    }
-
-    /// <inheritdoc />
-    public override void DisposeMaterial(Material material)
-    {
-        
-    }
-
-    /// <inheritdoc />
     public override void ApplyRenderingItemMaterial(RenderingItem renderingItem, Material material, RenderingContext renderingContext)
     {
         renderingItem.EffectTechnique = GetEffectTechnique(renderingItem, material, renderingContext);
@@ -160,23 +142,38 @@ public class FogEffect : Effect, IEffectConstructor<FogEffect>
         return effectTechnique;
     }
 
-    /// <inheritdoc />
-    public override void OnBeginUpdate(RenderingContext renderingContext)
-    {
-        throw new NotImplementedException();
-    }
 
-    /// <inheritdoc />
-    public override void OnEndUpdate()
-    {
-        throw new NotImplementedException();
-    }
+    // The following methods are not needed here, but can be implemented when needed:
 
-    /// <inheritdoc />
-    public override void Cleanup(bool increaseFrameNumber, bool freeEmptyMemoryBlocks)
-    {
-        throw new NotImplementedException();
-    }
+    ///// <summary>
+    ///// OnBeginUpdate method needs to be implemented by the effect class.
+    ///// The method is called from the <see cref="Effect.BeginUpdate"/> method which is called from the Render method in SceneView before rendering of a next frame is started (before the Scene.Update method is called).
+    ///// It can be used to read some data from the RenderingContext.
+    ///// It is used with the <see cref="OnEndUpdate"/> method to prepare all the data for the next rendered frame.
+    ///// </summary>
+    ///// <param name="renderingContext">RenderingContext</param>
+    //public override void OnBeginUpdate(RenderingContext renderingContext)
+    //{
+        
+    //}
+
+    ///// <summary>
+    ///// OnEndUpdate method needs to be implemented by the effect class.
+    ///// The method is called from the <see cref="Effect.EndUpdate"/> method method which is called after the Scene.Update method is called.
+    ///// This method can update the material's buffers in case any of the material was changed.
+    ///// </summary>
+    //public override void OnEndUpdate()
+    //{
+        
+    //}
+
+    ///// <summary>
+    ///// Cleanup method is called from <see cref="Scene.Cleanup"/> method and can be used to remove some temporary resources in the effect.
+    ///// </summary>
+    //public override void Cleanup()
+    //{
+        
+    //}
 
     private string GetVertexShaderText()
     {
