@@ -15,6 +15,7 @@ There are two major line types:
 1. **poly-lines** or connected lines that are connected by a mitered or beveled joint
 2. **disconnected lines** or multi-lines where each line is a separate line with its own line ending.
 
-By default each line ends with a rectangular shape, but it is also possible to render many different **line caps** like arrows, diamonds and other shapes.
-
 Usually lines are hidden when they are behind other 3D objects. But it is also possible to render **hidden** lines to show the inner structure of a 3D object.
+
+**IMPORTANT**
+WebGL does not support thick lines (LineThickness > 0) and also does not support geometry shaders that are used by Vulkan to render thick-lines in Ab4d.SharpEngine. Therefore the current version of Ab4d.SharpEngine.Web can render only lines with 1 pixel line thickness.
