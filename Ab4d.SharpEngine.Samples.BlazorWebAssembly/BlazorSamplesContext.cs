@@ -18,6 +18,7 @@ public class BlazorSamplesContext : CommonSamplesContext
 
     public void RegisterCurrentSharpEngineSceneView(SharpEngineSceneView? sharpEngineSceneView)
     {
+        _textBlockFactory = null; // Reset current TextBlockFactory when the SharpEngineSceneView is changed
         SetCurrentSharpEngineSceneView(sharpEngineSceneView);
     }
 
@@ -34,7 +35,10 @@ public class BlazorSamplesContext : CommonSamplesContext
         // Start loading and store the task
         _textBlockFactoryLoadingTask = GetTextBlockFactoryIntAsync();
 
-        return await _textBlockFactoryLoadingTask;
+        var textBlockFactory = await _textBlockFactoryLoadingTask;
+
+        _textBlockFactoryLoadingTask = null;
+        return textBlockFactory;
     }
     
     private async Task<TextBlockFactory> GetTextBlockFactoryIntAsync()
