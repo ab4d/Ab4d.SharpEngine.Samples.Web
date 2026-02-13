@@ -64,6 +64,13 @@
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodePerformanceSample.cs" />
     <Compile Remove="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Text\InstancedTextNodeSample.cs" />
 
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\LinesSample.cs" Link="Lines\LinesSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\CurveLineSample.cs" Link="Lines\CurveLineSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\EdgeLinesSample.cs" Link="Lines\EdgeLinesSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\TubeLinesSample.cs" Link="Lines\TubeLinesSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\WireGridNodeSample.cs" Link="Lines\WireGridNodeSample.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Lines\WireframeRenderingSample.cs" Link="Lines\WireframeRenderingSample.cs" />
+
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Animations\*" LinkBase="Animations\" />
 
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\MeshOutlineSample.cs" Link="Advanced\MeshOutlineSample.cs" />
