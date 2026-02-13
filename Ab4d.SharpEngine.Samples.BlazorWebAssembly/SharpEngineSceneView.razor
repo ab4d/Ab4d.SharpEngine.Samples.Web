@@ -105,17 +105,29 @@
     /// <summary>
     /// Called when the scene is being updated and before it is rendered. The event is called at the beginning of the <see cref="RenderScene"/> method. This event can be used to update the animations.
     /// </summary>
-    public event EventHandler? SceneUpdating;
+    public event EventHandler? SceneUpdating
+    {
+        add => SceneView.SceneUpdating += value;
+        remove => SceneView.SceneUpdating -= value;
+    }
 
     /// <summary>
     /// Called after the scene has been rendered.
     /// </summary>
-    public event EventHandler? SceneRendered;
+    public event EventHandler? SceneRendered
+    {
+        add => SceneView.SceneRendered += value;
+        remove => SceneView.SceneRendered -= value;
+    }
 
     /// <summary>
     /// Called when the size of the rendering area is changed. The event is also called after the back buffers are initialized for the first time.
     /// </summary>
-    public event ViewSizeChangedEventHandler? ViewSizeChanged;
+    public event ViewSizeChangedEventHandler? ViewSizeChanged
+    {
+        add => SceneView.ViewResized += value;
+        remove => SceneView.ViewResized -= value;
+    }
 
     /// <summary>
     /// Called when the selected PresentationType is not supported and was changed to a fallback PresentationType.
@@ -221,32 +233,47 @@
             return;
         }
 
-
-        // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
-        // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
-        //
-        // Try to connect to the canvas and get the WebGL context.
-        // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
-        // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        // By setting preventShowingContextMenu to true (by default), we disable showing browser's context menu when right-clicking on the canvas.
-        CanvasInterop.InitWebGL(useMultisampleAntiAliasing: CreateOptions.UseMultisampleAntiAliasing, 
-                                preserveDrawingBuffer: CreateOptions.PreserveDrawingBuffer,
-                                preventShowingContextMenu: CreateOptions.PreventBrowserContextMenu);
-
-        if (!CanvasInterop.IsWebGLInitialized)
+        try
         {
-            if (throwException)
-                throw new InvalidOperationException("Cannot initialize SharpEngineSceneView because WebGL in CanvasInterop is not initialized.");
+            // In OnAfterRender method all the DOM elements (including our canvas) have been initialized, so we can connect to them.
+            // So we can create an instance of CanvasInterop class that will connect the SharpEngine with the canvas in the DOM.
+            //
+            // Try to connect to the canvas and get the WebGL context.
+            // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
+            // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
+            // By setting preventShowingContextMenu to true (by default), we disable showing browser's context menu when right-clicking on the canvas.
+            CanvasInterop.InitWebGL(useMultisampleAntiAliasing: CreateOptions.UseMultisampleAntiAliasing,
+                preserveDrawingBuffer: CreateOptions.PreserveDrawingBuffer,
+                preventShowingContextMenu: CreateOptions.PreventBrowserContextMenu);
 
-            return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
+            if (!CanvasInterop.IsWebGLInitialized)
+            {
+                if (throwException)
+                    throw new InvalidOperationException("Cannot initialize SharpEngineSceneView because WebGL in CanvasInterop is not initialized.");
+
+                return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
+            }
+
+
+            GpuDevice = WebGLDevice.Create(CanvasInterop); // We can also pass an EngineCreateOptions object to the Create method
+
+
+        }
+        catch (Exception ex)
+        {
+            OnGpuDeviceCreationFailed(ex);
+            return;
         }
 
-
-        GpuDevice = WebGLDevice.Create(CanvasInterop); // We can also pass an EngineCreateOptions object to the Create method
-
         if (!GpuDevice.IsInitialized)
+        {
+            OnGpuDeviceCreationFailed(new Exception("Cannot create GpuDevice because Blazor cannot use the WebGL context"));
             return; // Blazor cannot use the WebGL context
+        }
 
+        OnGpuDeviceCreated(GpuDevice);
+        
+        
         SceneView.Initialize(GpuDevice);
 
         OnSceneViewInitialized();
@@ -279,20 +306,7 @@
 
         try
         {
-            OnSceneUpdating();
-        }
-        catch (Exception ex)
-        {
-            Log.Error?.Write(LogArea, Id, "Unhandled exception in SceneUpdating event handler: " + ex.Message, ex);
-        }
-
-
-        try
-        {
-            bool isRendered = SceneView.Render(forceRender, forceUpdate);
-
-            if (isRendered)
-                OnSceneRendered();
+            SceneView.Render(forceRender, forceUpdate);
         }
 #if DEBUG
             catch //(Exception ex)
@@ -324,61 +338,6 @@
         catch (Exception ex)
         {
             Log.Error?.Write(LogArea, Id, "Unhandled exception in SceneViewInitialized event handler: " + ex.Message, ex);
-        }
-    }
-
-    /// <summary>
-    /// OnSceneUpdating
-    /// </summary>
-    protected void OnSceneUpdating()
-    {
-        if (SceneUpdating == null)
-            return;
-
-        try
-        {
-            SceneUpdating(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            Log.Error?.Write(LogArea, Id, "Unhandled exception in SceneUpdating event handler: " + ex.Message, ex);
-        }
-    }
-
-    /// <summary>
-    /// OnSceneRendered
-    /// </summary>
-    protected void OnSceneRendered()
-    {
-        if (SceneRendered == null)
-            return;
-
-        try
-        {
-            SceneRendered(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            Log.Error?.Write(LogArea, Id, "Unhandled exception in SceneRendered event handler: " + ex.Message, ex);
-        }
-    }
-
-    /// <summary>
-    /// OnViewSizeChanged
-    /// </summary>
-    /// <param name="viewSizeChangedEventArgs">ViewSizeChangedEventArgs</param>
-    protected void OnViewSizeChanged(ViewSizeChangedEventArgs viewSizeChangedEventArgs)
-    {
-        if (ViewSizeChanged == null)
-            return;
-
-        try
-        {
-            ViewSizeChanged(this, viewSizeChangedEventArgs);
-        }
-        catch (Exception ex)
-        {
-            Log.Error?.Write(LogArea, Id, "Unhandled exception in ViewSizeChanged event handler: " + ex.Message, ex);
         }
     }
 
