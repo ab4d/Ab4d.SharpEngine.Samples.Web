@@ -134,5 +134,6 @@
   <Sample Location="Advanced.MeshOutlineSample" Title="Mesh outlines" />
   <Sample Location="Advanced.TrianglesSortingSample" Title="Triangles sorting" />
   <Sample Location="Advanced.FrustumCullingSample" Title="Frustum culling"/>
+  <Sample Location="Advanced.CustomFogEffectSample" Title="Custom Fog Effect"/>
 
 </Samples>

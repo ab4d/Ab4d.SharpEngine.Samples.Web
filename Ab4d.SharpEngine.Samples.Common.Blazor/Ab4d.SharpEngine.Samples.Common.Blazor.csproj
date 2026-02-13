@@ -69,6 +69,9 @@
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\MeshOutlineSample.cs" Link="Advanced\MeshOutlineSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\FrustumCullingSample.cs" Link="Advanced\FrustumCullingSample.cs" />
     <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\TrianglesSortingSample.cs" Link="Advanced\TrianglesSortingSample.cs" />
+    
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\FogMaterial.cs" Link="Advanced\FogMaterial.cs" />
+    <Compile Include="..\..\Ab4d.SharpEngine.Samples\Ab4d.SharpEngine.Samples.Common\Advanced\CustomFogEffectSample.cs" Link="Advanced\CustomFogEffectSample.cs" />
   </ItemGroup>
 
   <ItemGroup>
