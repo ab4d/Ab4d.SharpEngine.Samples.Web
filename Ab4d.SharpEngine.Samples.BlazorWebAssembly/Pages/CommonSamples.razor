@@ -117,7 +117,7 @@
 
         if (!sampleId.Contains('-')) // When no slash is in the sampleId, then we have a direct razor page
         {
-            Navigation.NavigateTo(sampleId);
+            Navigation.NavigateTo("./" + sampleId);
             return;
         }
 

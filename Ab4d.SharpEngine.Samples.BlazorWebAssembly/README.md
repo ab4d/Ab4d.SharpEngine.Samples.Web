@@ -6,7 +6,7 @@ Using Blazor WebAssembly project is the recommended way to use Ab4d.SharpEngine 
 the best integration of the library and is the only way to debug the .Net code that uses the library.
 
 But if you want to use Ab4d.SharpEngine in a website that does not use Blazor WebAssembly, then 
-a .Net WebAssembly project needs to be created (`TargetFramework` is set to `net9.0-browser` and `RuntimeIdentifier` is set to `browser-wasm`).
+a .Net WebAssembly project needs to be created (`TargetFramework` is set to `net10.0-browser` and `RuntimeIdentifier` is set to `browser-wasm`).
 Open the `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` solution to see a demonstration of that. Also read the following and related 
 [readme file](../Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
 
@@ -21,7 +21,7 @@ Check a [live version of this sample in your browser](https://www.ab4d.com/sharp
 ### Usage in your own project
 
 To use the Ab4d.SharpEngine.Web library in your own project Blazor WebAssembly project, follow these steps:
-- Create a new "Blazor WebAssembly Standalone App" project (use .Net 9 or newer).
+- Create a new "Blazor WebAssembly Standalone App" project (use .Net 10 or newer).
 - Add reference to Ab4d.SharpEngine.Web NuGet package.
 - Copy the following files from this samples project to your project:
     - `CanvasInterop.cs` (copy to the root folder of your project)
@@ -112,6 +112,26 @@ To use the Ab4d.SharpEngine.Web library in your own project Blazor WebAssembly p
     - Instead of using the `SharpEngineSceneView` component, you can also create the canvas DOM element and
       then manually connect to the canvas. After that you can create the WebGLDevice, Scene and SceneView objects.
       See the "ManualInitialization.razor" file on how to do that.
+
+    
+### Deplayment
+
+The samples are currently configured to run in the root folder ("http://localhost:5164/").
+
+To deplay them into a subfolder, for example https://www.ab4d.com/sharp-engine-browser-demo/, you need to change the base path. 
+To do that open the `wwwroot/index.html` file and change the
+`<base href="/" />` to `<base href="/sharp-engine-browser-demo/" />`.
+
+Then you can create the published version and deploy to the target subfolder.
+
+To run the app in the subfolder **while debugging**, open the `Properties/launchSettings.json` file
+and add the following two lines to each profile:
+```
+      "commandLineArgs": "--pathbase=/sharp-engine-browser-demo",
+      "launchUrl": "sharp-engine-browser-demo"
+```
+
+After that you can run the Blazor WebAssembly app and it will start in a sharp-engine-browser-demo subfolder.
 
 
 ### See also

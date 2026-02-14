@@ -19,7 +19,7 @@
             <div class="nav-item">
 
                 <!-- Top-level collapsible item -->
-                <a class="nav-title nav-link nav-item @(IsSelected(group.Location) ? "nav-item-selected" : "")" href="@("/commonSamples/" + group.Location)" 
+                <a class="nav-title nav-link nav-item @(IsSelected(group.Location) ? "nav-item-selected" : "")" href="@("commonSamples/" + group.Location)" 
                    @onclick="() => SelectGroup(group.Location)">
                     @group.Title
                 </a>
@@ -29,9 +29,8 @@
                     <div class="submenu ms-2">
                         @foreach (var item in group.Items)
                         {
-                            @* <div class="submenu-item @(item.IsSeparator ? "submenu-separator" : "")"> *@
                             <a class="nav-link nav-item nav-submenu-link @(IsSelected(item.Location) ? "nav-item-selected" : "") @(item.IsSeparator ? "nav-submenu-separator" : "")"
-                               href="@("/commonSamples/" + item.Location)" @onclick="() => SelectItem(item.Location)">
+                               href="@("commonSamples/" + item.Location)" @onclick="() => SelectItem(item.Location)">
                                 @item.Title
                                 @if (item.IsNew)
                                 {
@@ -42,7 +41,6 @@
                                     <img src="images/updated_icon.png" class="badge-icon" style="height: 0.8em; margin-left: 0.5em;" title="@item.UpdateInfo"/>
                                 }
                             </a>
-                            @*        </div> *@
                         }
                     </div>
                 }
