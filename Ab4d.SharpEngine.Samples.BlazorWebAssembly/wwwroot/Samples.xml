@@ -11,10 +11,8 @@
   <Sample Location="Cameras.FirstPersonCameraSample" Title="FirstPersonCamera"/>
   <Sample Location="Cameras.FitIntoViewSample" Title="FitIntoView"/>
   <!--<Sample Location="Cameras.{uiFramework}Point3DTo2DSample" Title="Point3DTo2D"/>-->
-  <!--<Sample Location="Cameras.CameraAxisPanelSample" Title="CameraAxisPanel"/>-->
   <Sample Location="Cameras.CustomCoordinateSystemSample" Title="Custom coordinate system"/>
   <Sample Location="Cameras.OffCenterCameraSample" Title="Off-center scene rendering"/>
-  <!--<Sample Location="Cameras.TwoDimensionalCameraSample" Title="TwoDimensionalCamera"/>-->
 
   <Sample Location="Titles.PointerCameraControllerTitle.md" IsTitle="True" Title="PointerCameraController"/>
   <Sample Location="CameraControllers.PointerCameraControllerSample" Title="PointerCameraController"/>
@@ -43,7 +41,6 @@
   <Sample Location="AdvancedModels.InstancedArrowsSample" Title="Instanced arrows"/>
   <Sample Location="AdvancedModels.SimpleHeightMapSample" Title="Simple HeightMap"/>
   <Sample Location="AdvancedModels.AdvancedHeightMapSample" Title="Advanced HeightMap"/>
-  <!--<Sample Location="AdvancedModels.MultiMaterialModelNodeSample" Title="MultiMaterialModelNode"/>-->
   <Sample Location="AdvancedModels.TubesSample" Title="3D Tubes"/>
   <Sample Location="AdvancedModels.TubePathsSample" Title="3D Tube paths"/>
   <Sample Location="AdvancedModels.StreamlinesSample" Title="Streamlines"/>
@@ -53,14 +50,7 @@
   <Sample Location="AdvancedModels.SliceModelsSample" Title="Slice 3D model with a plane"/>
   <Sample Location="AdvancedModels.BooleanOperationsSample" Title="Boolean Operations"/>
   <Sample Location="AdvancedModels.AdvancedBooleanOperationsSample" Title="Advanced Boolean operations"/>
-  <!--<Sample Location="AdvancedModels.BooleanMeshSample" Title="BooleanMesh sample"/>
-  <Sample Location="AdvancedModels.PixelsRenderingSample" Title="Pixels rendering"/>
-  <Sample Location="AdvancedModels.PixelOptionsSample" Title="Pixels rendering options"/>-->
   <Sample Location="AdvancedModels.PlanarShadowsSample" Title="Planar shadows"/>
-  <!--<Sample Location="AdvancedModels.SkyboxSample" Title="Skybox"/>
-  <Sample Location="AdvancedModels.SpritesSample" Title="Sprites" IsUpdated="True" UpdateInfo="Added NotifyTextureChange method to SpriteBatch that can be used\nto render a new frame without recreating the command buffers."/>
-  <Sample Location="AdvancedModels.VolumeRenderingSample" Title="Volume rendering" IsNew="True"/>
--->
 
   <Sample Location="Titles.ImportersTitle.md" IsTitle="True" Title="3D model importers" />
   <Sample Location="objFileViewer.razor" Title="OBJ file viewer" />
@@ -70,32 +60,6 @@
   <Sample Location="Titles.TextTitle.md" IsTitle="True" Title="3D text"/>
   <Sample Location="Text.VectorTextSample" Title="Vector text from TrueType font"/>
   <Sample Location="Text.BitmapTextSample" Title="Bitmap text"/>
-  <!--<Sample Location="Text.InstancedTextNodePerformanceSample" Title="Instanced text performance"/>
-  <Sample Location="Text.InstancedTextNodeSample" Title="Instanced text"/>-->
-
-  <!--  
-  <Sample Location="Titles.ImportersTitle.md" IsTitle="True" Title="3D model importers"/>
-  <Sample Location="Importers.ObjImporterExporterSample" Title="Obj Importer and Exporter"/>
-  <Sample Location="Importers.StlImporterExporterSample" Title="Stl Importer and Exporter"/>
-  <Sample Location="Importers.GltfImporterExporterSample" Title="glTF Importer and Exporter"/>
-  <Sample Location="Importers.AssimpImporterSample" Title="AssimpImporter"/>
-  <Sample Location="Importers.PointCloudImporterSample" Title="Point-cloud importer"/>
-  <Sample Location="Importers.CadImporterInfo.md" Title="CAD files importer" Condition="IsWpf, IsAvalonia, IsWinForms"/>
-  
-  <Sample Location="Titles.LinesTitle.md" IsTitle="True" Title="3D lines"/>
-  <Sample Location="Lines.LinesSample" Title="Line SceneNodes"/>
-  <Sample Location="Lines.LineCapsSample" Title="Lines with caps"/>
-  <Sample Location="Lines.MiterLimitSample" Title="MiterLimit"/>
-  <Sample Location="Lines.TubeLinesSample" Title="TubeLines"/>
-  <Sample Location="Lines.CurveLineSample" Title="Curve lines"/>
-  <Sample Location="Lines.EdgeLinesSample" Title="Edge lines"/>
-  <Sample Location="Lines.DepthBiasSample" Title="Depth-bias"/>
-  <Sample Location="Lines.WireframeRenderingSample" Title="Wireframe rendering"/>
-  <Sample Location="Lines.WireGridNodeSample" Title="WireGrid"/>
-  <Sample Location="Lines.SpecialLineRenderingSample" Title="Special line rendering"/>  
-  <Sample Location="Lines.LinesPerformanceSample" Title="Lines Performance"/>
-  <Sample Location="QuickStart.AntiAliasingSample" Title="Anti-aliasing (MSAA + SSAA)" Condition="IsWpf, IsAvalonia" />
--->
 
   <Sample Location="Titles.LinesTitle.md" IsTitle="True" Title="3D lines"/>
   <Sample Location="Lines.LinesSample" Title="Line SceneNodes"/>
@@ -108,12 +72,6 @@
   <Sample Location="Titles.LightsTitle.md" IsTitle="True" Title="Lights"/>
   <Sample Location="Lights.LightsSample" Title="Lights"/>
 
-  <!--  
-  <Sample Location="Titles.GraphsTitle.md" IsTitle="True" Title="Graphs"/>
-  <Sample Location="Graphs.MultipleAxesDemo" Title="Multiple axes demo" IsNew="True"/>
-  <Sample Location="Graphs.AxisWithLabelsSamples" Title="AxisWithLabels" IsNew="True"/>
-  <Sample Location="Graphs.AxesBoxNodeSample" Title="AxesBoxNode" IsNew="True"/>
-  -->
   <Sample Location="Titles.MaterialsTitle.md" IsTitle="True" Title="Materials"/>
   <Sample Location="Materials.MaterialsSample" Title="Materials" IsUpdated="True"/>
   <Sample Location="Materials.SpecularMaterialSample" Title="Specular material"/>
