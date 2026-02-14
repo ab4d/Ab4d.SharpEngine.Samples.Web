@@ -1,15 +1,11 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
+<div class="page" style="background: #333;">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://www.ab4d.com/SharpEngine.aspx" target="_blank">About Ab4d.SharpEngine</a>
-        </div>
-
-        <article class="content px-4">
+    <main style="min-height: 100%; height: auto;">
+        <article style="background: white; min-height: 100%; height: auto; display: flex;">
             @Body
         </article>
     </main>

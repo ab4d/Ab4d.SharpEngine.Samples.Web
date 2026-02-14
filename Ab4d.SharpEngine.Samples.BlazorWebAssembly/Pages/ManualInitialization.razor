@@ -5,7 +5,6 @@
 @using Ab4d.SharpEngine.Common
 @using Ab4d.SharpEngine.Materials
 @using Ab4d.SharpEngine.SceneNodes
-@using Ab4d.SharpEngine.Utilities
 @using Ab4d.SharpEngine.WebGL
 @using Ab4d.SharpEngine.Browser
 @inject IJSRuntime JS  
@@ -13,25 +12,31 @@
 
 <PageTitle>Ab4d.SharpEngine.Web - Manual Initialization</PageTitle>
 
-<h1>Ab4d.SharpEngine.Web</h1>
+<div style="padding: 1.5rem">
+    <h1>Manual initialization</h1>
 
-<p>This sample shows how to manually initialize the Ab4d.SharpEngine.Web.</p>
-<p>Instead of using the SharpEngineSceneView component, here we create a canvas DOM element and then connect to it
-    by using CanvasInterop. After that we can create the WebGLDevice, Scene and SceneView objects.
-</p>
+    <p>This sample shows how to manually initialize the Ab4d.SharpEngine.Web.</p>
+    <p>Instead of using the SharpEngineSceneView component, here we create a canvas DOM element and then connect to it
+        by using CanvasInterop. After that we can create the WebGLDevice, Scene and SceneView objects.
+    </p>
+    
+    <span style="white-space: pre-wrap;">@_deviceInfo</span>
+    <br/>
 
-
-<canvas id="webGLCanvas" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
+    <canvas id="webGLCanvas" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></canvas>
+</div>
 
 @code
 {
     private CanvasInterop? _canvasInterop;
 
+    private string _deviceInfo = "";
+
     protected override async Task OnInitializedAsync()
     {
         // Initialize the browser interop (load sharp-engine.js file and from javascript get access to exported methods in the CanvasInterop class)
         // Because Blazor uses Single Page Applications style, this needs to be executed only once
-        await CanvasInterop.InitializeInterop();
+        await CanvasInterop.InitializeInterop(JS);
     }
 
     /// <inheritdoc />
@@ -49,7 +54,9 @@
         // Try to connect to the canvas and get the WebGL context.
         // We can also skip this call. In this case InitWebGL will be called from the Scene or SceneView Initialized method.
         // But by calling this by ourselves, we can immediately check if the WebGL context is available (checking IsWebGLInitialized).
-        _canvasInterop.InitWebGL();
+        // By default, we enable multisample anti-aliasing and disable preserveDrawingBuffer (this can be set to true when we are rendering the scene to bitmap a lot).
+        // By setting preventShowingContextMenu to true, we disable showing browser's context menu when right-clicking on the canvas.
+        _canvasInterop.InitWebGL(useMultisampleAntiAliasing: true, preserveDrawingBuffer: false, preventShowingContextMenu: true);
 
         if (!_canvasInterop.IsWebGLInitialized)
             return; // Skip creating Scene and SceneView objects; error message was already written to console in the InitWebGL method
@@ -111,6 +118,13 @@
             IsPinchZoomEnabled = true, // zoom with touch pinch gesture
             IsPinchMoveEnabled = true  // move camera with two fingers
         };
+
+
+        // In this sample we also display the device info:
+        //_deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}\nGLSL version: {gpuDevice.OpenGLShadingLanguageVersion}";
+        _deviceInfo = $"Device name: {gpuDevice.DeviceName}\nOpenGL version: {gpuDevice.OpenGLVersion}";
+
+        StateHasChanged(); // Forces UI refresh (this is required because this event is called outside of Blazor rendering)
     }
 
     public void Dispose()

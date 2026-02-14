@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/quickStart"
 @using System.Diagnostics
 @using System.Numerics
 @using Ab4d.SharpEngine.Cameras
@@ -13,37 +13,42 @@
 
 <PageTitle>Ab4d.SharpEngine.Web - Quick start</PageTitle>
 
-<h1>Ab4d.SharpEngine.Web</h1>
+<div style="padding: 1.5rem">
+    <h1>Quick start for Ab4d.SharpEngine.Web</h1>
 
-<p>This is a example of how to use the Ab4d.SharpEngine.Web 3D rendering engine in a browser.<br/>
-    This sample demonstrates only a few features of the engine.</p>
-<p>
-    To see the full demonstration of the engine, please check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples" target="_blank">samples for the desktop and mobile devices</a> and
-    <a href="https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm">online help</a>.<br />
-    To see which features are already available in this beta version, check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web#implementation-details-and-roadmap" target="_blank">Roadmap and Implementation details</a>.
-</p>
+    <p>This is a example of how to use the Ab4d.SharpEngine.Web 3D rendering engine in a browser.<br/>
+        This sample demonstrates only a few features of the engine.</p>
+    <p>
+        To see the full demonstration of the engine, please check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples" target="_blank">samples for the desktop and mobile devices</a> and
+        <a href="https://www.ab4d.com/help/SharpEngine/html/R_Project_Ab4d_SharpEngine.htm">online help</a>.<br />
+        To see which features are already available in this beta version, check the <a href="https://github.com/ab4d/Ab4d.SharpEngine.Samples.Web#implementation-details-and-roadmap" target="_blank">Roadmap and Implementation details</a>.
+    </p>
 
-<span style="font-weight: bold">Options:</span><br/>
+    <span style="font-weight: bold">Options:</span><br/>
 
-<label><input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" /> Rotate the camera with left mouse button or touch</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" /> Move the camera with control + left mouse button or two fingers</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" /> Zoom with mouse wheel or touch pinch</label><br />
-<label><input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" /> Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)</label><br />
-<label><input type="checkbox" @bind="_showRenderTimes" /> Show render times in DevTools (F12) Console</label><br />
-<br />
+    <label><input type="checkbox" checked="checked" @onchange="OnCameraRotateSettingsChanged" /> Rotate the camera with left mouse button or touch</label><br />
+    <label><input type="checkbox" checked="checked" @onchange="OnCameraMoveSettingsChanged" /> Move the camera with control + left mouse button or two fingers</label><br />
+    <label><input type="checkbox" checked="checked" @onchange="OnCameraZoomSettingsChanged" /> Zoom with mouse wheel or touch pinch</label><br />
+    <label><input type="checkbox" checked="checked" @onchange="OnUseCameraLightCheckBoxChanged" /> Use camera light (shines from the position of the camera; when unchecked then a fixed directional light is used)</label><br />
+    <label><input type="checkbox" @bind="_showRenderTimes" /> Show render times in DevTools (F12) Console</label><br />
+    <br />
 
-<button class="btn-primary" @onclick="OnStartStopCameraRotationButtonClicked">@_cameraRotationButtonText</button>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="ChangeMaterial">Change material</button>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="AddManyObjects">Add many objects</button>
-<button class="btn-primary" style="margin-top: 3pt" @onclick="RemoveAddedObjects">Remove added objects</button>
-@* <button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button> *@
+    <button class="btn-primary" @onclick="OnStartStopCameraRotationButtonClicked">@_cameraRotationButtonText</button>
+    <button class="btn-primary" style="margin-top: 3pt" @onclick="ChangeMaterial">Change material</button>
+    <button class="btn-primary" style="margin-top: 3pt" @onclick="AddManyObjects">Add many objects</button>
+    <button class="btn-primary" style="margin-top: 3pt" @onclick="RemoveAddedObjects">Remove added objects</button>
+    <button class="btn-primary" style="margin-top: 3pt" @onclick="OnRenderToBitmapClicked">RenderToBitmap</button>
+    @* <button class="btn-primary" style="margin-top: 3pt" @onclick="CaptureNextFrame">Capture frame in Spector</button> *@
 
-<br />
+    <br />
 
-<SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 400px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
 
-<br />
-<p>@_infoText</p>
+    <br />
+    <p>@_infoText</p>
+    <br/>
+    <canvas id="renderedBitmapCanvas" style="display: none"></canvas>
+</div>
 
 @code {
     // BOUND FIELDS:
@@ -62,6 +67,8 @@
     private ModelNode? _lastSelectedModelNode;
     private Material? _lastSelectedModelNodeMaterial;
 
+    private Random? _rnd;
+
     private List<GroupNode> _addedObjects = new List<GroupNode>();
     private int _addedObjectsCount;
 
@@ -70,8 +77,7 @@
     /// <inheritdoc />
     protected override void OnAfterRender(bool firstRender)
     {
-        Utilities.Log.LogLevel = LogLevels.Trace;
-
+        // Utilities.Log.LogLevel = LogLevels.Trace;
         if (firstRender)
         {
             InitializeScene();
@@ -129,7 +135,7 @@
         var scene         = sharpEngineSceneView.Scene;
         var sceneView     = sharpEngineSceneView.SceneView;
         var canvasInterop = sharpEngineSceneView.CanvasInterop;
-
+        
 
         // Use CanvasInterop to subscribe to canvas pointer moved event
         canvasInterop.PointerMoved += (sender, args) =>
@@ -255,7 +261,7 @@
         //   </staticContent>
         // </system.webServer> 
 
-        string objUrl = "models/Teapot-with-material.obj";
+        string objUrl = "Resources/Models/Teapot-with-material.obj";
 
         var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
 
@@ -344,8 +350,8 @@
         if (gpuDevice == null)
             return;
 
-        // The CreateTextureAsync can take textureCreatedCallback and textureCreationFailedCallback callback actions:
-        TextureLoader.CreateTextureAsync(
+        // The CreateTexture can take textureCreatedCallback and textureCreationFailedCallback callback actions:
+        TextureLoader.CreateTexture(
             "ab4d-logo-256.png", gpuDevice, 
             textureCreatedCallback: gpuImage =>
             {
@@ -357,10 +363,10 @@
                 };
 
                 var planeModelNode2 = new PlaneModelNode(centerPosition: new Vector3(0, 30, -150), 
-                                                        size: new Vector2(60, 60), 
-                                                        normal: new Vector3(0, 0, 1), 
-                                                        heightDirection: new Vector3(0, 1, 0), 
-                                                        name: "Texture2Plane")
+                                                         size: new Vector2(60, 60), 
+                                                         normal: new Vector3(0, 0, 1), 
+                                                         heightDirection: new Vector3(0, 1, 0), 
+                                                         name: "Texture2Plane")
                 {
                     IsHitTestVisible = false,
                     Material = textureMaterial2,
@@ -375,7 +381,7 @@
             });
 
 
-        // Instead of calling CreateTextureAsync that takes a callback, we can also use an overload with await.
+        // Instead of calling CreateTexture that takes a callback, we can also use an awaitable CreateTextureAsync.
         // To use await, then override the OnAfterRenderAsync method instead of OnAfterRender.
 
         // var gpuImage = await TextureLoader.CreateTextureAsync("ab4d-logo-256.png", gpuDevice);
@@ -520,7 +526,7 @@
     {
         var statistics = sharpEngineSceneView.SceneView.Statistics;
         if (_showRenderTimes && statistics != null)
-            Console.WriteLine($"RenderTime: {statistics.TotalRenderTimeMs:F2} ms");
+            Console.WriteLine($"Frame {sharpEngineSceneView.SceneView.FrameNumber} rendered in {statistics.TotalRenderTimeMs:F2} ms");
     }
 
     private void SelectSceneNode(SceneNode? sceneNode)
@@ -570,7 +576,7 @@
 
         _addedObjectsCount++;
 
-        Console.WriteLine($"Adding {objectsCount} in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
+        Console.WriteLine($"Adding {objectsCount} BoxModelNodes in {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds:F2} ms");
 
         _addedObjects.Add(groupNode);
 
@@ -596,12 +602,20 @@
         ShowRenderedObjectsCount();
     }
 
+    private void OnRenderToBitmapClicked()
+    {
+        var rawImageData = sharpEngineSceneView.SceneView.RenderToRawImageData();
+        sharpEngineSceneView.CanvasInterop.ShowRawBitmap("renderedBitmapCanvas", rawImageData.Width, rawImageData.Height, rawImageData.Data, displayStyle: "block");
+    }
+
     private void ChangeMaterial()
     {
         if (_hashMaterial == null)
             return;
-        
-        _hashMaterial.DiffuseColor = Color3.FromHsl(Random.Shared.NextDouble() * 360); 
+
+        _rnd ??= new Random(1234); // use fixed seed so the same results are always the same for automatic tests have
+
+        _hashMaterial.DiffuseColor = Color3.FromHsl(_rnd.NextDouble() * 360);
     }
 
     private void OnStartStopCameraRotationButtonClicked()

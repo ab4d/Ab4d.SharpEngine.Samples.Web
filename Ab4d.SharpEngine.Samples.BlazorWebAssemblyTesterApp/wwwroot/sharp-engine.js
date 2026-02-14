@@ -1,4 +1,8 @@
-﻿let isLogging = false; // Set this to true to write log messages from javascript to console. This can be also set from CanvasInterop by setting IsLoggingJavaScript to true.
+﻿// This is a JavaScript that is used for communication between JavaScript and Ab4d.SharpEngine for the browser.
+// It initializes the WebGL context for the canvas and is used to report when the size of the canvas is changed,
+// and to subscribe to mouse and touch events on the canvas.
+
+let isLogging = false; // Set this to true to write log messages from javascript to console. This can be also set from CanvasInterop by setting IsLoggingJavaScript to true.
 
 let initialCanvas;
 let interop;
@@ -24,7 +28,7 @@ export async function initInteropAsync() {
     log(".Net interop with CanvasInterop initialized");
 }
 
-export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscribeRequestAnimationFrame, enableJavaScriptLogging) {
+export function initWebGLCanvas(canvasId, useMSAA, preserveDrawingBuffer, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu, enableJavaScriptLogging) {
     if (enableJavaScriptLogging)
         isLogging = true; // if enableJavaScriptLogging is false, then do not override if isLogging is set to true here
 
@@ -36,13 +40,13 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
     {
         let webglVersion;
 
-        var context = canvas.getContext('webgl2', { antialias: useMSAA });
+        var context = canvas.getContext('webgl2', { antialias: useMSAA, preserveDrawingBuffer: preserveDrawingBuffer });
         
         if (context) {
             webglVersion = "2";
         }
         else {
-            context = canvas.getContext('webgl', { antialias: useMSAA });
+            context = canvas.getContext('webgl', { antialias: useMSAA, preserveDrawingBuffer: preserveDrawingBuffer });
 
             if (context) {
                 logWarn("WebGL 2.0 is not supported. Using WebGL 1.0 but some features may not work.")
@@ -93,7 +97,7 @@ export function initWebGLCanvas(canvasId, useMSAA, subscribeMouseEvents, subscri
 
         canvasToDisplaySizeMap.set(canvas, [displayWidth, displayHeight]); // Set initial size
 
-        subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame);
+        subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu);
 
         // Return the size as a string in format: "OK:width;height;dpiScale"
         // It is not possible (at least in .Net 9) to pass an objects for JS to .Net
@@ -184,7 +188,30 @@ export async function loadImageBytes(canvasId, url) {
 
     try {
         const blob = await response.blob();
+        await loadImageBytesFromBlob(blob, canvasId, url);
+    }
+    catch (ex) {
+        let message = `loadImageBytes: error decoding image '${url}': ${ex.message}`;
+        log(message);
 
+        if (interop)
+            interop.OnImageBytesLoaded(canvasId, url, 0, 0, null, message);
+    }
+}
+
+// imageBytes should be Uint8Array
+// mimeType should be: 'image/png' or 'image/jpeg' or other supported image type
+export async function createImageFromBytes(canvasId, imageBytes, mimeType, imageName) {
+    log("createImageFromBytes: start creating " + imageName);
+
+    // 1. Create a Blob from the array
+    const blob = new Blob([imageBytes], { type: mimeType }); 
+
+    await loadImageBytesFromBlob(blob, canvasId, imageName);
+}
+
+async function loadImageBytesFromBlob(blob, canvasId, url) {
+    try {
         const bitmap = await createImageBitmap(blob, { premultiplyAlpha: 'none' });
 
         const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -330,7 +357,9 @@ export function setPointerCapture(canvasId, pointerId) {
         try {
             canvas.setPointerCapture(pointerId);
         }
-        catch { } // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        catch (ex) {
+            // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        } 
     }
 }
 
@@ -343,7 +372,9 @@ export function releasePointerCapture(canvasId, pointerId) {
         try {
             canvas.releasePointerCapture(pointerId);
         }
-        catch { } // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        catch (ex) {
+            // prevent an error when pointerId event was already finished and does not exist anymore when this is called
+        } 
     }
 }
 
@@ -366,6 +397,36 @@ export function disconnectWebGLCanvas(canvasId) {
         const dotnet = globalThis.getDotnetRuntime(0);
         if (dotnet && dotnet.Module["canvas"] === canvas)
             dotnet.Module["canvas"] = null;
+    }
+}
+
+export function showRawBitmap(canvasId, width, height, pixelData, displayStyle) {
+    log("showRawBitmap canvasId:" + canvasId);
+
+    const canvas = document.getElementById(canvasId);
+
+    if (canvas) {
+        const dpi = window.devicePixelRatio || 1.0;
+
+        // CSS size
+        canvas.style.width = width / dpi + "px";
+        canvas.style.height = height / dpi + "px";
+
+        // Backing buffer size (actual pixel buffer)
+        canvas.width = width;
+        canvas.height = height;
+
+        if (displayStyle)
+            canvas.style.display = displayStyle;
+
+        const ctx = canvas.getContext("2d");
+
+        // Create ImageData from your array
+        const byteArray = new Uint8ClampedArray(pixelData.buffer);
+        const img = new ImageData(byteArray, width, height);
+
+        // Draw it
+        ctx.putImageData(img, 0, 0);
     }
 }
 
@@ -431,15 +492,20 @@ function onResize(entries) {
     }
 }
 
-function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame) {
+function subscribeBrowserEventsInt(canvas, subscribeMouseEvents, subscribeRequestAnimationFrame, preventShowingContextMenu) {
     if (subscribeMouseEvents && canvas) {
         canvas.addEventListener("pointermove", pointerMove, false);
         canvas.addEventListener("pointerdown", pointerDown, false);
         canvas.addEventListener("pointerup", pointerUp, false);
+        canvas.addEventListener("pointerenter", pointerEnter, false);
+        canvas.addEventListener("pointerleave", pointerLeave, false);
         canvas.addEventListener("touchstart", touchStart, false);
         canvas.addEventListener("touchmove", touchMove, false);
         canvas.addEventListener("touchend", touchEnd, false);
         canvas.addEventListener("wheel", mouseWheel, false);
+
+        if (preventShowingContextMenu)
+            canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); }, false);
 
         log("mouse events subscribed");
     }
@@ -536,7 +602,7 @@ const pointerDown = (e) => {
     if (isPinchZooming)
         return;
 
-    interop.OnPointerDownJsCallback(e.currentTarget.id, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
+    interop.OnPointerDownJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
 }
 
 const pointerUp = (e) => {
@@ -548,7 +614,31 @@ const pointerUp = (e) => {
     if (isPinchZooming)
         return;
 
-    interop.OnPointerUpJsCallback(e.currentTarget.id, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.button, e.buttons, e.pointerId, getKeyboardModifiers(e));
+}
+
+const pointerEnter = (e) => {
+    if (!interop)
+        return;
+
+    e.preventDefault(); // Prevent sending mouseUp
+
+    if (isPinchZooming)
+        return;
+
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
+}
+
+const pointerLeave = (e) => {
+    if (!interop)
+        return;
+
+    e.preventDefault(); // Prevent sending mouseUp
+
+    if (isPinchZooming)
+        return;
+
+    interop.OnPointerUpJsCallback(e.currentTarget.id, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
 }
 
 const mouseWheel = (e) => {
@@ -557,7 +647,7 @@ const mouseWheel = (e) => {
 
     e.preventDefault();
 
-    interop.OnMouseWheelJsCallback(e.currentTarget.id, e.deltaX, e.deltaY, getKeyboardModifiers(e));
+    interop.OnMouseWheelJsCallback(e.currentTarget.id, e.deltaX, e.deltaY, e.offsetX, e.offsetY, e.buttons, getKeyboardModifiers(e));
 }
 
 const touchStart = (e) => {

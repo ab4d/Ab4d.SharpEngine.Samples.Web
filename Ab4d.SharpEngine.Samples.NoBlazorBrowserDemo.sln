@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36511.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11505.172 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ab4d.SharpEngine.Samples.WebAssemblyDemo", "Ab4d.SharpEngine.Samples.WebAssemblyDemo\Ab4d.SharpEngine.Samples.WebAssemblyDemo.csproj", "{0A4FF5D7-4AD1-2F12-E73B-F93E5F1DF9CB}"
 EndProject
@@ -13,6 +13,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ab4d.SharpEngine.Samples.BlazorWebAssemblyTesterApp", "Ab4d.SharpEngine.Samples.BlazorWebAssemblyTesterApp\Ab4d.SharpEngine.Samples.BlazorWebAssemblyTesterApp.csproj", "{E414701C-C99D-43EA-B593-524E4EE2F6F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ab4d.SharpEngine.Samples.HtmlWebPage", "Ab4d.SharpEngine.Samples.HtmlWebPage\Ab4d.SharpEngine.Samples.HtmlWebPage.csproj", "{718A22D8-5E2B-4CC6-973E-D05B221D1548}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ab4d.SharpEngine.Web", "..\..\My\Ab4d\SharpEngine\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj", "{9B27FADF-8802-5F4B-5132-31201E1AC45D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{718A22D8-5E2B-4CC6-973E-D05B221D1548}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{718A22D8-5E2B-4CC6-973E-D05B221D1548}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{718A22D8-5E2B-4CC6-973E-D05B221D1548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B27FADF-8802-5F4B-5132-31201E1AC45D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B27FADF-8802-5F4B-5132-31201E1AC45D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B27FADF-8802-5F4B-5132-31201E1AC45D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B27FADF-8802-5F4B-5132-31201E1AC45D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,13 +2,18 @@
 using Ab4d.SharpEngine.Common;
 using Ab4d.SharpEngine.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Threading.Tasks;
+
+// This is a simplified version of the CanvasInterop class.
+// Use the file from CanvasInterop folder instead.
 
 // IMPORTANT:
 // If you change this namespace, then you also need to change the code in sharp-engine.js: interop = exports.Ab4d.SharpEngine.WebGL.CanvasInterop;
@@ -38,6 +43,11 @@ public partial class CanvasInterop : ICanvasInterop
     /// Returns true when the <see cref="InitializeInterop"/> method was called and successfully initialized the browser interop.
     /// </summary>
     public static bool IsInteropInitialized { get; private set; }
+
+    ///// <summary>
+    ///// Gets the IJSRuntime that is used for javascript interop. This is set when the <see cref="InitializeInterop"/> method is called.
+    ///// </summary>
+    //public static Microsoft.JSInterop.IJSRuntime? JS { get; private set; }
 
     
     /// <summary>
@@ -80,6 +90,11 @@ public partial class CanvasInterop : ICanvasInterop
     /// MSAA is can be disabled when the <see cref="InitWebGL"/> is called and the useMultisampleAntiAliasing parameters is set to false.
     /// </summary>
     public bool IsUsingMultisampleAntiAliasing { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the drawing buffer is preserved after rendering operations. This is set by setting the <see cref="EngineCreateOptions.PreserveDrawingBuffer"/> to true before the engine is initialized.
+    /// </summary>
+    public bool IsPreservingDrawingBuffer { get; private set; }
     
     /// <summary>
     /// Returns true when pointer (mouse, pointer and touch) events are subscribed in javascript.
@@ -94,6 +109,8 @@ public partial class CanvasInterop : ICanvasInterop
     public event MouseButtonEventHandler? PointerDown;
     public event MouseButtonEventHandler? PointerUp;
     public event MouseMoveEventHandler? PointerMoved;
+    public event MouseMoveEventHandler? PointerEntered;
+    public event MouseMoveEventHandler? PointerExited;
     public event MouseWheelEventHandler? MouseWheelChanged;
     
     public event PinchZoomEventHandler? PinchZoomStarted;
@@ -127,12 +144,15 @@ public partial class CanvasInterop : ICanvasInterop
     }
     
     #region static Initialize method and GetCanvasInterop
+    //public static async Task InitializeInterop(Microsoft.JSInterop.IJSRuntime jsRuntime, string? sharpEngineJsFileUrl = null)
     public static async Task InitializeInterop(string? sharpEngineJsFileUrl = null)
     {
         if (_isInitializeCalled)
             return;
 
         _isInitializeCalled = true;
+
+        //JS = jsRuntime;
 
         if (!OperatingSystem.IsBrowser())
             throw new SharpEngineException("Ab4d.SharpEngine.Web can be used only in Blazor WebAssembly.");
@@ -232,11 +252,11 @@ public partial class CanvasInterop : ICanvasInterop
     }
     #endregion
 
-    public void InitWebGL(bool useMultisampleAntiAliasing = true)
+    public void InitWebGL(bool useMultisampleAntiAliasing = true, bool preserveDrawingBuffer = false, bool preventShowingContextMenu = true)
     {
         CheckIsInitialized(checkIfConnectedToCanvas: false);
 
-        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, IsLoggingJavaScript);
+        var result = InitWebGLCanvasJs(this.CanvasId, useMultisampleAntiAliasing, preserveDrawingBuffer, _subscribePointerEventsOnInitialize, subscribeRequestAnimationFrame: true, preventShowingContextMenu: preventShowingContextMenu, IsLoggingJavaScript);
 
         if (string.IsNullOrEmpty(result) || !result.StartsWith("OK:"))
         {
@@ -253,6 +273,7 @@ public partial class CanvasInterop : ICanvasInterop
         this.Height   = int.Parse(dataParts[2]);
         this.DpiScale = float.Parse(dataParts[3], CultureInfo.InvariantCulture);
         this.IsUsingMultisampleAntiAliasing = useMultisampleAntiAliasing;
+        this.IsPreservingDrawingBuffer = preserveDrawingBuffer;
         
         // Set static instances of CanvasInterop so that the static callback functions from javascript can find the target CanvasInterop
         if (_initialInterop == null)
@@ -407,13 +428,60 @@ public partial class CanvasInterop : ICanvasInterop
         return await tcs.Task;
     }
     
+    public void CreateImageFromBytes(byte[] imageBytes, string mimeType, string imageName, Action<RawImageData> onTextureLoadedCallback, Action<string>? onLoadErrorCallback)
+    {
+        ArgumentNullException.ThrowIfNull(imageName);
+
+
+        if (!IsInteropInitialized)
+        {
+            WebGLInitialized += (sender, args) => CreateImageFromBytes(imageBytes, mimeType, imageName, onTextureLoadedCallback, onLoadErrorCallback);
+            return;
+        }
+
+        // We need to handle multiple requests for the same image file
+        // Therefore we store a list of callbacks for each file name
+        _imageBytesLoadedCallbacks ??= new Dictionary<string, List<(Action<RawImageData> onLoaded, Action<string>? onError)>>();
+
+        if (_imageBytesLoadedCallbacks.TryGetValue(imageName, out var callbacks))
+        {
+            // Request to load this texture was already issued - just add another callback action
+            callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+            return;
+        }
+
+        // This is the first request to load this file
+        callbacks = new List<(Action<RawImageData>, Action<string>?)>();
+        callbacks.Add((onTextureLoadedCallback, onLoadErrorCallback));
+
+        _imageBytesLoadedCallbacks.Add(imageName, callbacks);
+
+        CreateImageFromBytesJS(this.CanvasId, imageBytes, mimeType, imageName);
+    }
+
+    public async Task<RawImageData> CreateImageFromBytesAsync(byte[] imageBytes, string mimeType, string imageName)
+    {
+        var tcs = new TaskCompletionSource<RawImageData>();
+
+        CreateImageFromBytes(imageBytes, mimeType, imageName, 
+            onTextureLoadedCallback: rawImageData => tcs.SetResult(rawImageData),
+            onLoadErrorCallback: errorText => tcs.SetException(new Exception(errorText)));
+
+        return await tcs.Task;
+    }
+    
     public void SetCursorStyle(string cursorStyle)
     {
         CheckIsInitialized();
         
         SetCursorStyleJs(this.CanvasId, cursorStyle);
     }
-    
+
+    public void ShowRawBitmap(string canvasId, int width, int height, byte[] pixelData, string? displayStyle)
+    {
+        ShowRawBitmapJs(canvasId, width, height, pixelData, displayStyle);
+    }
+
     public void SubscribePointerEvents()
     {
         CheckIsInitialized();
@@ -473,7 +541,93 @@ public partial class CanvasInterop : ICanvasInterop
             _isSpectorCaptureStarted = false;
         }
     }
-    
+
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// </summary>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous invocation operation.</returns>
+    public async Task InvokeVoidAsync(string identifier, params object?[]? args)
+    {
+        throw new NotImplementedException();
+        //await InvokeAsync<Microsoft.JSInterop.Infrastructure.IJSVoidResult>(identifier, args);
+    }
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// <para>
+    /// <see cref="Microsoft.JSInterop.JSRuntime"/> will apply timeouts to this operation based on the value configured in <see cref="Microsoft.JSInterop.JSRuntime.DefaultAsyncTimeout"/>. To dispatch a call with a different timeout, or no timeout,
+    /// consider using <see cref="InvokeAsync{TValue}(string, CancellationToken, object[])" />.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TValue">The JSON-serializable return type.</typeparam>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
+    public async Task<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+    {
+        throw new NotImplementedException();
+
+        //if (JS == null)
+        //    throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
+
+        //return await JS.InvokeAsync<TValue>(identifier, args);
+    }
+
+    /// <summary>
+    /// Invokes the specified JavaScript function asynchronously.
+    /// </summary>
+    /// <typeparam name="TValue">The JSON-serializable return type.</typeparam>
+    /// <param name="identifier">An identifier for the function to invoke.</param>
+    /// <param name="cancellationToken">
+    /// A cancellation token to signal the cancellation of the operation. Specifying this parameter will override any default cancellations such as due to timeouts
+    /// (<see cref="Microsoft.JSInterop.JSRuntime.DefaultAsyncTimeout"/>) from being applied.
+    /// </param>
+    /// <param name="args">JSON-serializable arguments.</param>
+    /// <returns>An instance of <typeparamref name="TValue"/> obtained by JSON-deserializing the return value.</returns>
+    public async Task<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+    {
+        throw new NotImplementedException();
+
+        //if (JS == null)
+        //    throw new SharpEngineException("Cannot invoke javascript function because IJSRuntime is not initialized. Make sure that InitializeInterop method was called.");
+
+        //return await JS.InvokeAsync<TValue>(identifier, cancellationToken, args);
+    }
+
+    /// <summary>
+    /// Logs the specified message to the browser console.
+    /// When useIJSRuntime is false (by default), then Console.WriteLine is used to log the message. This writes multiline message as multiple log messages.
+    /// When useIJSRuntime is true, then the message is logged using JavaScript interop to write the message. In this case the multiline message is logged as a single log message. 
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
+    public void LogMessage(string message, bool useIJSRuntime = false)
+    {
+        if (useIJSRuntime)
+            _ = InvokeVoidAsync("console.log", message);
+        else
+            Console.WriteLine(message);
+    }
+
+    /// <summary>
+    /// Logs the specified error message to the browser console.
+    /// When useIJSRuntime is false (by default), then Console.Error.WriteLine is used to log the message. This writes multiline message as multiple log messages.
+    /// When useIJSRuntime is true, then the error message is logged using JavaScript interop to write the message. In this case the multiline message is logged as a single log message. 
+    /// </summary>
+    /// <param name="errorMessage">The error message to log.</param>
+    /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
+    public void LogError(string errorMessage, bool useIJSRuntime = false)
+    {
+        if (useIJSRuntime)
+            _ = InvokeVoidAsync("console.error", errorMessage);
+        else
+            Console.Error.WriteLine(errorMessage);
+    }
+
+
     public void Dispose()
     { 
         if (IsDisposed)
@@ -482,6 +636,7 @@ public partial class CanvasInterop : ICanvasInterop
         Disposing?.Invoke(this, EventArgs.Empty);
 
         DisconnectWebGLCanvasJs(CanvasId);
+
         ArePointerEventsSubscribed = false;
         IsWebGLInitialized = false;
 
@@ -532,16 +687,16 @@ public partial class CanvasInterop : ICanvasInterop
     }
 
     #region OnPointerButtonPressed and other On... methods
-    protected void OnPointerButtonPressed(int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    protected void OnPointerButtonPressed(float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (PointerDown != null)
-            PointerDown(this, new MouseButtonEventArgs((MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
+            PointerDown(this, new MouseButtonEventArgs(x, y, (MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
     }
     
-    protected void OnPointerButtonReleased(int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    protected void OnPointerButtonReleased(float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (PointerUp != null)
-            PointerUp(this, new MouseButtonEventArgs((MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
+            PointerUp(this, new MouseButtonEventArgs(x, y, (MouseButton)changedButton, (PointerButtons)pressedButtons, pointerId, (KeyboardModifiers)keyboardModifiers));
     }
     
     protected void OnPointerMoved(float x, float y, int buttons, int keyboardModifiers)
@@ -550,10 +705,22 @@ public partial class CanvasInterop : ICanvasInterop
             PointerMoved(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
     }
     
-    protected void OnMouseWheelChanged(float deltaX, float deltaY, int keyboardModifiers)
+    protected void OnPointerEntered(float x, float y, int buttons, int keyboardModifiers)
+    {
+        if (PointerEntered != null)
+            PointerEntered(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
+    }
+    
+    protected void OnPointerExited(float x, float y, int buttons, int keyboardModifiers)
+    {
+        if (PointerExited != null)
+            PointerExited(this, new MouseMoveEventArgs(x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
+    }
+    
+    protected void OnMouseWheelChanged(float deltaX, float deltaY, float x, float y, int buttons, int keyboardModifiers)
     {
         if (MouseWheelChanged != null)
-            MouseWheelChanged(this, new MouseWheelEventArgs(deltaX, deltaY, (KeyboardModifiers)keyboardModifiers));
+            MouseWheelChanged(this, new MouseWheelEventArgs(deltaX, deltaY, x, y, (PointerButtons)buttons, (KeyboardModifiers)keyboardModifiers));
     }
     
     protected void OnPinchZoomStarted(float distance, float centerX, float centerY)
@@ -717,33 +884,53 @@ public partial class CanvasInterop : ICanvasInterop
     }
 
     [JSExport]
-    private static void OnPointerDownJsCallback(string? canvasId, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    private static void OnPointerDownJsCallback(string? canvasId, float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerDown button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnPointerButtonPressed(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonPressed(x, y, changedButton, pressedButtons, pointerId, keyboardModifiers);
     }
 
     [JSExport]
-    private static void OnPointerUpJsCallback(string? canvasId, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
+    private static void OnPointerUpJsCallback(string? canvasId, float x, float y, int changedButton, int pressedButtons, int pointerId, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnPointerUp button '{canvasId ?? ""}': {changedButton}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnPointerButtonReleased(changedButton, pressedButtons, pointerId, keyboardModifiers);
+        canvasInterop?.OnPointerButtonReleased(x, y, changedButton, pressedButtons, pointerId, keyboardModifiers);
+    }
+    
+    [JSExport]
+    private static void OnPointerEnterJsCallback(string? canvasId, float x, float y, int pressedButtons, int keyboardModifiers)
+    {
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnPointerEnter at {x} {y}");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop?.OnPointerEntered(x, y, pressedButtons, keyboardModifiers);
+    }
+    
+    [JSExport]
+    private static void OnPointerLeaveJsCallback(string? canvasId, float x, float y, int pressedButtons, int keyboardModifiers)
+    {
+        if (IsLoggingInteropEvents)
+            Console.WriteLine($"OnPointerLeave at {x} {y}");
+
+        var canvasInterop = GetCanvasInterop(canvasId);
+        canvasInterop?.OnPointerExited(x, y, pressedButtons, keyboardModifiers);
     }
 
     [JSExport]
-    private static void OnMouseWheelJsCallback(string? canvasId, float deltaX, float deltaY, int keyboardModifiers)
+    private static void OnMouseWheelJsCallback(string? canvasId, float deltaX, float deltaY, float x, float y, int buttons, int keyboardModifiers)
     {
         if (IsLoggingInteropEvents)
             Console.WriteLine($"OnMouseWheel '{canvasId ?? ""}': {deltaX} {deltaY}  KeyboardModifiers: {keyboardModifiers}");
 
         var canvasInterop = GetCanvasInterop(canvasId);
-        canvasInterop?.OnMouseWheelChanged(deltaX, deltaY, keyboardModifiers);
+        canvasInterop?.OnMouseWheelChanged(deltaX, deltaY, x, y, buttons, keyboardModifiers);
     }
 
     [JSExport]
@@ -816,7 +1003,7 @@ public partial class CanvasInterop : ICanvasInterop
     // It is not possible (at least in .Net 9) to pass an objects from JS to .Net
     // It was possible to encode width and height into an int, but we also need dpiScale, so we need to pass it as a string.
     [JSImport("initWebGLCanvas", "sharp-engine.js")]
-    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool enableJavaScriptLogging);
+    private static partial string InitWebGLCanvasJs(string canvasId, bool useMSAA, bool preserveDrawingBuffer, bool subscribePointerEvents, bool subscribeRequestAnimationFrame, bool preventShowingContextMenu, bool enableJavaScriptLogging);
 
     [JSImport("loadTextFile", "sharp-engine.js")]
     private static partial void LoadTextFileJs(string canvasId, string url);
@@ -826,6 +1013,9 @@ public partial class CanvasInterop : ICanvasInterop
     
     [JSImport("loadImageBytes", "sharp-engine.js")]
     private static partial void LoadImageBytesJs(string canvasId, string imageUrl);
+    
+    [JSImport("createImageFromBytes", "sharp-engine.js")]
+    private static partial void CreateImageFromBytesJS(string canvasId, byte[] imageBytes, string mimeType, string imageName);
     
     [JSImport("subscribeBrowserEvents", "sharp-engine.js")]
     private static partial void SubscribeBrowserEventsJs(string canvasId, bool subscribePointerEvents, bool subscribeRequestAnimationFrame);
@@ -853,6 +1043,9 @@ public partial class CanvasInterop : ICanvasInterop
         
     [JSImport("disconnectWebGLCanvas", "sharp-engine.js")]
     public static partial bool DisconnectWebGLCanvasJs(string canvasId);
+    
+    [JSImport("showRawBitmap", "sharp-engine.js")]
+    public static partial bool ShowRawBitmapJs(string canvasId, int width, int height, byte[] pixelData, string? displayStyle);
     #endregion    
 }
 

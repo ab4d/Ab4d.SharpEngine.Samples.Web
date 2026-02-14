@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-browser</TargetFramework>
+    <TargetFramework>net10.0-browser</TargetFramework>
 
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -39,7 +39,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.8.9525-beta2" />
+    <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.9.9541-rc1" />
   </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\My\Ab4d\SharpEngine\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+  </ItemGroup>-->
 
 </Project>

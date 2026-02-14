@@ -1,93 +1,124 @@
-﻿@page "/objFileViewer"
+@page "/objFileViewer"
 @using System.Numerics
+@using System.Text
 @using Ab4d.SharpEngine.Cameras
 @using Ab4d.SharpEngine.Common
 @using Ab4d.SharpEngine.SceneNodes
 @using Ab4d.SharpEngine.Browser
+@using Ab4d.SharpEngine.Materials
 @using Ab4d.SharpEngine.Utilities
 @implements IDisposable
 @inject IJSRuntime JS
 
 <PageTitle>Ab4d.SharpEngine.Web - OBJ file viewer</PageTitle>
 
-<h1>Ab4d.SharpEngine.Web - OBJ file viewer</h1>
+<div style="padding: 1.5rem">
+    <h1>Ab4d.SharpEngine.Web - OBJ file viewer</h1>
 
-<p>This example shows how to load user obj and mtl files with Ab4d.SharpEngine.</p>
-<p>Note that loading texture from user selected files is not supported. 
-    But when obj files are part of the blazor project, 
-    then textures can be also imported as shown by the initially loaded teapot.</p>
+    <p>This example shows how to load user obj and mtl (obj material) files with Ab4d.SharpEngine.</p>
+    <p><strong>To load a custom file, drag and drop obj and mtl files to the area under the 3D scene.</strong></p>
+    <p>Note that loading texture from user selected files is not supported in this sample. 
+        But when obj files are part of the blazor project, 
+        then textures can be also imported as shown by the initially loaded teapot.</p>
+    <SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
 
-<SharpEngineSceneView @ref="sharpEngineSceneView" style="width: 70%; min-width: 400px; max-width: 1000px; height: 500px; margin-top: 10pt; border: solid black 1px"></SharpEngineSceneView>
+    <br />
+    <p>@_infoText</p>
 
-<br />
-<p>@_infoText</p>
-
-<div id="dropZone" style="width: 70%; min-width: 400px; height: 150px; border: 2px dashed #0078d4; border-radius: 10px; text-align: center; line-height: 150px; color: #555; font-family: sans-serif; cursor: pointer;">
-Drop obj or mtl file here or click to open file picker</div>
-<input type="file" id="fileInput" accept=".obj,.mtl" style="display: none;" />
+    <div id="dropZone" style="width: 70%; min-width: 400px; height: 150px; border: 2px dashed #0078d4; border-radius: 10px; text-align: center; line-height: 150px; color: #555; font-family: sans-serif; cursor: pointer;">
+        Drop obj and mtl files here or click to open file picker</div>
+    <input type="file" id="fileInput" accept=".obj,.mtl" style="display: none;" />
+</div>
 
 <script>
+    // Initialize javascript for drag and drop only once.
+    // This javascript will call FilesDroppedJS, TextureImportedJS and FileImportedJS .Net methods.
+    // The script need to be initialized by calling attachFileImportHandler function (this is done in the OnAfterRenderAsync method below).
+    window.objFileViewerModule = window.objFileViewerModule || (function() {
+        let dotNetInterop;
+        let lastDropZone = null;
+        let lastFileInput = null;
 
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
+        function handleFiles(files) {
+            const allFileNames = Array.from(files).map(file => file.name).join(',');
+            dotNetInterop.invokeMethodAsync('FilesDroppedJS', allFileNames);
 
-    let dotNetInterop;
+            console.log('js: Files dropped:', allFileNames);
 
-    // Click to open file picker
-    dropZone.addEventListener('click', () => fileInput.click());
+            for (const file of files) {
+                const reader = new FileReader();
 
-    // Highlight on drag over
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.cursor = 'copy';
-        dropZone.style.backgroundColor = '#e0f3ff';
-    });
+                reader.onload = async function(e) {
+                    var arrayBuffer = e.target.result;
 
-    // Remove highlight on drag leave
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.style.cursor = 'pointer';
-        dropZone.style.backgroundColor = '';
-    });
+                    console.log(`js: File uploaded: '${file.name}' ${arrayBuffer.byteLength} bytes`);
 
-    // Handle dropped files
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.cursor = 'pointer';
-        dropZone.style.backgroundColor = '';
+                    const bytes = new Uint8Array(arrayBuffer);
+                    dotNetInterop.invokeMethodAsync('FileImportedJS', file.name, bytes);
+                };
 
-        const files = e.dataTransfer.files;
-        handleFiles(files);
-    });
-
-    // Handle files from file picker
-    fileInput.addEventListener('change', (e) => {
-        if (areValidFiles(files))
-            handleFiles(e.target.files);
-    });
-
-    function handleFiles(files) {
-        for (const file of files) {
-            console.log('File dropped:', file.name);
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const text = e.target.result;
-                dotNetInterop.invokeMethodAsync('FileImportedJS', file.name, text);
-            };
-
-            reader.readAsText(file);
+                reader.readAsArrayBuffer(file);
+            }
         }
-    }
+
+        function initializeDropZone() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            if (!dropZone || !fileInput) return;
+
+            // Check if elements have changed (re-rendered), if so, re-attach listeners
+            if (lastDropZone === dropZone && lastFileInput === fileInput) {
+                return; // Already initialized for these exact elements
+            }
+
+            // Store references to current elements
+            lastDropZone = dropZone;
+            lastFileInput = fileInput;
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.cursor = 'copy';
+                dropZone.style.backgroundColor = '#e0f3ff';
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.style.cursor = 'pointer';
+                dropZone.style.backgroundColor = '';
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.cursor = 'pointer';
+                dropZone.style.backgroundColor = '';
+
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+        }
+
+        return {
+            attachFileImportHandler: function(dotNetHelper) {
+                dotNetInterop = dotNetHelper;
+                initializeDropZone();
+            }
+        };
+    })();
 
     function attachFileImportHandler(dotNetHelper) {
-        dotNetInterop = dotNetHelper;
+        window.objFileViewerModule.attachFileImportHandler(dotNetHelper);
     }
 </script>
 
 @code {
-    // BOUND FIELDS:
-    private string _infoText = "Initializing...";
+        // BOUND FIELDS:
+    private string _infoText = "";
 
     private SharpEngineSceneView sharpEngineSceneView = null!;
 
@@ -96,13 +127,12 @@ Drop obj or mtl file here or click to open file picker</div>
 
     private GroupNode? _importedSceneNode;
 
-    private string? _lastObjFileName;
     private string? _lastObjFileContent;
-
-    private string? _lastMtlFileName;
     private string? _lastMtlFileContent;
 
     private DotNetObjectReference<ObjFileViewer>? _thisJSReference;
+
+    private bool _isMtlFileDropped;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -121,7 +151,7 @@ Drop obj or mtl file here or click to open file picker</div>
             Attitude = -25,
             Distance = 400,
             TargetPosition = new Vector3(0, 0, 0),
-            ShowCameraLight = ShowCameraLightType.Auto,
+            ShowCameraLight = ShowCameraLightType.Always,
         };
 
         sceneView.Camera = _targetPositionCamera;
@@ -160,10 +190,15 @@ Drop obj or mtl file here or click to open file picker</div>
 
             IsClosed = true,
         };
+
         scene.RootNode.Add(wireGridNode);
 
+        // scene.RootNode.Add(new AxisLineNode(length: 100));
 
-        string objUrl = "models/Teapot-with-material.obj";
+
+        string objUrl = "Resources/Models/Teapot-with-material.obj";
+
+        ShowInfoMessage("Start importing initial file " + objUrl);
 
         try
         {
@@ -171,61 +206,68 @@ Drop obj or mtl file here or click to open file picker</div>
 
             var importedNode = await objImporter.ImportAsync(objUrl);
 
-            Utilities.ModelUtils.PositionAndScaleSceneNode(importedNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
-
-            sharpEngineSceneView.Scene.RootNode.Add(importedNode);
-            _importedSceneNode = importedNode;
-
-            ShowInfoMessage("Default Teapot-with-material.obj file loaded");
+            ShowImportedModel(importedNode);
         }
         catch (Exception ex)
         {
             ShowInfoMessage($"Error importing {objUrl} file: " + ex.Message);
         }
 
+
         // Initialize javascript attachFileImportHandler so it can call back blazor (ObjFileImportedJS and MtlFileImportedJS)
         _thisJSReference = DotNetObjectReference.Create(this);
         await JS.InvokeVoidAsync("attachFileImportHandler", _thisJSReference);
     }
 
+    // The following method is called from javascript after the files defined in allFileNames are dropped
     [JSInvokable]
-    public void FileImportedJS(string fileName, string fileContent)
+    public void FilesDroppedJS(string allFileNames)
+    {
+        var droppedFileNames = allFileNames.Split(',');
+        _isMtlFileDropped = droppedFileNames.Any(f => f.EndsWith(".mtl", StringComparison.OrdinalIgnoreCase));
+    }
+
+    // The following method is called from javascript after the image file is read and decoded
+    [JSInvokable]
+    public void FileImportedJS(string fileName, byte[] fileContent)
     {
         if (fileName.EndsWith(".obj", StringComparison.OrdinalIgnoreCase))
         {
-            _lastObjFileName = fileName;
-            _lastObjFileContent = fileContent;
+            _lastObjFileContent = Encoding.ASCII.GetString(fileContent); // Convert byte array to string
 
-            _lastMtlFileName = null;
-            _lastMtlFileContent = null;
-
-            ImportDroppedObjFile();
-
-            ShowInfoMessage($"3D models from {fileName} file imported. Select mtl file to also import materials.");
+            if (!_isMtlFileDropped || _lastMtlFileContent != null)
+                ImportDroppedObjFile();
         }
         else if (fileName.EndsWith(".mtl", StringComparison.OrdinalIgnoreCase))
         {
+            _lastMtlFileContent = Encoding.ASCII.GetString(fileContent); // Convert byte array to string
+
             if (_lastObjFileContent != null)
-            {
-                _lastMtlFileName = fileName;
-                _lastMtlFileContent = fileContent;
-
                 ImportDroppedObjFile();
-
-                ShowInfoMessage($"Materials from {fileName} file imported");
-            }
-            else
-            {
-                ShowInfoMessage("Cannot import mtl file because obj file was not imported. Select obj file first.");
-            }
         }
-        else
-        {
-            ShowInfoMessage($"File '{fileName}' not supported. Only obj and mtl files can be dropped here.");
-        }
+        // Skip other files
     }
 
     private void ImportDroppedObjFile()
+    {
+        if (string.IsNullOrEmpty(_lastObjFileContent))
+            return;
+
+        var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
+
+        try
+        {
+            var importedNode = objImporter.Import(_lastObjFileContent, _lastMtlFileContent);
+
+            ShowImportedModel(importedNode);
+        }
+        catch (Exception ex)
+        {
+            ShowInfoMessage("Error reading file: " + ex.Message);
+        }
+    }
+
+    private void ShowImportedModel(GroupNode? importedSceneNode)
     {
         var scene = sharpEngineSceneView.Scene;
 
@@ -236,17 +278,16 @@ Drop obj or mtl file here or click to open file picker</div>
             _importedSceneNode = null;
         }
 
-        if (string.IsNullOrEmpty(_lastObjFileContent))
+        if (importedSceneNode == null)
             return;
+        
+        Utilities.ModelUtils.PositionAndScaleSceneNode(importedSceneNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
+            
+        scene.RootNode.Add(importedSceneNode);
 
-        var objImporter = new ObjImporter(sharpEngineSceneView.Scene);
+        _importedSceneNode = importedSceneNode;
 
-        var importedNode = objImporter.Import(_lastObjFileContent, _lastMtlFileContent);
-
-        Utilities.ModelUtils.PositionAndScaleSceneNode(importedNode, new Vector3(0, 0, 0), PositionTypes.Bottom, new Vector3(100, 100, 100));
-
-        sharpEngineSceneView.Scene.RootNode.Add(importedNode);
-        _importedSceneNode = importedNode;
+        ShowInfoMessage("Imported model shown");
     }
 
     private void ShowInfoMessage(string message)
