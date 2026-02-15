@@ -14,8 +14,8 @@ To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.Shar
 ### Quick start guide
 
 This repository contains two solutions:
-- `Ab4d.SharpEngine.Samples.BlazorWebAssembly.sln` that shows how to use Ab4d.SharpEngine in a **Blazor WebAssembly** app. This provides the best integration and debugging experience. See [readme](Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
-- `Ab4d.SharpEngine.Samples.NoBlazorBrowserDemo.sln` that uses 4 projects and shows how to use Ab4d.SharpEngine in a **Asp.Net Core** or **Simple Html** website. See [readme](Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
+- `Ab4d.SharpEngine.Samples.BlazorWasmFullyFeaturedDemo.sln` that shows how to use Ab4d.SharpEngine in a **Blazor WebAssembly** app. This provides the best integration and debugging experience. See [readme](Ab4d.SharpEngine.Samples.BlazorWebAssembly/README.md).
+- `Ab4d.SharpEngine.Samples.NoBlazorSimpleBrowserDemo.sln` that uses 4 projects and shows how to use Ab4d.SharpEngine in a **Asp.Net Core** or **Simple Html** website. This samples only shows a simple 3D cube. See the other solution for fully featured demo. See [readme](Ab4d.SharpEngine.Samples.WebAssemblyDemo/README.md).
 
           
 ### Additional samples and documentation
