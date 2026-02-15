@@ -55,3 +55,14 @@
     cursor: pointer;
     user-select: none;
 }
+
+
+.ui-container  {
+    height: 100vh;
+}
+
+@media (max-width: 640.98px) {
+    .ui-container {
+        height: calc(100vh - 6rem);
+    }
+}
