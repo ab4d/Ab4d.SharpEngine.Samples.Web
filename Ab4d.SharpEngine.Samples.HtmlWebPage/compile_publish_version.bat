@@ -10,6 +10,7 @@ IF EXIST wwwroot\_framework\ (
 
 cd ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo
 dotnet publish -c Release
+if errorlevel 1 goto build_error
 
 cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
 
@@ -28,5 +29,10 @@ IF EXIST "..\ThirdParty\brotli\brotli.exe" (
    )
 )
 
-pause
+goto end
 
+:build_error
+echo Error compiling project
+
+:end
+pause
