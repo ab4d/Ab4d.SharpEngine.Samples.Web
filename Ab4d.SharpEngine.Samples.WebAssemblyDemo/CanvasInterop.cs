@@ -49,6 +49,11 @@ public partial class CanvasInterop : ICanvasInterop
     ///// </summary>
     //public static Microsoft.JSInterop.IJSRuntime? JS { get; private set; }
 
+    /// <summary>
+    /// True when <see cref="InvokeAsync{TValue}(string,object?[]?)"/> and <see cref="InvokeVoidAsync"/> are supported.
+    /// </summary>
+    public bool IsInvokeSupported => false;
+
     
     /// <summary>
     /// Gets the id of the canvas element that is defined in the browser DOM (html or razor file).
@@ -606,7 +611,7 @@ public partial class CanvasInterop : ICanvasInterop
     /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
     public void LogMessage(string message, bool useIJSRuntime = false)
     {
-        if (useIJSRuntime)
+        if (useIJSRuntime && IsInvokeSupported)
             _ = InvokeVoidAsync("console.log", message);
         else
             Console.WriteLine(message);
@@ -621,7 +626,7 @@ public partial class CanvasInterop : ICanvasInterop
     /// <param name="useIJSRuntime">true to log the message using JavaScript interop to the browser console; false to log to the standard output. The default is false.</param>
     public void LogError(string errorMessage, bool useIJSRuntime = false)
     {
-        if (useIJSRuntime)
+        if (useIJSRuntime && IsInvokeSupported)
             _ = InvokeVoidAsync("console.error", errorMessage);
         else
             Console.Error.WriteLine(errorMessage);

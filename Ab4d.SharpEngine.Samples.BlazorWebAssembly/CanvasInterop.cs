@@ -44,6 +44,10 @@ public partial class CanvasInterop : ICanvasInterop
     /// </summary>
     public static Microsoft.JSInterop.IJSRuntime? JS { get; private set; }
 
+    /// <summary>
+    /// True when <see cref="InvokeAsync{TValue}(string,object?[]?)"/> and <see cref="InvokeVoidAsync"/> are supported.
+    /// </summary>
+    public bool IsInvokeSupported => JS != null;
     
     /// <summary>
     /// Gets the id of the canvas element that is defined in the browser DOM (html or razor file).
