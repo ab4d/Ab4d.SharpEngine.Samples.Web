@@ -24,7 +24,11 @@ public class SharpEngineTest
 
     private SharpEngineTest()
     {
-
+		// Ab4d.SharpEngine Samples License can be used only for Ab4d.SharpEngine samples.
+		// To use Ab4d.SharpEngine in your project, get a license from ab4d.com/trial or ab4d.com/purchase 
+		Ab4d.SharpEngine.Licensing.SetLicense(licenseOwner: "AB4D",
+											  licenseType: "SamplesLicense",
+											  license: "5B53-8A17-DAEB-5B03-3B90-DD5B-958B-CA4D-0B88-CE79-FBB4-6002-D9C9-19C2-AFF8-1662-B2B2");
     }
 
     // The following method can be called from BlazorTesterApp project
@@ -53,51 +57,47 @@ public class SharpEngineTest
             _sceneView = new SceneView(_scene, "MainSceneView");
 
 
-            //float hashModelSize = 100;
-            //float hashModelBarThickness = 16;
-            //float hashModelBarOffset = 20;
+            float hashModelSize = 100;
+            float hashModelBarThickness = 16;
+            float hashModelBarOffset = 20;
 
-            //var hashSymbolMesh = MeshFactory.CreateHashSymbolMesh(centerPosition: new Vector3(0, hashModelBarThickness * 0.5f, 0),
-            //                                                      shapeYVector: new Vector3(0, 0, 1),
-            //                                                      extrudeVector: new Vector3(0, hashModelBarThickness, 0),
-            //                                                      size: hashModelSize,
-            //                                                      barThickness: hashModelBarThickness,
-            //                                                      barOffset: hashModelBarOffset,
-            //                                                      name: "HashSymbolMesh");
+            var hashSymbolMesh = MeshFactory.CreateHashSymbolMesh(centerPosition: new Vector3(0, hashModelBarThickness * 0.5f, 0),
+                                                                  shapeYVector: new Vector3(0, 0, 1),
+                                                                  extrudeVector: new Vector3(0, hashModelBarThickness, 0),
+                                                                  size: hashModelSize,
+                                                                  barThickness: hashModelBarThickness,
+                                                                  barOffset: hashModelBarOffset,
+                                                                  name: "HashSymbolMesh");
 
-            //_hashMaterial = new StandardMaterial(diffuseColor: Color3.FromByteRgb(255, 197, 0));
+            _hashMaterial = new StandardMaterial(diffuseColor: Color3.FromByteRgb(255, 197, 0));
 
-            //var hashSymbolNode = new MeshModelNode(hashSymbolMesh, _hashMaterial, "HashSymbolNode");
-            //_scene.RootNode.Add(hashSymbolNode);
-
-            
-            //var wireGridNode = new WireGridNode("Wire grid")
-            //{
-            //    CenterPosition = new Vector3(0, -0.5f, 0),
-            //    Size = new Vector2(200, 200),
-
-            //    WidthDirection = new Vector3(1, 0, 0),   // this is also the default value
-            //    HeightDirection = new Vector3(0, 0, -1), // this is also the default value
-
-            //    WidthCellsCount = 20,
-            //    HeightCellsCount = 20,
-
-            //    MajorLineColor = Colors.Black,
-            //    MajorLineThickness = 1,
-
-            //    MinorLineColor = Colors.Gray,
-            //    MinorLineThickness = 1,
-
-            //    MajorLinesFrequency = 5,
-
-            //    IsClosed = true,
-            //};
-
-            //_scene.RootNode.Add(wireGridNode);
+            var hashSymbolNode = new MeshModelNode(hashSymbolMesh, _hashMaterial, "HashSymbolNode");
+            _scene.RootNode.Add(hashSymbolNode);
 
 
-            var boxModelNode = new BoxModelNode(new Vector3(0, 0, 0), new Vector3(100, 40, 80), StandardMaterials.Green);
-            _scene.RootNode.Add(boxModelNode);
+            var wireGridNode = new WireGridNode("Wire grid")
+            {
+                CenterPosition = new Vector3(0, -0.5f, 0),
+                Size = new Vector2(200, 200),
+
+                WidthDirection = new Vector3(1, 0, 0),   // this is also the default value
+                HeightDirection = new Vector3(0, 0, -1), // this is also the default value
+
+                WidthCellsCount = 20,
+                HeightCellsCount = 20,
+
+                MajorLineColor = Colors.Black,
+                MajorLineThickness = 1,
+
+                MinorLineColor = Colors.Gray,
+                MinorLineThickness = 1,
+
+                MajorLinesFrequency = 5,
+
+                IsClosed = true,
+            };
+
+            _scene.RootNode.Add(wireGridNode);
 
 
             _sceneView.BackgroundColor = Colors.LightSkyBlue;
