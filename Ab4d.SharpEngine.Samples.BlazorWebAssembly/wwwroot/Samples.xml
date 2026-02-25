@@ -77,7 +77,10 @@
   <Sample Location="Materials.SpecularMaterialSample" Title="Specular material"/>
   <Sample Location="Materials.AnimatedTexturesSample" Title="Animated textures"/>
   <Sample Location="Materials.HeatmapRenderingSample" Title="Heatmap rendering"/>
-
+  <Sample IsSeparator="True" />
+  <Sample Location="Materials.TransparencySortingSample" Title="Transparency sorting"/>
+  <Sample Location="Materials.TrianglesSortingSample" Title="Triangles sorting" />
+  
   <Sample Location="Titles.HitTesting.md" IsTitle="True" Title="Hit-testing and input processing"/>
   <Sample Location="HitTesting.HitTestingSample" Title="Hit-testing"/>
   <Sample Location="HitTesting.BlazorManualInputEventsSample" Title="Manual Input events"/>
@@ -99,7 +102,6 @@
 
   <Sample Location="Titles.AdvancedTitle.md" IsTitle="True" Title="Advanced"/>
   <Sample Location="Advanced.MeshOutlineSample" Title="Mesh outlines" />
-  <Sample Location="Advanced.TrianglesSortingSample" Title="Triangles sorting" />
   <Sample Location="Advanced.FrustumCullingSample" Title="Frustum culling"/>
   <Sample Location="Advanced.CustomFogEffectSample" Title="Custom Fog Effect"/>
 
