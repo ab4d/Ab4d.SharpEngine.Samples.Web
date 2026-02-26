@@ -120,7 +120,7 @@ But there are exceptions:
 //            if (Scene != null)
 //            {
 //#if VULKAN
-//                Scene.DefaultTransparentDepthStencilState = isChecked ? CommonStatesManager.DepthRead : CommonStatesManager.DepthReadWrite;
+//                Scene.DefaultTransparentDepthStencilState = isChecked ? Ab4d.SharpEngine.Utilities.CommonStatesManager.DepthRead : Ab4d.SharpEngine.Utilities.CommonStatesManager.DepthReadWrite;
 //#elif WEB_GL
 //                Scene.EnableDepthWriteForTransparentObjects = !isChecked;
 //#endif
