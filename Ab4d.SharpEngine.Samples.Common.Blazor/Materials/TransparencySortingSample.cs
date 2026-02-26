@@ -101,30 +101,31 @@ But there are exceptions:
                 Scene.IsTransparencySortingEnabled = isChecked;
         });
         
-        ui.CreateCheckBox(
-@"Disable depth write (?):By default, when a transparent object is rendered it also write its depth to the depth buffer.
-This prevents rendering objects that are rendered after that object and are farther away from the camera to be rendered.
+        // The following will be supported in v1.0
+//        ui.CreateCheckBox(
+//@"Disable depth write (?):By default, when a transparent object is rendered it also write its depth to the depth buffer.
+//This prevents rendering objects that are rendered after that object and are farther away from the camera to be rendered.
 
-When this CheckBox is checked, then this will prevent writing to depth buffer for all transparent objects
-(set Scene.DefaultTransparentDepthStencilState to DepthRead instead of DepthReadWrite).
+//When this CheckBox is checked, then this will prevent writing to depth buffer for all transparent objects
+//(set Scene.DefaultTransparentDepthStencilState to DepthRead instead of DepthReadWrite).
 
-This can helps to prevent some transparency problems and works well event without transparency sorting.
+//This can helps to prevent some transparency problems and works well event without transparency sorting.
 
-However, this does not work correctly in all of the cases because objects that are farther away from the camera 
-can be rendered after closer objects, and this can affect the final color of the pixels.
-You can observe that by unchecking the 'IsTransparencySortingEnabled' and 'Disable depth write' Checkboxes.
-Then rotate the camera around and you will see that the final color will be set from the boxes farther away from the camera.
-When the transparent objects are sorted, then the final color is correct.", false, isChecked =>
-        {
-            if (Scene != null)
-            {
-#if VULKAN
-                Scene.DefaultTransparentDepthStencilState = isChecked ? CommonStatesManager.DepthRead : CommonStatesManager.DepthReadWrite;
-#elif WEB_GL
-                Scene.EnableDepthWriteForTransparentObjects = !isChecked;
-#endif
-            }
-        });
+//However, this does not work correctly in all of the cases because objects that are farther away from the camera 
+//can be rendered after closer objects, and this can affect the final color of the pixels.
+//You can observe that by unchecking the 'IsTransparencySortingEnabled' and 'Disable depth write' Checkboxes.
+//Then rotate the camera around and you will see that the final color will be set from the boxes farther away from the camera.
+//When the transparent objects are sorted, then the final color is correct.", false, isChecked =>
+//        {
+//            if (Scene != null)
+//            {
+//#if VULKAN
+//                Scene.DefaultTransparentDepthStencilState = isChecked ? CommonStatesManager.DepthRead : CommonStatesManager.DepthReadWrite;
+//#elif WEB_GL
+//                Scene.EnableDepthWriteForTransparentObjects = !isChecked;
+//#endif
+//            }
+//        });
 
         ui.AddSeparator();
 
