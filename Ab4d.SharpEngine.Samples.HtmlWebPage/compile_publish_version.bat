@@ -22,8 +22,8 @@ if errorlevel 1 (
     if errorlevel 1 goto build_error
 )
 
-xcopy ..\Ab4d.SharpEngine.Samples.AspNetCoreApp\wwwroot\*.* wwwroot\ /Y
-xcopy bin\Release\net10.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
+xcopy ..\Ab4d.SharpEngine.Samples.AspNetCoreApp\wwwroot\*.* ..\Ab4d.SharpEngine.Samples.HtmlWebPage\wwwroot\ /Y
+xcopy bin\Release\net10.0-browser\browser-wasm\AppBundle\_framework\*.* ..\Ab4d.SharpEngine.Samples.HtmlWebPage\wwwroot\_framework\ /Y /S
 
 cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
 
