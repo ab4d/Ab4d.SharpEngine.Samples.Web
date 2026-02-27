@@ -50,7 +50,7 @@ public partial class CanvasInterop : ICanvasInterop
     //public static Microsoft.JSInterop.IJSRuntime? JS { get; private set; }
 
     /// <summary>
-    /// True when <see cref="InvokeAsync{TValue}(string,object?[]?)"/> and <see cref="InvokeVoidAsync"/> are supported.
+    /// True when <see cref="InvokeAsync{TValue}(string,object?[])"/> and <see cref="InvokeVoidAsync"/> are supported.
     /// </summary>
     public bool IsInvokeSupported => false;
 
