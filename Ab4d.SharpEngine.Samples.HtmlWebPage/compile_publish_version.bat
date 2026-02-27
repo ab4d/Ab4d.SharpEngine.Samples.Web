@@ -1,5 +1,8 @@
 @echo off
 
+dotnet check_current_folder.cs
+if errorlevel 1 goto end
+
 IF EXIST wwwroot\_framework\ (
   del wwwroot\_framework\*.* /q
   del wwwroot\_framework\supportFiles\*.* /q
@@ -9,13 +12,20 @@ IF EXIST wwwroot\_framework\ (
 )
 
 cd ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo
-dotnet publish -c Release
-if errorlevel 1 goto build_error
+del obj\*.* /Q
 
-cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
+dotnet publish -c Release
+if errorlevel 1 (
+	rem When changing debug and release mode, it is common than build failes. Many times deleting the obj filder solves the issues.
+	del obj\*.* /Q
+	dotnet build -c Release
+    if errorlevel 1 goto build_error
+)
 
 xcopy ..\Ab4d.SharpEngine.Samples.AspNetCoreApp\wwwroot\*.* wwwroot\ /Y
-xcopy ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\bin\Release\net10.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
+xcopy bin\Release\net10.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
+
+cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
 
 IF EXIST "..\ThirdParty\brotli\brotli.exe" (
   for %%f in (wwwroot\_framework\*.wasm) do (
