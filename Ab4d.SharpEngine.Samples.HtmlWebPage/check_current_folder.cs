@@ -7,7 +7,7 @@ if (currentDirectory.Contains(' '))
         return 1;
 }
 
-if (currentDirectory.Length > 150)
+if (currentDirectory.Length > 120)
 {
     WriteError($"Current path is very long ({currentDirectory.Length}). This may lead to compile errors because the max path length is exceeded. Consider moving the samples to a folder with shorted path.");
     if (!AskToContinue())
