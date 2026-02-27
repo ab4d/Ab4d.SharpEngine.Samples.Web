@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <!--<PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>-->
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>
     <WasmBuildNative>true</WasmBuildNative>
     <RunAOTCompilation>true</RunAOTCompilation>
     <DebugType>none</DebugType>
@@ -30,7 +30,8 @@
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
     <WasmEmitSourceMap>false</WasmEmitSourceMap>
     <CompressionEnabled>true</CompressionEnabled>
-    <!--<WasmNativeStrip>true</WasmNativeStrip>-->
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
   
     <ItemGroup>
