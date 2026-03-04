@@ -168,7 +168,10 @@ export function loadBinaryFile(canvasId, url) {
 }
 
 export async function loadImageBytes(canvasId, url) {
-    log("loadImageBytes: start loading " + url);
+    if (url.startsWith("data:"))
+        log("loadImageBytes from base64 encoded data");
+    else
+        log("loadImageBytes: start loading " + url);
      
     if (!createImageBitmap || typeof OffscreenCanvas === "undefined") {
         // Before Safari 16.4 (2024-03-27)
