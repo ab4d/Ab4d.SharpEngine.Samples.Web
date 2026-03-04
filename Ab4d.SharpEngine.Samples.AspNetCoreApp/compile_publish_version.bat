@@ -10,10 +10,12 @@ IF EXIST wwwroot\_framework\ (
 
 cd ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo
 dotnet publish -c Release
+if errorlevel 1 goto build_error
+
+
+xcopy bin\Release\net9.0-browser\browser-wasm\AppBundle\_framework\*.* ..\Ab4d.SharpEngine.Samples.HtmlWebPage\wwwroot\_framework\ /Y /S
 
 cd ..\Ab4d.SharpEngine.Samples.HtmlWebPage
-
-xcopy ..\Ab4d.SharpEngine.Samples.WebAssemblyDemo\bin\Release\net9.0-browser\browser-wasm\AppBundle\_framework\*.* wwwroot\_framework\ /Y /S
 
 IF EXIST "..\ThirdParty\brotli\brotli.exe" (
   for %%f in (wwwroot\_framework\*.wasm) do (
@@ -27,5 +29,11 @@ IF EXIST "..\ThirdParty\brotli\brotli.exe" (
    )
 )
 
+goto end
+
+:build_error
+echo Error compiling project
+
+:end
 pause
 
