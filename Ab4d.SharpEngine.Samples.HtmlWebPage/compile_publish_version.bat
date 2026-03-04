@@ -18,7 +18,7 @@ dotnet publish -c Release
 if errorlevel 1 (
 	rem When changing debug and release mode, it is common than build failes. Many times deleting the obj filder solves the issues.
 	del obj\*.* /Q
-	dotnet build -c Release
+	dotnet publish -c Release
     if errorlevel 1 goto build_error
 )
 
