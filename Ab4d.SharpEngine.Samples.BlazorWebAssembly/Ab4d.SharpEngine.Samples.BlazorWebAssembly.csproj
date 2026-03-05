@@ -1,9 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
+    <AssemblyName>Ab4d.SharpEngine.Samples.BlazorWebAssembly</AssemblyName>
+    <RootNamespace>Ab4d.SharpEngine.Samples.BlazorWebAssembly</RootNamespace>    
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 
     <!-- The following emscripten flags are required for Ab4d.SharpEngine to use WebGL from the browser -->
@@ -39,11 +42,15 @@
     <WasmNativeStrip>true</WasmNativeStrip>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)==''">
     <PackageReference Include="Ab4d.SharpEngine.Web" Version="0.9.9543-rc1" />
     <PackageReference Include="Ab4d.SharpEngine.glTF.Web" Version="0.9.9543-rc1" />
   </ItemGroup>
-
+  <ItemGroup Condition="$(SHARPENGINE_PRIVATE_DIR)!=''">
+    <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.Web\Ab4d.SharpEngine.Web.csproj" />
+    <ProjectReference Include="$(SHARPENGINE_PRIVATE_DIR)\Ab4d.SharpEngine.glTF.Web\Ab4d.SharpEngine.glTF.Web.csproj" />
+  </ItemGroup>  
+  
   <ItemGroup>
     <ProjectReference Include="..\Ab4d.SharpEngine.Samples.Common.Blazor\Ab4d.SharpEngine.Samples.Common.Blazor.csproj" />
   </ItemGroup>
@@ -51,11 +58,6 @@
   <ItemGroup>
     <!--The following NativeFileReference is required for Ab4d.SharpEngine.Web to use WebGL from the browser -->
     <NativeFileReference Include="Native/libEGL.c" ScanForPInvokes="true" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--The following javascript file is required for CanvasInterop class to be able to communicate with the browser -->
-    <WasmExtraFilesToDeploy Include="sharp-engine.js" />
   </ItemGroup>
 
   <ItemGroup>
