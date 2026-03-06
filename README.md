@@ -9,7 +9,8 @@ Welcome to the Browser samples for Ab4d.SharpEngine.
 To check the Ab4d.SharpEngine for desktop and mobile devices, see the [Ab4d.SharpEngine.Samples on GitHub](https://github.com/ab4d/Ab4d.SharpEngine.Samples) (those samples also demonstrate all of the features of the Ab4d.SharpEngine library).
 
 > [!IMPORTANT]
-> Ab4d.SharpEngine for the browser (Ab4d.SharpEngine.Web assembly) is in release candidate (RC) version.
+> Ab4d.SharpEngine for the browser (Ab4d.SharpEngine.Web assembly) is in a release candidate (RC) version.
+> It will be released with the next version of Ab4d.SharpEngine v4 - planned for the end of March 2026.
 
 ### Quick start guide
 
@@ -102,11 +103,6 @@ Namespace implementation status (**compared to desktop and mobile Ab4d.SharpEngi
    
 Other not implemented features:
 - Super-sampling (planned for later)
-
-
-### Roadmap 
-
-**v1.0** is planned for March 2026.
 
 
 ### Troubleshooting
