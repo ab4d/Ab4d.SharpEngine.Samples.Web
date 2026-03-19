@@ -46,13 +46,13 @@ public class BrowserBitmapIO : IBitmapIO
     public bool IsStreamSupported() => false;
 
     /// <inheritdoc />
-    public RawImageData LoadBitmap(string fileName, BitmapLoadOptions? options = null)
+    public RawImageData LoadBitmap(string fileName)
     {
         throw new NotSupportedException();
     }
 
     /// <inheritdoc />
-    public RawImageData LoadBitmap(Stream fileStream, string fileExtension, BitmapLoadOptions? options = null)
+    public RawImageData LoadBitmap(Stream fileStream, string fileExtension)
     {
         throw new NotSupportedException();
     }
